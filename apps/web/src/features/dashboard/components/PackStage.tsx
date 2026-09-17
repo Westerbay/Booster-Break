@@ -53,9 +53,8 @@ export function PackStage({
 }: PackStageProps) {
   const boosterSets = useMemo(
     () =>
-      sets.filter(
-        (set): set is PokemonSetSummary & { boosterImageUrl: string } =>
-          Boolean(set.boosterImageUrl),
+      sets.filter((set): set is PokemonSetSummary & { boosterImageUrl: string } =>
+        Boolean(set.boosterImageUrl),
       ),
     [sets],
   )
