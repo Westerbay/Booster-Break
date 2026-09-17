@@ -26,8 +26,9 @@ import {
   FEATURED_HISTORICAL_BOOSTER_SET_IDS,
   hasBoosterArtwork,
   PINNED_MODERN_BOOSTER_SET_IDS,
+  SCHEDULED_BOOSTER_RELEASES,
   SYNCED_BOOSTER_LIMIT,
-  getTeasedBoosterReleases,
+  getTeasedBoosterSetIds,
   getUnreleasedBoosterSetIds,
 } from './pokemon-config'
 import { consumeBoosterCharge, getBoosterChargeStatus, PackCooldownError } from './pack-cooldown'
@@ -157,19 +158,27 @@ export class PokemonRepository {
   }
 
   async listUpcomingSets(locale: SupportedLocale = 'fr'): Promise<UpcomingPokemonSet[]> {
-    const releases = getTeasedBoosterReleases()
+    const setIds = getTeasedBoosterSetIds()
+
+    if (setIds.length === 0) {
+      return []
+    }
+
     const sets = await this.db.pokemonSet.findMany({
       where: {
         id: {
-          in: releases.map((release) => release.setId),
+          in: setIds,
+        },
+        boosterImageUrl: {
+          not: null,
         },
       },
     })
 
-    return releases.flatMap(({ setId, releasesAt }) => {
-      const set = sets.find((candidate) => candidate.id === setId)
-      return set ? [{ ...toSetSummary(set, locale), releasesAt }] : []
-    })
+    return sets.map((set) => ({
+      ...toSetSummary(set, locale),
+      releasesAt: SCHEDULED_BOOSTER_RELEASES[set.id],
+    }))
   }
 
   async hasCompleteSet(setId: string, expectedTotal: number): Promise<boolean> {
