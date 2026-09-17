@@ -8,6 +8,7 @@ import type {
 
 import { BoosterPickerPanel } from './BoosterPickerPanel'
 import { BoosterPreviewDialog } from './BoosterPreviewDialog'
+import { NewPackBanner } from './NewPackBanner'
 import { PackBoosterStage } from './PackBoosterStage'
 import { PackOpeningExperience } from './PackOpeningExperience'
 import { useBoosterCarouselSelection } from '../hooks/useBoosterCarouselSelection'
@@ -67,6 +68,7 @@ export function PackStage({
 
   return (
     <section className="min-w-0 rounded-lg border bg-card text-card-foreground">
+      <NewPackBanner sets={boosterSets} onSelectSet={selectSet} />
       <div className="grid min-h-full gap-5 p-4 md:grid-cols-[1fr_1.1fr] md:p-5">
         <PackBoosterStage
           activeSet={activeSet}
