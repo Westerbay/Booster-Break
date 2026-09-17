@@ -55,7 +55,7 @@ export function PackStage({
     () =>
       sets.filter(
         (set): set is PokemonSetSummary & { boosterImageUrl: string } =>
-          Boolean(set.boosterImageUrl) && set.id !== 'me05',
+          Boolean(set.boosterImageUrl),
       ),
     [sets],
   )
