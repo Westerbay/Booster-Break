@@ -41,6 +41,10 @@ export interface PokemonSetSummary {
   boosterImageUrl?: string
 }
 
+export interface UpcomingPokemonSet extends PokemonSetSummary {
+  releasesAt: string
+}
+
 export type CardFinish = 'normal' | 'holo' | 'reverse_holo'
 
 export interface PokemonCardSummary {
