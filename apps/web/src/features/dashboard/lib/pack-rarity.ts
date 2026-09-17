@@ -1,5 +1,6 @@
 import type { PokemonCardSummary } from '@tcg-collection/shared'
 import { getSetPackRarityChance, pokemonRarityOrder } from '@tcg-collection/shared'
+import { getGodPackNoNewCardChance } from '@tcg-collection/shared/pack-draft'
 import { m } from '@/paraglide/messages'
 
 const rarityOrder: readonly string[] = pokemonRarityOrder
@@ -121,7 +122,7 @@ export const getNewCardChance = (
     return 0
   }
 
-  const noNewCardChance = groupCardsByRarity(cards, setId).reduce(
+  const normalPackNoNewCardChance = groupCardsByRarity(cards, setId).reduce(
     (chance, [rarity, rarityCards]) => {
       const ownedRatio =
         rarityCards.filter((card) => ownedCardIds.has(card.id)).length / rarityCards.length
@@ -136,6 +137,11 @@ export const getNewCardChance = (
     },
     1,
   )
+  const godPack = getGodPackNoNewCardChance(cards, ownedCardIds, setId)
+  const noNewCardChance =
+    godPack === undefined
+      ? normalPackNoNewCardChance
+      : (1 - godPack.chance) * normalPackNoNewCardChance + godPack.chance * godPack.noNewCardChance
 
   return Math.max(0, Math.min(100, (1 - noNewCardChance) * 100))
 }
