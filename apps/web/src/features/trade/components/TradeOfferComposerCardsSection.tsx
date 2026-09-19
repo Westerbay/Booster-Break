@@ -7,6 +7,7 @@ import { TradeCollectionCardItem } from './TradeCollectionCardItem'
 import { TradeSortPreferenceMenu } from './TradeSortPreferenceMenu'
 import { CardListFiltersMenu } from '@/features/dashboard/components/CardListFiltersMenu'
 import { MAX_PENDING_OFFERS_PER_AUCTION_BY_USER, offerCardKey } from '../lib/trade-utils'
+import { TradeRecipientBadge } from './TradeRecipientBadge'
 
 interface TradeOfferComposerCardsSectionProps {
   collectionPage: number
@@ -31,6 +32,8 @@ interface TradeOfferComposerCardsSectionProps {
   onNextPage: () => void
   getCardQuantity: (card: UserCollectionCard) => number
   updateSelection: (card: UserCollectionCard, rawValue: string) => void
+  recipientName: string
+  recipientOwnershipByCard: ReadonlyMap<string, boolean>
 }
 
 export function TradeOfferComposerCardsSection({
@@ -56,6 +59,8 @@ export function TradeOfferComposerCardsSection({
   onNextPage,
   getCardQuantity,
   updateSelection,
+  recipientName,
+  recipientOwnershipByCard,
 }: TradeOfferComposerCardsSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
 
@@ -134,6 +139,10 @@ export function TradeOfferComposerCardsSection({
                   setSelectedPreviewCard(card)
                 }}
               >
+                <TradeRecipientBadge
+                  owned={recipientOwnershipByCard.get(card.id)}
+                  recipientName={recipientName}
+                />
                 <label className="mt-2 block text-xs text-muted-foreground">
                   {m.trade_offer_quantity()}
                 </label>

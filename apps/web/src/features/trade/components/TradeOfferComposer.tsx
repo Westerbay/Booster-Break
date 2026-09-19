@@ -42,11 +42,16 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
     clearSelection,
     updateSelection,
     isSubmitting,
+    recipientOwnershipByCard,
+    isRecipientOwnershipLoading,
+    recipientOwnershipError,
+    retryRecipientOwnership,
   } = useTradeOfferComposer({
     auction,
     userId,
     onOfferCreated,
   })
+  const recipientName = auction.creatorDisplayName ?? auction.creatorPseudo
 
   const tradePreferenceOptions: readonly { value: CollectionSort; label: string }[] = [
     { value: 'quantity', label: m.sort_quantity() },
@@ -113,6 +118,29 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
       <h3 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
         {m.trade_offer_cards_title()}
       </h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {m.trade_recipient_hint({ name: recipientName })}
+      </p>
+      {isRecipientOwnershipLoading && (
+        <p className="mt-2 text-xs text-muted-foreground" role="status">
+          {m.trade_recipient_loading()}
+        </p>
+      )}
+      {recipientOwnershipError && (
+        <div
+          className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"
+          role="status"
+        >
+          <span>{recipientOwnershipError}</span>
+          <button
+            type="button"
+            className="min-h-11 underline underline-offset-4"
+            onClick={retryRecipientOwnership}
+          >
+            {m.trade_recipient_retry()}
+          </button>
+        </div>
+      )}
 
       <form className="mt-3 space-y-4" onSubmit={onSubmit}>
         <TradeOfferComposerCardsSection
@@ -138,6 +166,8 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           onNextPage={() => setPage(Math.min(page + 1, collectionPageCount))}
           getCardQuantity={selectedCardQuantity}
           updateSelection={updateSelection}
+          recipientName={recipientName}
+          recipientOwnershipByCard={recipientOwnershipByCard}
         />
 
         <div className="flex flex-wrap gap-2">
@@ -164,7 +194,11 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         ) : null}
       </form>
 
-      <TradeOfferComposerPreviewSection selectedEntries={selectedEntries} />
+      <TradeOfferComposerPreviewSection
+        selectedEntries={selectedEntries}
+        recipientName={recipientName}
+        recipientOwnershipByCard={recipientOwnershipByCard}
+      />
     </section>
   )
 }

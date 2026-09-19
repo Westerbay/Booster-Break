@@ -7,5 +7,8 @@ export const tradeQueryKeys = {
     ['trade', 'auction', locale, auctionId] as const,
   notifications: (locale: SupportedLocale) => ['trade', 'notifications', locale] as const,
   notificationsAll: ['trade', 'notifications'] as const,
+  recipientOwnershipAll: ['trade', 'recipient-ownership'] as const,
+  recipientOwnership: (userId: string, auctionId: string, cardIds: readonly string[]) =>
+    ['trade', 'recipient-ownership', userId, auctionId, cardIds] as const,
   notification: (notificationId: string) => ['trade', 'notification', notificationId] as const,
 }

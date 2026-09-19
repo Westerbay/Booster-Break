@@ -13,6 +13,7 @@ import { LeaderboardRepository } from './leaderboard/leaderboard-repository'
 import { LeaderboardService } from './leaderboard/leaderboard-service'
 import { createPokemonController } from './pokemon/pokemon-controller'
 import { PokemonRepository } from './pokemon/pokemon-repository'
+import { PokedexRepository } from './pokemon/pokedex-repository'
 import { PokemonService } from './pokemon/pokemon-service'
 import { ScrydexSealedClient } from './pokemon/scrydex-sealed-client'
 import { TcgDexClient } from './pokemon/tcgdex-client'
@@ -96,6 +97,7 @@ export const app = new Elysia()
       localizedPokemonClients,
       pokemonClient,
       pokemonRepository,
+      pokedexRepository: new PokedexRepository(prisma),
       sealedClient,
       service: pokemonService,
     }),

@@ -5,6 +5,7 @@ import { SandboxView } from './SandboxView'
 import { TradeView } from '../../trade/views/TradeView'
 import { BoardView } from '../../pvp/views/BoardView'
 import { PvpView } from '../../pvp/views/PvpView'
+import { PokedexView } from '@/features/pokedex/PokedexView'
 
 interface DashboardContentProps {
   activeTab: DashboardTab
@@ -23,6 +24,8 @@ export function DashboardContent(props: DashboardContentProps) {
       return <SandboxView />
     case 'collection':
       return <CollectionView />
+    case 'pokedex':
+      return <PokedexView />
     case 'trade':
       return <TradeView />
     case 'boards':

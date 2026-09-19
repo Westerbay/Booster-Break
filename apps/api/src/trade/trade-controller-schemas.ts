@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { supportedLocaleValues } from '@tcg-collection/shared'
+import { MAX_TRADE_OWNERSHIP_CARD_IDS, supportedLocaleValues } from '@tcg-collection/shared'
 import {
   MAX_FILTER_LIST_LENGTH,
   MAX_OFFER_CARD_QUANTITY,
@@ -46,6 +46,10 @@ export const createOfferCardSchema = z.object({
 
 export const createOfferSchema = z.object({
   cards: z.array(createOfferCardSchema).min(1).max(MAX_OFFER_CARDS_PER_REQUEST),
+})
+
+export const recipientOwnershipSchema = z.object({
+  cardIds: z.array(tradeIdentifierSchema).min(1).max(MAX_TRADE_OWNERSHIP_CARD_IDS),
 })
 
 export const tradeIdSchema = z.object({

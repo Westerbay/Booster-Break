@@ -25,6 +25,7 @@ const isDashboardContentTab = (tab: string | null): tab is DashboardTab => {
     tab === 'packs' ||
     tab === 'sandbox' ||
     tab === 'collection' ||
+    tab === 'pokedex' ||
     tab === 'trade' ||
     tab === 'boards' ||
     tab === 'pvp'

@@ -3,8 +3,11 @@ import { CardImageDialog } from '@/features/dashboard/components/CardImageDialog
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
 import type { UserCollectionCard } from '@tcg-collection/shared'
 import { m } from '@/paraglide/messages'
+import { TradeRecipientBadge } from './TradeRecipientBadge'
 
 interface TradeOfferComposerPreviewSectionProps {
+  recipientName: string
+  recipientOwnershipByCard: ReadonlyMap<string, boolean>
   selectedEntries: {
     card: UserCollectionCard
     quantity: number
@@ -13,6 +16,8 @@ interface TradeOfferComposerPreviewSectionProps {
 
 export function TradeOfferComposerPreviewSection({
   selectedEntries,
+  recipientName,
+  recipientOwnershipByCard,
 }: TradeOfferComposerPreviewSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
 
@@ -47,6 +52,10 @@ export function TradeOfferComposerPreviewSection({
                 <div className="aspect-63/88 w-32 rounded-md bg-muted" aria-hidden="true" />
               )}
               <p className="mt-1 max-w-full truncate text-sm font-black">{card.card.name}</p>
+              <TradeRecipientBadge
+                owned={recipientOwnershipByCard.get(card.card.id)}
+                recipientName={recipientName}
+              />
               <p className="text-sm font-black text-muted-foreground">x {card.quantity}</p>
               <p className="text-sm text-muted-foreground">
                 {card.card.supertype ?? m.trade_other_type()}

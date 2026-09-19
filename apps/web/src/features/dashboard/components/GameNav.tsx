@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import {
   Repeat2Icon,
   LibraryBigIcon,
+  BookOpenIcon,
   ContactRoundIcon,
   MenuIcon,
   FlaskConicalIcon,
@@ -156,6 +157,7 @@ const navItems: NavItem[] = [
   { id: 'packs', icon: PackageOpenIcon },
   { id: 'sandbox', icon: FlaskConicalIcon },
   { id: 'collection', icon: LibraryBigIcon },
+  { id: 'pokedex', icon: BookOpenIcon },
   { id: 'boards', icon: ContactRoundIcon },
   { id: 'pvp', icon: SwordsIcon },
   { id: 'trade', icon: Repeat2Icon },
@@ -170,6 +172,8 @@ const getNavLabel = (tab: DashboardTab): string => {
       return m.nav_sandbox()
     case 'collection':
       return m.nav_collection()
+    case 'pokedex':
+      return m.nav_pokedex()
     case 'boards':
       return m.nav_boards()
     case 'pvp':

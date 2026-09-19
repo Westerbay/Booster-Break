@@ -6,6 +6,7 @@ import type {
   TradeAuctionResponse,
   TradeNotificationListResponse,
   TradeOfferResponse,
+  TradeRecipientOwnershipResponse,
 } from '@tcg-collection/shared'
 import { DEFAULT_LOCALE } from '@tcg-collection/shared'
 import type { AuthUser } from '../auth/types'
@@ -66,6 +67,14 @@ export class TradeService {
     locale: SupportedLocale = DEFAULT_LOCALE,
   ): Promise<TradeServiceResult<TradeOfferResponse>> {
     return this.offerService.createOffer(user, auctionId, input, locale)
+  }
+
+  getRecipientCardOwnership(
+    user: AuthUser,
+    auctionId: string,
+    cardIds: string[],
+  ): Promise<TradeServiceResult<TradeRecipientOwnershipResponse>> {
+    return this.offerService.getRecipientCardOwnership(user, auctionId, cardIds)
   }
 
   cancelOffer(user: AuthUser, offerId: string): Promise<TradeServiceResult<void>> {

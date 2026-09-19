@@ -1,6 +1,7 @@
 import { normalizeRarity } from './pokemon-rarity'
 
 export * from './pvp'
+export * from './pokedex'
 
 export const supportedLocaleValues = ['fr', 'en'] as const
 export type SupportedLocale = (typeof supportedLocaleValues)[number]
@@ -416,3 +417,5 @@ export {
   isRareOrBetter,
   pokemonRarityOrder,
 } from './pokemon-rarity'
+
+export * from './trade-ownership'

@@ -5,6 +5,8 @@ import { createAuthRequiredPlugin } from '../auth/auth-required-plugin'
 import type { AuthUser } from '../auth/types'
 import { localePlugin, resolveLocaleOverride } from '../i18n/locale'
 import { PokemonRepository } from './pokemon-repository'
+import type { PokedexRepository } from './pokedex-repository'
+import { createPokedexController } from './pokedex-controller'
 import { PokemonSandboxService } from './pokemon-sandbox-service'
 import { isPokemonServiceError, PokemonService } from './pokemon-service'
 import { ScrydexSealedClient } from './scrydex-sealed-client'
@@ -22,6 +24,7 @@ interface PokemonControllerOptions {
   localizedPokemonClients: Record<SupportedLocale, TcgDexClient>
   pokemonClient: TcgDexClient
   pokemonRepository: PokemonRepository
+  pokedexRepository: PokedexRepository
   sealedClient: ScrydexSealedClient
   sandboxService?: PokemonSandboxService
   service?: PokemonService
@@ -32,6 +35,7 @@ export const createPokemonController = ({
   localizedPokemonClients,
   pokemonClient,
   pokemonRepository,
+  pokedexRepository,
   sealedClient,
   sandboxService,
   service,
@@ -181,7 +185,10 @@ export const createPokemonController = ({
       },
     )
 
-  return new Elysia({ prefix: '/pokemon' }).use(publicRoutes).use(authenticatedPokemonRoutes)
+  return new Elysia({ prefix: '/pokemon' })
+    .use(publicRoutes)
+    .use(authenticatedPokemonRoutes)
+    .use(createPokedexController(pokedexRepository, authService))
 }
 
 const toPokemonErrorStatus = (error: string): 401 | 404 | 409 => {

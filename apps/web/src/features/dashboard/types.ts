@@ -4,6 +4,7 @@ export type DashboardTab =
   | 'packs'
   | 'sandbox'
   | 'collection'
+  | 'pokedex'
   | 'boards'
   | 'pvp'
   | 'trade'

@@ -1,10 +1,12 @@
 import { Prisma } from '@prisma/client'
+import { recordCardDiscovery } from '../pokemon/card-discovery'
 import type {
   AuctionFilters,
   AuctionRequirements,
   CardFinish,
   TradeOfferStatus,
   TradeNotificationType,
+  TradeRecipientOwnershipResponse,
 } from '@tcg-collection/shared'
 import type { AppPrisma } from '../db/prisma'
 import {
@@ -53,6 +55,7 @@ import {
   buildTradeOfferReceivedNotificationInput,
 } from './trade-notification-factory'
 import { getOfferSignature } from './trade-offer-utils'
+import { isCardFilteredOutByAuction, matchesAuctionRequirements } from './trade-offer-validation'
 
 export class PrismaTradeRepository implements TradeRepository {
   constructor(private readonly db: AppPrisma) {}
@@ -573,6 +576,75 @@ export class PrismaTradeRepository implements TradeRepository {
     }
   }
 
+  async getRecipientCardOwnership(
+    auctionId: string,
+    proposerId: string,
+    cardIds: string[],
+    now: Date,
+  ): Promise<TradeRecipientOwnershipResponse> {
+    const auction = await this.db.tradeAuction.findUnique({
+      where: { id: auctionId },
+      select: {
+        creatorId: true,
+        status: true,
+        expiresAt: true,
+        requirements: true,
+        filters: true,
+      },
+    })
+
+    if (!auction) throw new TradeRepositoryErrorException('auction_not_found')
+    if (auction.creatorId === proposerId) {
+      throw new TradeRepositoryErrorException('cannot_trade_self')
+    }
+    if (auction.status !== 'active') throw new TradeRepositoryErrorException('auction_closed')
+    if (auction.expiresAt <= now) throw new TradeRepositoryErrorException('auction_expired')
+
+    const candidates = await this.db.pokemonCard.findMany({
+      where: {
+        id: { in: cardIds },
+        userCards: { some: { userId: proposerId, quantity: { gt: 0 } } },
+      },
+      select: {
+        id: true,
+        setId: true,
+        rarity: true,
+        category: true,
+        userCards: {
+          where: { userId: { in: [proposerId, auction.creatorId] }, quantity: { gt: 0 } },
+          select: { userId: true, finish: true },
+        },
+        giftedUserCards: {
+          where: { userId: auction.creatorId, quantity: { gt: 0 } },
+          select: { cardId: true },
+          take: 1,
+        },
+      },
+    })
+    const requirements = normalizeTradeRequirements(auction.requirements)
+    const filters = normalizeTradeFilters(auction.filters)
+    const eligibleCards = candidates.filter((card) =>
+      card.userCards.some((inventory) => {
+        if (inventory.userId !== proposerId) return false
+        const finish = normalizeCardFinish(inventory.finish)
+        if (!finish) return false
+        return (
+          matchesAuctionRequirements(card, finish, requirements) &&
+          !isCardFilteredOutByAuction(card, finish, filters)
+        )
+      }),
+    )
+
+    return {
+      cards: eligibleCards.map((card) => ({
+        cardId: card.id,
+        owned:
+          card.giftedUserCards.length > 0 ||
+          card.userCards.some((inventory) => inventory.userId === auction.creatorId),
+      })),
+    }
+  }
+
   async findCards(cardIds: string[]): Promise<TradeAuctionCardSummary[]> {
     if (cardIds.length === 0) {
       return []
@@ -735,6 +807,7 @@ export class PrismaTradeRepository implements TradeRepository {
       quantity: number
     },
   ): Promise<void> {
+    const obtainedAt = new Date()
     await tx.userCard.upsert({
       where: {
         userId_cardId_finish: {
@@ -748,16 +821,17 @@ export class PrismaTradeRepository implements TradeRepository {
         cardId: input.cardId,
         finish: input.finish,
         quantity: input.quantity,
-        firstCollectedAt: new Date(),
-        updatedAt: new Date(),
+        firstCollectedAt: obtainedAt,
+        updatedAt: obtainedAt,
       },
       update: {
         quantity: {
           increment: input.quantity,
         },
-        updatedAt: new Date(),
+        updatedAt: obtainedAt,
       },
     })
+    await recordCardDiscovery(tx, input.userId, input.cardId, input.finish, obtainedAt)
   }
 }
 

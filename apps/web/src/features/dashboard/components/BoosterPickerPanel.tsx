@@ -59,7 +59,7 @@ export function BoosterPickerPanel({
         <PackageOpenIcon className="shrink-0 text-muted-foreground" aria-hidden="true" />
       </div>
 
-      <div className="max-h-[36rem] overflow-y-auto pr-3">
+      <div className="game-booster-options max-h-[36rem] overflow-y-auto pr-3">
         <BoosterChoiceGrid
           activeSetId={activeSetId}
           sets={sets}
