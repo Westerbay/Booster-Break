@@ -23,7 +23,7 @@
 .game-nav {
   border-color: var(--sidebar-border);
   background: var(--game-panel-background);
-  box-shadow: 12px 0 40px oklch(0.08 0.01 255 / 0.3);
+  box-shadow: 12px 0 40px var(--game-nav-shadow);
 }
 .game-desktop-nav {
   border-right: 1px solid var(--sidebar-border);
@@ -84,8 +84,8 @@
   stroke-width: 1.8;
 }
 .game-nav-link[aria-current='page'] .game-nav-symbol {
-  background: var(--primary-foreground);
-  color: oklch(0.89 0.1 85);
+  background: var(--game-cta-text);
+  color: var(--game-cta-icon);
 }
 .game-nav-label {
   font-family: var(--font-display);
@@ -103,13 +103,19 @@
 }
 .game-nav-link[aria-current='page'] {
   border-color: oklch(0.86 0.09 80 / 0.7);
-  background: linear-gradient(115deg, oklch(0.69 0.11 68), var(--primary) 68%, oklch(0.76 0.1 75));
-  color: var(--primary-foreground);
+  background: linear-gradient(
+    115deg,
+    oklch(0.69 0.11 68),
+    var(--game-cta-fill) 68%,
+    oklch(0.76 0.1 75)
+  );
+  color: var(--game-cta-text);
   box-shadow:
     inset 0 1px 0 oklch(0.97 0.03 85 / 0.5),
     0 3px 16px oklch(0.05 0.01 255 / 0.3);
 }
 .game-primary-button {
+  color: var(--game-cta-text);
   border-color: oklch(0.9 0.08 84 / 0.7);
   background-image: linear-gradient(115deg, oklch(0.74 0.11 73), oklch(0.87 0.105 85));
   box-shadow:
@@ -125,7 +131,7 @@
   background: var(--game-panel-background);
   box-shadow:
     inset 0 1px 0 oklch(0.9 0.04 85 / 0.035),
-    0 18px 55px oklch(0.08 0.01 255 / 0.25);
+    0 18px 55px var(--game-shadow);
 }
 .game-page-heading {
   border-bottom: 1px solid var(--border);
@@ -154,7 +160,7 @@
   text-transform: uppercase;
 }
 .game-booster-display {
-  border-color: oklch(0.55 0.02 250 / 0.18);
+  border-color: var(--game-scene-border);
   background: var(--arena-scene-background);
 }
 .game-booster-picker {
@@ -173,9 +179,9 @@
   letter-spacing: -0.06em;
 }
 [data-slot='dialog-content'] {
-  border: 1px solid oklch(0.51 0.045 80 / 0.65);
+  border: 1px solid var(--game-dialog-border);
   box-shadow:
-    0 30px 100px oklch(0.06 0.01 255 / 0.75),
+    0 30px 100px var(--game-dialog-shadow),
     inset 0 1px 0 oklch(0.9 0.08 85 / 0.09);
 }
 [data-slot='dialog-title'] {
@@ -201,5 +207,71 @@
 @media (min-width: 640px) {
   .game-collection-grid {
     grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  }
+}
+
+/* A compact, labelled preference control fits the desktop rail and mobile menu. */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.theme-selector-label {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.theme-selector-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--game-surface-deep);
+}
+.theme-selector-options button {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 5px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 160ms ease-out,
+    background-color 160ms ease-out;
+}
+.theme-selector-options button:hover {
+  color: var(--foreground);
+  background: var(--game-surface-raised);
+}
+.theme-selector-options button[aria-pressed='true'] {
+  border-color: color-mix(in oklch, var(--primary) 44%, var(--border));
+  background: var(--game-surface-panel);
+  color: var(--primary);
+  box-shadow: 0 2px 5px var(--game-shadow);
+}
+.theme-selector-options button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.theme-selector-options svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-selector-options button {
+    transition: none;
   }
 }

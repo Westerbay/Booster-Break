@@ -23,7 +23,7 @@
   background: var(--game-panel-background);
   color: var(--arena-text);
   box-shadow:
-    0 32px 110px color-mix(in oklch, var(--game-surface-deep) 70%, transparent),
+    0 32px 110px color-mix(in oklch, var(--game-shadow-origin) 70%, transparent),
     inset 0 1px color-mix(in oklch, var(--arena-text) 9%, transparent);
 }
 .arena-manual {
@@ -394,7 +394,7 @@
   background: var(--game-panel-background);
   box-shadow:
     inset 0 1px color-mix(in oklch, var(--arena-text) 7%, transparent),
-    0 16px 22px -18px color-mix(in oklch, var(--game-surface-deep) 80%, transparent);
+    0 16px 22px -18px color-mix(in oklch, var(--game-shadow-origin) 80%, transparent);
 }
 .arena-team-position[data-filled='true'] .arena-team-slot {
   border-color: color-mix(in oklch, var(--arena-gold) 50%, var(--arena-line));

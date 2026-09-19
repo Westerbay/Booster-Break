@@ -4,68 +4,23 @@
 @import '@fontsource-variable/geist';
 @import '@fontsource/rajdhani/latin-700.css';
 @import '@fontsource/rajdhani/latin-ext-700.css';
+@import './styles/theme.css';
 @import './styles/game-shell.css';
 @import './styles/arena-modals.css';
 @import './styles/trainer-rankings.css';
 @import './styles/card-preview.css';
 @import './styles/trainer-card-podium.css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-:root,
-.dark {
+:root {
   font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-  color-scheme: dark;
   background: var(--background);
   color: var(--foreground);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --font-display: 'Rajdhani', 'Geist Variable', sans-serif;
-  --game-surface-deep: oklch(0.13 0.006 250);
-  --game-surface-base: oklch(0.18 0.008 250);
-  --game-surface-panel: oklch(0.22 0.01 250);
-  --game-surface-raised: oklch(0.27 0.012 250);
-  --game-surface-border: oklch(0.39 0.014 250 / 0.6);
-  --game-panel-background: linear-gradient(
-    160deg,
-    var(--game-surface-panel),
-    var(--game-surface-base)
-  );
-  --background: var(--game-surface-deep);
-  --foreground: oklch(0.95 0.013 85);
-  --card: var(--game-surface-panel);
-  --card-foreground: var(--foreground);
-  --popover: var(--game-surface-panel);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.81 0.115 80);
-  --primary-foreground: oklch(0.21 0.026 70);
-  --secondary: var(--game-surface-raised);
-  --secondary-foreground: oklch(0.92 0.016 85);
-  --muted: var(--game-surface-raised);
-  --muted-foreground: oklch(0.72 0.02 255);
-  --accent: oklch(0.33 0.035 75);
-  --accent-foreground: oklch(0.89 0.1 85);
-  --destructive: oklch(0.76 0.145 25);
-  --destructive-foreground: oklch(0.17 0.025 25);
-  --border: var(--game-surface-border);
-  --input: oklch(0.42 0.014 250);
-  --ring: oklch(0.81 0.115 80);
-  --radius: 0.5rem;
-  --chart-1: oklch(0.81 0.115 80);
-  --chart-2: oklch(0.77 0.115 230);
-  --chart-3: oklch(0.77 0.105 160);
-  --chart-4: oklch(0.76 0.16 52);
-  --chart-5: oklch(0.74 0.12 300);
-  --sidebar: var(--game-surface-base);
-  --sidebar-foreground: oklch(0.92 0.015 85);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.81 0.115 80);
-  --sidebar-accent-foreground: oklch(0.21 0.026 70);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
 }
 
 @theme inline {
@@ -385,19 +340,7 @@ body,
   }
 }
 
-/* Shared game palette and arena effects. */
-:root {
-  --arena-night: var(--game-surface-deep);
-  --arena-panel: var(--game-surface-panel);
-  --arena-text: oklch(0.96 0.008 250);
-  --arena-muted: oklch(0.74 0.023 250);
-  --arena-line: var(--game-surface-border);
-  --arena-gold: oklch(0.81 0.115 80);
-  --arena-fire: oklch(0.76 0.16 52);
-  --arena-water: oklch(0.79 0.115 230);
-  --arena-green: oklch(0.77 0.105 160);
-  --arena-scene-background: var(--game-panel-background);
-}
+/* Shared arena effects. */
 .arena-button {
   min-height: 44px;
   padding: 12px 20px;
@@ -555,7 +498,7 @@ body,
   justify-content: center;
   background:
     repeating-linear-gradient(45deg, transparent 0 12px, oklch(0.55 0.05 85 / 0.08) 13px 14px),
-    radial-gradient(ellipse, oklch(0.34 0.03 250), oklch(0.19 0.016 250));
+    var(--arena-card-back-fill);
   color: var(--arena-gold);
 }
 .arena-card-back b {
@@ -585,7 +528,7 @@ body,
   bottom: 5px;
   width: 49px;
   aspect-ratio: 5 / 7;
-  box-shadow: 0 9px 13px oklch(0.1 0.01 250 / 0.45);
+  box-shadow: 0 9px 13px var(--game-card-shadow);
   border-radius: 5%;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -609,7 +552,7 @@ body,
   overflow: hidden;
   border-radius: 13px;
   padding: 23px 23px 0;
-  border: 1px solid oklch(0.55 0.02 250 / 0.18);
+  border: 1px solid var(--game-scene-border);
   background: var(--arena-scene-background);
   color: var(--arena-text);
 }
@@ -649,7 +592,7 @@ body,
   gap: 6px;
   font-size: 0.7rem;
   color: var(--arena-text);
-  text-shadow: 0 1px 6px oklch(0.12 0.015 250 / 0.85);
+  text-shadow: var(--arena-rank-shadow);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -828,7 +771,7 @@ body,
   isolation: isolate;
   min-height: 570px;
   overflow: hidden;
-  border: 1px solid oklch(0.55 0.02 250 / 0.18);
+  border: 1px solid var(--game-scene-border);
   border-radius: 20px 20px 0 0;
   color: var(--arena-text);
   background: var(--arena-scene-background);
@@ -885,7 +828,7 @@ body,
   gap: 20px;
   margin: 8px 30px 0;
   padding: 15px 0;
-  border-top: 1px solid #c7d7ea26;
+  border-top: 1px solid var(--arena-line);
 }
 .arena-fighters > .arena-fighter-identity {
   display: flex;
@@ -976,7 +919,7 @@ body,
   gap: 22px;
   align-items: center;
   justify-content: center;
-  color: #d6ba7e;
+  color: var(--arena-card-back-text);
 }
 .arena-card-object .arena-card-back b {
   display: grid;
@@ -1004,7 +947,7 @@ body,
   transform: translateX(-50%) translateZ(12px);
   border: 1px solid var(--arena-gold);
   background: var(--game-surface-panel);
-  color: #ffde9b;
+  color: var(--arena-power-text);
   border-radius: 50%;
   font-size: 24px;
   font-weight: 900;
@@ -1034,7 +977,7 @@ body,
   font-size: 31px;
   font-style: italic;
   font-weight: 900;
-  color: #d9bd8170;
+  color: var(--arena-versus-text);
   text-shadow: 0 0 30px #d9bd81aa;
 }
 .arena-effects {
@@ -1412,8 +1355,8 @@ body,
   background: var(--arena-gold);
 }
 .arena-crystals i[data-committed='true'] {
-  background: #ffe0a2;
-  filter: drop-shadow(0 0 3px #ffe0a2);
+  background: var(--arena-committed-energy);
+  filter: drop-shadow(0 0 3px var(--arena-committed-energy));
 }
 .arena-crystals i[data-spent='true'] {
   background: var(--game-surface-raised);
@@ -1424,7 +1367,7 @@ body,
   gap: 12px;
 }
 .arena-action {
-  --action: #a8c6d5;
+  --action: var(--arena-action-reserve);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1456,13 +1399,13 @@ body,
   opacity: 0.4;
 }
 .arena-action[data-energy='1'] {
-  --action: #8ccde8;
+  --action: var(--arena-action-strike);
 }
 .arena-action[data-energy='2'] {
-  --action: #e5b768;
+  --action: var(--arena-action-burst);
 }
 .arena-action[data-energy='3'] {
-  --action: #fa9974;
+  --action: var(--arena-action-all-in);
 }
 .arena-action[data-pressed],
 .arena-action[aria-pressed='true'] {
@@ -1856,7 +1799,7 @@ body,
   background: var(--game-surface-raised);
 }
 .arena-round-status time[data-urgent='true'] {
-  color: #ffa986;
+  color: var(--arena-urgent);
   font-weight: 800;
 }
 .arena-podium-info strong {

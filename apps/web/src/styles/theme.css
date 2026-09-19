@@ -1,0 +1,169 @@
+/* Shared material palette. Dark remains the default before a saved choice is read. */
+:root {
+  color-scheme: dark;
+  --font-display: 'Rajdhani', 'Geist Variable', sans-serif;
+  --radius: 0.5rem;
+  --game-surface-deep: oklch(0.13 0.006 250);
+  --game-surface-base: oklch(0.18 0.008 250);
+  --game-surface-panel: oklch(0.22 0.01 250);
+  --game-surface-raised: oklch(0.27 0.012 250);
+  --game-surface-border: oklch(0.39 0.014 250 / 0.6);
+  --game-panel-background: linear-gradient(
+    160deg,
+    var(--game-surface-panel),
+    var(--game-surface-base)
+  );
+  --background: var(--game-surface-deep);
+  --foreground: oklch(0.95 0.013 85);
+  --card: var(--game-surface-panel);
+  --card-foreground: var(--foreground);
+  --popover: var(--game-surface-panel);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.81 0.115 80);
+  --primary-foreground: oklch(0.21 0.026 70);
+  --secondary: var(--game-surface-raised);
+  --secondary-foreground: oklch(0.92 0.016 85);
+  --muted: var(--game-surface-raised);
+  --muted-foreground: oklch(0.72 0.02 255);
+  --accent: oklch(0.33 0.035 75);
+  --accent-foreground: oklch(0.89 0.1 85);
+  --destructive: oklch(0.76 0.145 25);
+  --destructive-foreground: oklch(0.17 0.025 25);
+  --border: var(--game-surface-border);
+  --input: oklch(0.42 0.014 250);
+  --ring: var(--primary);
+  --chart-1: var(--arena-gold);
+  --chart-2: oklch(0.77 0.115 230);
+  --chart-3: var(--arena-green);
+  --chart-4: var(--arena-fire);
+  --chart-5: oklch(0.74 0.12 300);
+  --sidebar: var(--game-surface-base);
+  --sidebar-foreground: oklch(0.92 0.015 85);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--primary);
+  --sidebar-accent-foreground: var(--primary-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --arena-night: var(--game-surface-deep);
+  --arena-panel: var(--game-surface-panel);
+  --arena-text: oklch(0.96 0.008 250);
+  --arena-muted: oklch(0.74 0.023 250);
+  --arena-line: var(--game-surface-border);
+  --arena-gold: var(--primary);
+  --arena-fire: oklch(0.76 0.16 52);
+  --arena-water: oklch(0.79 0.115 230);
+  --arena-green: oklch(0.77 0.105 160);
+  --arena-scene-background: var(--game-panel-background);
+  --arena-silver: oklch(0.83 0.025 245);
+  --arena-bronze: oklch(0.74 0.073 58);
+  --arena-podium-gold-surface: oklch(0.28 0.035 80);
+  --arena-podium-silver-surface: oklch(0.29 0.012 245);
+  --arena-podium-bronze-surface: oklch(0.26 0.032 58);
+  --arena-action-reserve: #a8c6d5;
+  --arena-action-strike: #8ccde8;
+  --arena-action-burst: #e5b768;
+  --arena-action-all-in: #fa9974;
+  --arena-card-back-text: #d6ba7e;
+  --arena-card-back-fill: radial-gradient(ellipse, oklch(0.34 0.03 250), oklch(0.19 0.016 250));
+  --arena-versus-text: #d9bd8170;
+  --arena-power-text: #ffde9b;
+  --arena-urgent: #ffa986;
+  --arena-committed-energy: #ffe0a2;
+  --arena-rank-shadow: 0 1px 6px oklch(0.12 0.015 250 / 0.85);
+  --game-shadow-origin: var(--game-surface-deep);
+  --game-shadow: oklch(0.08 0.01 255 / 0.25);
+  --game-nav-shadow: oklch(0.08 0.01 255 / 0.3);
+  --game-dialog-shadow: oklch(0.06 0.01 255 / 0.75);
+  --game-card-shadow: oklch(0.1 0.01 250 / 0.45);
+  --game-scene-border: oklch(0.55 0.02 250 / 0.18);
+  --game-dialog-border: oklch(0.51 0.045 80 / 0.65);
+  --game-cta-text: oklch(0.21 0.026 70);
+  --game-cta-icon: oklch(0.89 0.1 85);
+  --game-cta-fill: oklch(0.81 0.115 80);
+  /* Viewing cards and opening packs stay on a dark stage in both themes. */
+  --game-scrim: oklch(0.13 0.006 250 / 0.85);
+  --game-card-scrim: oklch(0.13 0.006 250 / 0.92);
+  --game-viewer-text: oklch(0.96 0.008 250);
+  --game-viewer-muted: oklch(0.74 0.023 250);
+  --game-viewer-accent: oklch(0.81 0.115 80);
+  --game-viewer-control: oklch(0.13 0.006 250 / 0.75);
+  --game-viewer-shadow: oklch(0.1 0.01 250 / 0.8);
+  --chamber-night: oklch(0.19 0.022 255);
+  --chamber-air: oklch(0.32 0.037 250);
+  --chamber-metal: oklch(0.38 0.035 250);
+  --chamber-shadow: oklch(0.22 0.026 255);
+  --chamber-deck-back: oklch(0.39 0.041 250);
+  --chamber-deck: oklch(0.31 0.035 250);
+  --chamber-edge: oklch(0.53 0.037 240);
+  --chamber-gold: oklch(0.79 0.115 78);
+  --chamber-bronze: oklch(0.5 0.066 72);
+  --chamber-light: oklch(0.9 0.085 82);
+  --chamber-blue: oklch(0.71 0.075 235);
+}
+
+/* Daylight on ivory stone, brushed steel and aged gold. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --game-surface-deep: oklch(0.925 0.012 85);
+  --game-surface-base: oklch(0.961 0.009 85);
+  --game-surface-panel: oklch(0.988 0.004 85);
+  --game-surface-raised: oklch(0.908 0.012 250);
+  --game-surface-border: oklch(0.72 0.018 250 / 0.68);
+  --foreground: oklch(0.27 0.022 250);
+  --primary: oklch(0.465 0.085 75);
+  --primary-foreground: oklch(0.985 0.007 85);
+  --secondary-foreground: var(--foreground);
+  --muted-foreground: oklch(0.465 0.024 250);
+  --accent: oklch(0.91 0.048 85);
+  --accent-foreground: oklch(0.4 0.078 75);
+  --destructive: oklch(0.49 0.16 25);
+  --destructive-foreground: oklch(0.985 0.007 85);
+  --input: oklch(0.64 0.02 250);
+  --chart-2: oklch(0.46 0.095 235);
+  --chart-5: oklch(0.47 0.13 300);
+  --sidebar-foreground: var(--foreground);
+  --arena-text: var(--foreground);
+  --arena-muted: var(--muted-foreground);
+  --arena-fire: oklch(0.47 0.135 42);
+  --arena-water: oklch(0.455 0.09 235);
+  --arena-green: oklch(0.44 0.088 160);
+  --arena-silver: oklch(0.45 0.032 245);
+  --arena-bronze: oklch(0.46 0.084 58);
+  --arena-podium-gold-surface: oklch(0.9 0.042 85);
+  --arena-podium-silver-surface: oklch(0.895 0.016 245);
+  --arena-podium-bronze-surface: oklch(0.89 0.027 65);
+  --arena-action-reserve: oklch(0.43 0.046 235);
+  --arena-action-strike: var(--arena-water);
+  --arena-action-burst: var(--arena-gold);
+  --arena-action-all-in: var(--arena-fire);
+  --arena-card-back-text: var(--arena-gold);
+  --arena-card-back-fill: radial-gradient(
+    ellipse,
+    var(--game-surface-raised),
+    var(--game-surface-base)
+  );
+  --arena-versus-text: color-mix(in oklch, var(--arena-gold) 65%, transparent);
+  --arena-power-text: var(--arena-gold);
+  --arena-urgent: var(--destructive);
+  --arena-committed-energy: oklch(0.58 0.125 75);
+  --arena-rank-shadow: none;
+  --game-shadow-origin: oklch(0.31 0.018 250 / 0.3);
+  --game-shadow: oklch(0.31 0.018 250 / 0.1);
+  --game-nav-shadow: oklch(0.31 0.018 250 / 0.08);
+  --game-dialog-shadow: oklch(0.2 0.018 250 / 0.24);
+  --game-card-shadow: oklch(0.3 0.025 250 / 0.22);
+  --game-scene-border: oklch(0.65 0.023 250 / 0.44);
+  --game-dialog-border: oklch(0.64 0.043 80 / 0.65);
+  --chamber-night: oklch(0.875 0.023 250);
+  --chamber-air: oklch(0.975 0.012 85);
+  --chamber-metal: oklch(0.92 0.018 250);
+  --chamber-shadow: oklch(0.91 0.012 250);
+  --chamber-deck-back: oklch(0.955 0.022 85);
+  --chamber-deck: oklch(0.91 0.022 85);
+  --chamber-edge: oklch(0.57 0.032 250);
+  --chamber-gold: oklch(0.55 0.094 78);
+  --chamber-bronze: oklch(0.63 0.059 72);
+  --chamber-light: oklch(0.985 0.013 82);
+  --chamber-blue: oklch(0.64 0.069 235);
+}

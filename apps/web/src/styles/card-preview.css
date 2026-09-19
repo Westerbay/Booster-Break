@@ -44,6 +44,9 @@
   opacity: 1;
 }
 .card-preview-dialog[data-slot='dialog-content'] {
+  --arena-text: var(--game-viewer-text);
+  --arena-muted: var(--game-viewer-muted);
+  --arena-gold: var(--game-viewer-accent);
   top: 0;
   left: 0;
   display: grid;
@@ -67,7 +70,7 @@
   position: relative;
   width: min(100vw, calc((100dvh - 24px) * 63 / 88));
   margin-inline: auto;
-  filter: drop-shadow(0 20px 28px color-mix(in oklch, var(--arena-night) 80%, transparent));
+  filter: drop-shadow(0 20px 28px var(--game-viewer-shadow));
 }
 .card-preview-dialog > [data-slot='dialog-close'] {
   top: max(12px, env(safe-area-inset-top));
@@ -75,8 +78,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: color-mix(in oklch, var(--game-surface-deep) 45%, transparent);
-  color: var(--arena-text);
+  background: var(--game-viewer-control);
+  color: var(--game-viewer-text);
 }
 .card-preview-loading {
   position: absolute;
@@ -160,7 +163,7 @@
 }
 .trainer-row:has(.trainer-row-select:enabled):hover {
   border-color: var(--arena-gold);
-  box-shadow: 0 8px 22px color-mix(in oklch, var(--arena-night) 70%, transparent);
+  box-shadow: 0 8px 22px color-mix(in oklch, var(--game-shadow-origin) 70%, transparent);
   transform: translateY(-2px);
 }
 .trainer-row[data-disabled='true'] .trainer-row-identity,

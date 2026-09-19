@@ -19,16 +19,16 @@ interface TradeBadgeStyle {
 }
 
 const statusStyles: Record<TradeAuctionStatus, string> = {
-  active: 'border-emerald-500/70 bg-emerald-500/15 text-emerald-500',
-  accepted: 'border-blue-500/70 bg-blue-500/15 text-blue-500',
-  cancelled: 'border-rose-500/70 bg-rose-500/15 text-rose-500',
-  expired: 'border-amber-500/70 bg-amber-500/15 text-amber-500',
+  active: 'border-emerald-500/70 bg-emerald-500/15 text-emerald-700 dark:text-emerald-500',
+  accepted: 'border-blue-500/70 bg-blue-500/15 text-blue-700 dark:text-blue-500',
+  cancelled: 'border-rose-500/70 bg-rose-500/15 text-rose-700 dark:text-rose-500',
+  expired: 'border-amber-500/70 bg-amber-500/15 text-amber-700 dark:text-amber-500',
 }
 
 const finishPalette = [
-  'border-slate-500/70 bg-slate-500/15 text-slate-500',
-  'border-sky-500/70 bg-sky-500/15 text-sky-500',
-  'border-violet-500/70 bg-violet-500/15 text-violet-500',
+  'border-slate-500/70 bg-slate-500/15 text-slate-700 dark:text-slate-500',
+  'border-sky-500/70 bg-sky-500/15 text-sky-700 dark:text-sky-500',
+  'border-violet-500/70 bg-violet-500/15 text-violet-700 dark:text-violet-500',
 ]
 
 const rarityBaseHues = [205, 150, 120, 95, 60, 35, 12]

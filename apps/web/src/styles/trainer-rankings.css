@@ -43,7 +43,7 @@
   color: var(--arena-text);
   box-shadow:
     inset 0 1px 0 color-mix(in oklch, var(--arena-text) 4%, transparent),
-    0 5px 12px color-mix(in oklch, var(--arena-night) 45%, transparent);
+    0 5px 12px color-mix(in oklch, var(--game-shadow-origin) 45%, transparent);
   text-align: left;
   transition:
     border-color 200ms ease-out,
@@ -86,7 +86,7 @@
   border-color: color-mix(in oklch, var(--arena-gold) 64%, var(--arena-panel));
   box-shadow:
     inset 0 1px 0 color-mix(in oklch, var(--arena-gold) 15%, transparent),
-    0 5px 18px color-mix(in oklch, var(--arena-night) 65%, transparent);
+    0 5px 18px color-mix(in oklch, var(--game-shadow-origin) 65%, transparent);
 }
 .trainer-rank-badge {
   --rank-metal: var(--arena-muted);
@@ -107,10 +107,10 @@
   --rank-metal: var(--arena-gold);
 }
 .trainer-rank-badge[data-rank='2'] {
-  --rank-metal: oklch(0.83 0.025 245);
+  --rank-metal: var(--arena-silver);
 }
 .trainer-rank-badge[data-rank='3'] {
-  --rank-metal: oklch(0.74 0.073 58);
+  --rank-metal: var(--arena-bronze);
 }
 .trainer-rank-badge:is([data-rank='1'], [data-rank='2'], [data-rank='3']) {
   background: linear-gradient(
@@ -303,7 +303,7 @@
   height: 140px;
   fill: var(--game-surface-panel);
   color: oklch(0.71 0.085 80);
-  filter: drop-shadow(0 12px 8px color-mix(in oklch, var(--game-surface-deep) 50%, transparent));
+  filter: drop-shadow(0 12px 8px color-mix(in oklch, var(--game-shadow-origin) 50%, transparent));
 }
 .leaderboard-emblem .leaderboard-emblem-trophy {
   position: relative;

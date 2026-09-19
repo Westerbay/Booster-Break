@@ -8,14 +8,14 @@
   gap: 12px;
   overflow: hidden;
   padding: 66px 7% 0;
-  border: 1px solid oklch(0.55 0.02 250 / 0.18);
+  border: 1px solid var(--game-scene-border);
   border-radius: 12px;
   background: var(--arena-scene-background);
   color: var(--arena-text);
 }
 .trainer-card-trophy {
   --podium-metal: var(--arena-gold);
-  --podium-surface: oklch(0.28 0.035 80);
+  --podium-surface: var(--arena-podium-gold-surface);
   --podium-height: 142px;
   min-width: 0;
   text-align: center;
@@ -25,15 +25,15 @@
   grid-row: 1;
 }
 .trainer-card-trophy[data-rank='2'] {
-  --podium-metal: oklch(0.83 0.025 245);
-  --podium-surface: oklch(0.29 0.012 245);
+  --podium-metal: var(--arena-silver);
+  --podium-surface: var(--arena-podium-silver-surface);
   --podium-height: 112px;
   grid-column: 1;
   grid-row: 1;
 }
 .trainer-card-trophy[data-rank='3'] {
-  --podium-metal: oklch(0.74 0.073 58);
-  --podium-surface: oklch(0.26 0.032 58);
+  --podium-metal: var(--arena-bronze);
+  --podium-surface: var(--arena-podium-bronze-surface);
   --podium-height: 90px;
   grid-column: 3;
   grid-row: 1;
@@ -49,13 +49,13 @@
 .trainer-card-trophy-art .card-preview-trigger {
   border-radius: 9px;
   box-shadow:
-    0 17px 24px color-mix(in oklch, var(--arena-night) 88%, transparent),
+    0 17px 24px color-mix(in oklch, var(--game-shadow-origin) 88%, transparent),
     0 0 0 1px color-mix(in oklch, var(--podium-metal) 44%, transparent);
   transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .trainer-card-trophy[data-rank='1'] .card-preview-trigger {
   box-shadow:
-    0 20px 30px color-mix(in oklch, var(--arena-night) 90%, transparent),
+    0 20px 30px color-mix(in oklch, var(--game-shadow-origin) 90%, transparent),
     0 0 0 1px color-mix(in oklch, var(--arena-gold) 65%, transparent),
     0 0 28px color-mix(in oklch, var(--arena-gold) 14%, transparent);
 }

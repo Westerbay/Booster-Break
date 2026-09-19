@@ -4,6 +4,7 @@ import { ArrowLeftIcon, CheckCircle2Icon, CopyIcon, ServerIcon } from 'lucide-re
 import { buttonVariants } from '@/components/ui/button'
 import { LanguageSelector } from '@/features/dashboard/components/LanguageSelector'
 import { useLocale } from '@/features/i18n/useLocale'
+import { ThemeSelector } from '@/features/theme/ThemeSelector'
 import { cn } from '@/lib/utils'
 import { m } from '@/paraglide/messages'
 
@@ -24,7 +25,10 @@ export function SetupPage() {
             <ArrowLeftIcon data-icon="inline-start" aria-hidden="true" />
             {m.setup_back()}
           </Link>
-          <LanguageSelector className="w-full sm:w-44" variant="surface" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ThemeSelector />
+            <LanguageSelector className="w-full sm:w-44" variant="surface" />
+          </div>
         </div>
 
         <section className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
