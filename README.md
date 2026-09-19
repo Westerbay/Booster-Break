@@ -130,7 +130,7 @@ credentials should come from the server env file or a deployment secret manager.
 
 ## Production CI/CD
 
-GitHub Actions runs the full quality gate on pull requests and pushes to `main`:
+GitHub Actions runs the full quality gate on pull requests and pushes to `dev` and `main`:
 
 ```bash
 bun run format:check
@@ -138,12 +138,12 @@ bun run lint
 bun run typecheck
 ```
 
-On pushes to `main`, the workflow builds and pushes same-origin Docker images for the
-Raspberry Pi/server deployment:
+Publishing a GitHub release whose commit is on `main` builds and pushes same-origin Docker
+images for the Raspberry Pi/server deployment. Stable releases also update `latest`:
 
 ```text
-ghcr.io/mathis-gala/booster-break/web:latest
-ghcr.io/mathis-gala/booster-break/api:latest
+ghcr.io/westerbay/booster-break/web:latest
+ghcr.io/westerbay/booster-break/api:latest
 ```
 
 For the server deployment, leave `VITE_API_ORIGIN` empty in the web image. The frontend calls
@@ -164,8 +164,8 @@ SLACK_REDIRECT_URI=https://booster.example.com/api/auth/slack/callback
 GitHub Container Registry also publishes commit-pinned images:
 
 ```text
-ghcr.io/mathis-gala/booster-break/web:sha-<commit>
-ghcr.io/mathis-gala/booster-break/api:sha-<commit>
+ghcr.io/westerbay/booster-break/web:sha-<commit>
+ghcr.io/westerbay/booster-break/api:sha-<commit>
 ```
 
 ## Auth
@@ -254,6 +254,13 @@ updates the `latest` tag; a pre-release only publishes its release and commit ta
 does not connect to or deploy the production server. It must not bake database URLs, Slack secrets,
 or Postgres passwords into the image.
 
+Image names follow the current GitHub repository (`ghcr.io/<owner>/<repo>/api` and `/web`),
+lowercased by `docker/metadata-action`. After a repository transfer, update the image paths in
+the server's Compose file too. To recover a release that failed with an old namespace, merge
+the workflow fix and publish a new release with a new tag on the updated `main`. Re-running
+the old release run still uses its original commit and workflow; pushes and manual workflow
+runs only execute the quality checks.
+
 The API image runs `prisma migrate deploy` on startup. Production updates should back up Postgres
 before pulling a new image. Set `IMAGE_TAG` in the `.env` file next to the production Compose file
 to the GitHub release tag, for example `IMAGE_TAG=v1.0.0`, then deploy manually:
@@ -272,9 +279,9 @@ Downloaded users run the image with their own runtime env file:
 ```yaml
 services:
   web:
-    image: ghcr.io/mathis-gala/booster-break/web:${IMAGE_TAG:-latest}
+    image: ghcr.io/westerbay/booster-break/web:${IMAGE_TAG:-latest}
   api:
-    image: ghcr.io/mathis-gala/booster-break/api:${IMAGE_TAG:-latest}
+    image: ghcr.io/westerbay/booster-break/api:${IMAGE_TAG:-latest}
     env_file:
       - booster-break.env
 ```
