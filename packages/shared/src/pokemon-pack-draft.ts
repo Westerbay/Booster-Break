@@ -43,6 +43,11 @@ const CROWN_ZENITH_GOD_PACK_GG_NUMBERS = [
   'GG33',
   'GG34',
 ] as const
+const CROWN_ZENITH_GOD_PACK_RARE_SLOT_RULES = [
+  { chance: 12.35, finish: 'holo', rarities: ['Holo Rare V'] },
+  { chance: 2.04, finish: 'holo', rarities: ['Holo Rare VMAX'] },
+  { chance: 3.26, finish: 'holo', rarities: ['Holo Rare VSTAR'] },
+] satisfies ChanceRule[]
 const GOD_PACK_RARITIES = [
   'Illustration rare',
   'Illustration Rare',
@@ -582,11 +587,11 @@ const drawCrownZenithGodPack = (
     allCards.find((card) => card.number.toUpperCase() === number),
   )
   const parentCards = getSwshParentCards(allCards, parentSetId)
-  const rareSlotRules: WeightedCardRule[] = [
-    { cards: getCardsByRarity(parentCards, ['Holo Rare V']), chance: 12.35, finish: 'holo' },
-    { cards: getCardsByRarity(parentCards, ['Holo Rare VMAX']), chance: 2.04, finish: 'holo' },
-    { cards: getCardsByRarity(parentCards, ['Holo Rare VSTAR']), chance: 3.26, finish: 'holo' },
-  ]
+  const rareSlotRules: WeightedCardRule[] = CROWN_ZENITH_GOD_PACK_RARE_SLOT_RULES.map((rule) => ({
+    cards: getCardsByRarity(parentCards, rule.rarities),
+    chance: rule.chance,
+    finish: rule.finish,
+  }))
 
   if (
     galleryCards.some((card) => !card) ||
@@ -758,6 +763,129 @@ const drawGodPackSlot = (
   }
 
   return undefined
+}
+
+export interface GodPackNoNewCardChance {
+  chance: number
+  noNewCardChance: number
+}
+
+/**
+ * Returns the probability that a God Pack contains no card the user does not already own.
+ * `undefined` means this set cannot generate a God Pack with its available cards.
+ */
+export const getGodPackNoNewCardChance = (
+  cards: PokemonCardSummary[],
+  ownedCardIds: ReadonlySet<string>,
+  setId?: string,
+): GodPackNoNewCardChance | undefined => {
+  if (setId === 'swsh12.5') {
+    return getCrownZenithGodPackNoNewCardChance(cards, ownedCardIds)
+  }
+
+  if (
+    setId?.startsWith('me') ||
+    (setId && isSwshSetId(setId)) ||
+    (setId && isHistoricalSetId(setId))
+  ) {
+    return undefined
+  }
+
+  const rulePools = GOD_PACK_SLOT_RULES.map((rule) => getCardsByRarity(cards, rule.rarities))
+
+  if (rulePools.reduce((total, pool) => total + pool.length, 0) < PACK_CARD_COUNT) {
+    return undefined
+  }
+
+  const ownedCounts = rulePools.map(
+    (pool) => pool.filter((card) => ownedCardIds.has(card.id)).length,
+  )
+  const memo = new Map<string, number>()
+
+  const getNoNewCardChance = (selectedOwnedCounts: number[]): number => {
+    const drawnCount = selectedOwnedCounts.reduce((total, count) => total + count, 0)
+
+    if (drawnCount === PACK_CARD_COUNT) {
+      return 1
+    }
+
+    const key = selectedOwnedCounts.join(',')
+    const cachedChance = memo.get(key)
+
+    if (cachedChance !== undefined) {
+      return cachedChance
+    }
+
+    const availableRuleIndexes = rulePools
+      .map((pool, index) => (pool.length > selectedOwnedCounts[index]! ? index : undefined))
+      .filter((index): index is number => index !== undefined)
+    const totalWeight = availableRuleIndexes.reduce(
+      (total, index) => total + GOD_PACK_SLOT_RULES[index]!.chance,
+      0,
+    )
+    const chance = availableRuleIndexes.reduce((total, index) => {
+      const selectedOwnedCount = selectedOwnedCounts[index]!
+      const availableCount = rulePools[index]!.length - selectedOwnedCount
+      const availableOwnedCount = ownedCounts[index]! - selectedOwnedCount
+
+      if (availableOwnedCount <= 0) {
+        return total
+      }
+
+      const nextSelectedOwnedCounts = [...selectedOwnedCounts]
+      nextSelectedOwnedCounts[index] += 1
+
+      return (
+        total +
+        (GOD_PACK_SLOT_RULES[index]!.chance / totalWeight) *
+          (availableOwnedCount / availableCount) *
+          getNoNewCardChance(nextSelectedOwnedCounts)
+      )
+    }, 0)
+
+    memo.set(key, chance)
+    return chance
+  }
+
+  return {
+    chance: GOD_PACK_CHANCE / 100,
+    noNewCardChance: getNoNewCardChance(rulePools.map(() => 0)),
+  }
+}
+
+const getCrownZenithGodPackNoNewCardChance = (
+  cards: PokemonCardSummary[],
+  ownedCardIds: ReadonlySet<string>,
+): GodPackNoNewCardChance | undefined => {
+  const galleryCards = CROWN_ZENITH_GOD_PACK_GG_NUMBERS.map((number) =>
+    cards.find((card) => card.number.toUpperCase() === number),
+  )
+  const parentCards = getSwshParentCards(cards, 'swsh12.5')
+  const rareSlotRules = CROWN_ZENITH_GOD_PACK_RARE_SLOT_RULES.map((rule) => ({
+    cards: getCardsByRarity(parentCards, rule.rarities),
+    chance: rule.chance,
+  })).filter((rule) => rule.cards.length > 0)
+
+  if (galleryCards.some((card) => card === undefined) || rareSlotRules.length === 0) {
+    return undefined
+  }
+
+  const fixedCardsAreOwned = galleryCards.every(
+    (card) => card !== undefined && ownedCardIds.has(card.id),
+  )
+  const totalWeight = rareSlotRules.reduce((total, rule) => total + rule.chance, 0)
+  const rareSlotNoNewCardChance = rareSlotRules.reduce(
+    (chance, rule) =>
+      chance +
+      (rule.chance / totalWeight) *
+        (rule.cards.filter((card) => ownedCardIds.has(card.id)).length / rule.cards.length),
+    0,
+  )
+
+  return {
+    chance: CROWN_ZENITH_GOD_PACK_CHANCE / 100,
+    noNewCardChance: fixedCardsAreOwned ? rareSlotNoNewCardChance : 0,
+  }
 }
 
 const drawFirstFoilSlot = (

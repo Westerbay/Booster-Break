@@ -89,3 +89,45 @@ const makeCard = (id: string, number: string, rarity: string): PokemonCardSummar
   rarity,
   setId: 'swsh12.5',
 })
+
+describe('God Pack new card chance', () => {
+  test('includes the God Pack chance when its pool can fill a booster', () => {
+    const cards = Array.from({ length: 10 }, (_, index) =>
+      makeCard(`illustration-${index}`, `${index}`, 'Illustration Rare'),
+    )
+    const ownedCardIds = new Set(cards.slice(0, -1).map((card) => card.id))
+
+    expect(getNewCardChance(cards, ownedCardIds, 'sv01')).toBeGreaterThan(7.67 / 10)
+  })
+
+  test('does not add a God Pack chance when fewer than ten eligible cards exist', () => {
+    const cards = Array.from({ length: 9 }, (_, index) =>
+      makeCard(`illustration-${index}`, `${index}`, 'Illustration Rare'),
+    )
+    const ownedCardIds = new Set(cards.slice(0, -1).map((card) => card.id))
+
+    expect(getNewCardChance(cards, ownedCardIds, 'sv01')).toBeCloseTo(7.67 / 9, 2)
+  })
+
+  test('includes Crown Zenith’s dedicated God Pack chance', () => {
+    const galleryCards = [
+      'GG26',
+      'GG27',
+      'GG28',
+      'GG29',
+      'GG30',
+      'GG31',
+      'GG32',
+      'GG33',
+      'GG34',
+    ].map((number) => makeCard(`gallery-${number}`, number, 'Rare'))
+    const cards = [
+      ...galleryCards,
+      makeCard('owned-v', '001', 'Holo Rare V'),
+      makeCard('missing-v', '002', 'Holo Rare V'),
+    ]
+    const ownedCardIds = new Set([...galleryCards.map((card) => card.id), 'owned-v'])
+
+    expect(getNewCardChance(cards, ownedCardIds, 'swsh12.5')).toBeGreaterThan(12.35 / 2)
+  })
+})
