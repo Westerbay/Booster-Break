@@ -1,5 +1,7 @@
 import { normalizeRarity } from './pokemon-rarity'
 
+export * from './pvp'
+
 export const supportedLocaleValues = ['fr', 'en'] as const
 export type SupportedLocale = (typeof supportedLocaleValues)[number]
 export const supportedLocales = supportedLocaleValues

@@ -59,7 +59,7 @@ export function CardListFiltersMenu({
               step={1}
               value={minimumQuantity}
               aria-label={m.card_filters_minimum_quantity()}
-              className="h-8 w-16 rounded-md border bg-background px-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-ring"
+              className="h-11 w-16 rounded-md border bg-background px-2 text-base tabular-nums focus:outline-none focus:ring-2 focus:ring-ring sm:h-8 sm:text-sm"
               onChange={(event) => {
                 const quantity = Number(event.target.value)
 

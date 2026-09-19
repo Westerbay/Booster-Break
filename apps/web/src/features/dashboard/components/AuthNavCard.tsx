@@ -62,12 +62,7 @@ export function AuthNavCard({
 
   if (isPending) {
     return (
-      <div
-        className={cn(
-          'rounded-lg border border-sidebar-accent/24 bg-sidebar-accent/10 p-2.5',
-          className,
-        )}
-      >
+      <div className={cn('rounded-lg border border-sidebar-border bg-sidebar p-2.5', className)}>
         <div className="h-3 w-20 rounded-full bg-sidebar-foreground/18" />
         <div className="mt-2 h-8 rounded-lg bg-sidebar-foreground/12" />
       </div>
@@ -89,12 +84,7 @@ export function AuthNavCard({
   }
 
   return (
-    <div
-      className={cn(
-        'rounded-lg border border-sidebar-accent/24 bg-sidebar-accent/10 p-2.5',
-        className,
-      )}
-    >
+    <div className={cn('rounded-lg border border-sidebar-border bg-sidebar p-2.5', className)}>
       <div className="flex min-w-0 items-center gap-2.5">
         {auth.user.avatarUrl ? (
           <img
@@ -104,7 +94,7 @@ export function AuthNavCard({
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/35 bg-secondary text-primary">
             <UserIcon className="size-4" aria-hidden="true" />
           </div>
         )}
@@ -158,7 +148,7 @@ function DevelopmentAuthForm({ className }: { className?: string }) {
   return (
     <form
       className={cn(
-        'grid gap-2 rounded-lg border border-sidebar-accent/24 bg-sidebar-accent/10 p-2.5',
+        'grid gap-2 rounded-lg border border-sidebar-border bg-sidebar p-2.5',
         className,
       )}
       onSubmit={handleDevLoginSubmit}

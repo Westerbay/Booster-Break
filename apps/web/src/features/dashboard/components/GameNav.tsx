@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
-  ArrowRightLeftIcon,
-  BookOpenIcon,
-  GalleryHorizontalEndIcon,
+  Repeat2Icon,
+  LibraryBigIcon,
+  ContactRoundIcon,
   MenuIcon,
-  SparklesIcon,
+  FlaskConicalIcon,
+  SwordsIcon,
   PackageOpenIcon,
   TrophyIcon,
   XIcon,
@@ -52,13 +53,13 @@ export function GameNav({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between bg-sidebar bg-[radial-gradient(circle_at_1px_1px,oklch(0.985_0.004_250_/_16%)_1px,transparent_0)] bg-[length:12px_12px] px-4 text-sidebar-foreground md:hidden">
-        <div className="flex items-center gap-3">
+      <header className="game-nav game-mobile-header fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between bg-sidebar px-4 text-sidebar-foreground md:hidden">
+        <div className="game-brand flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-lg">
             <img src={appIconUrl} alt="" className="size-7 object-contain" />
           </div>
           <div>
-            <p className="text-sm font-black tracking-normal">{m.app_name()}</p>
+            <p className="game-brand-name">{m.app_name()}</p>
             <p className="text-xs font-medium text-sidebar-foreground/72">{m.app_subtitle()}</p>
           </div>
         </div>
@@ -79,7 +80,7 @@ export function GameNav({
         <nav
           id="mobile-game-menu"
           aria-label={m.nav_aria()}
-          className="fixed inset-x-0 top-16 z-30 grid gap-2 bg-sidebar bg-[radial-gradient(circle_at_1px_1px,oklch(0.985_0.004_250_/_16%)_1px,transparent_0)] bg-[length:12px_12px] px-4 pb-4 text-sidebar-foreground md:hidden"
+          className="game-nav game-mobile-menu fixed inset-x-0 top-16 z-30 grid max-h-[calc(100dvh-4rem)] overflow-y-auto gap-2 bg-sidebar px-4 pb-4 text-sidebar-foreground md:hidden"
         >
           {navItems.map((item) => (
             <NavButton
@@ -107,19 +108,19 @@ export function GameNav({
 
       <nav
         aria-label={m.nav_aria()}
-        className="fixed inset-y-0 left-0 z-20 hidden w-44 flex-col bg-sidebar bg-[radial-gradient(circle_at_1px_1px,oklch(0.985_0.004_250_/_16%)_1px,transparent_0)] bg-[length:12px_12px] px-3 py-3 text-sidebar-foreground md:flex"
+        className="game-nav game-desktop-nav fixed inset-y-0 left-0 z-20 hidden w-52 flex-col overflow-y-auto bg-sidebar px-3 py-3 text-sidebar-foreground md:flex"
       >
-        <div className="flex items-center gap-3">
+        <div className="game-brand flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-lg">
             <img src={appIconUrl} alt="" className="size-7 object-contain" />
           </div>
           <div>
-            <p className="text-sm font-black tracking-normal">{m.app_name()}</p>
+            <p className="game-brand-name">{m.app_name()}</p>
             <p className="text-xs font-medium text-sidebar-foreground/72">{m.app_subtitle()}</p>
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-6">
           {navItems.map((item) => (
             <NavButton
               key={item.id}
@@ -150,10 +151,11 @@ const appIconUrl = `${import.meta.env.BASE_URL}cards.png`
 
 const navItems: NavItem[] = [
   { id: 'packs', icon: PackageOpenIcon },
-  { id: 'sandbox', icon: SparklesIcon },
-  { id: 'collection', icon: BookOpenIcon },
-  { id: 'boards', icon: GalleryHorizontalEndIcon, disabled: true },
-  { id: 'trade', icon: ArrowRightLeftIcon },
+  { id: 'sandbox', icon: FlaskConicalIcon },
+  { id: 'collection', icon: LibraryBigIcon },
+  { id: 'boards', icon: ContactRoundIcon },
+  { id: 'pvp', icon: SwordsIcon },
+  { id: 'trade', icon: Repeat2Icon },
   { id: 'leaders', icon: TrophyIcon },
 ]
 
@@ -167,6 +169,8 @@ const getNavLabel = (tab: DashboardTab): string => {
       return m.nav_collection()
     case 'boards':
       return m.nav_boards()
+    case 'pvp':
+      return m.nav_pvp()
     case 'trade':
       return m.nav_trade()
     case 'leaders':

@@ -61,9 +61,9 @@ export function TradeOfferComposerCardsSection({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 rounded-md bg-background px-3 py-2 text-xs text-muted-foreground">
+      <div className="flex flex-col gap-2 rounded-md bg-background px-3 py-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <span>{m.trade_card_preference_label()}</span>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
           <CardListFiltersMenu
             minimumQuantity={minimumQuantity}
             minimumRarity={minimumRarity}
@@ -104,7 +104,7 @@ export function TradeOfferComposerCardsSection({
           onChange={(event) => {
             onSearchChange(event.target.value)
           }}
-          className="h-9 flex-1 min-w-0 rounded-md border bg-background px-2 text-sm placeholder:text-xs"
+          className="h-9 flex-1 min-w-0 rounded-md border bg-background px-2 text-sm placeholder:text-xs max-sm:min-h-11"
           placeholder={m.trade_search_by_pokemon_placeholder()}
           aria-label={m.trade_search_by_pokemon_aria()}
         />
@@ -137,22 +137,22 @@ export function TradeOfferComposerCardsSection({
                 <label className="mt-2 block text-xs text-muted-foreground">
                   {m.trade_offer_quantity()}
                 </label>
-                <div className="mt-1 flex items-center justify-center gap-2">
+                <div className="mt-1 grid grid-cols-2 items-center justify-items-center gap-1 sm:flex sm:justify-center sm:gap-2">
                   <button
                     type="button"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-black transition hover:bg-sidebar/10 hover:text-sidebar-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-black transition hover:bg-sidebar/10 hover:text-sidebar-foreground disabled:cursor-not-allowed disabled:opacity-50 max-sm:min-h-11 max-sm:min-w-11"
                     disabled={selectedQuantity <= 0}
                     onClick={() => updateSelection(card, String(selectedQuantity - 1))}
                     aria-label={m.trade_offer_remove_card()}
                   >
                     <MinusIcon className="size-4" aria-hidden="true" />
                   </button>
-                  <span className="min-w-6 text-center text-sm font-black tabular-nums">
+                  <span className="min-w-6 text-center text-sm font-black tabular-nums max-sm:order-first max-sm:col-span-2">
                     {selectedQuantity}
                   </span>
                   <button
                     type="button"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-black transition hover:bg-sidebar/10 hover:text-sidebar-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-black transition hover:bg-sidebar/10 hover:text-sidebar-foreground disabled:cursor-not-allowed disabled:opacity-50 max-sm:min-h-11 max-sm:min-w-11"
                     disabled={selectedQuantity >= card.quantity}
                     onClick={() => updateSelection(card, String(selectedQuantity + 1))}
                     aria-label={m.trade_offer_add_card()}
@@ -178,21 +178,21 @@ export function TradeOfferComposerCardsSection({
         />
       ) : null}
 
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
+      <div className="flex items-center justify-between text-xs text-muted-foreground max-sm:flex-wrap max-sm:gap-2">
         <button
           type="button"
-          className="cursor-pointer rounded-md border px-3 py-2"
+          className="cursor-pointer rounded-md border px-3 py-2 max-sm:min-h-11 max-sm:min-w-11"
           disabled={collectionPage <= 1 || isLoading}
           onClick={onPrevPage}
         >
           {m.packs_previous()}
         </button>
-        <span>
+        <span className="whitespace-nowrap">
           {collectionPage} / {collectionPageCount}
         </span>
         <button
           type="button"
-          className="cursor-pointer rounded-md border px-3 py-2"
+          className="cursor-pointer rounded-md border px-3 py-2 max-sm:min-h-11 max-sm:min-w-11"
           disabled={collectionPage >= collectionPageCount || isLoading}
           onClick={onNextPage}
         >

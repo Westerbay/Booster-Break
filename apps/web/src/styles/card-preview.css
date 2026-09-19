@@ -1,0 +1,305 @@
+/* Card inspection is a separate action from selecting a team or a trainer. */
+.card-preview-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--arena-text);
+  cursor: zoom-in;
+  text-align: inherit;
+}
+.card-preview-trigger:focus-visible {
+  outline: 2px solid var(--arena-gold);
+  outline-offset: 4px;
+}
+.card-preview-trigger > .arena-card-image,
+.card-preview-trigger > .arena-card-placeholder {
+  width: 100%;
+  height: 100%;
+}
+.card-preview-indicator {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid color-mix(in oklch, var(--arena-gold) 50%, transparent);
+  border-radius: 5px;
+  background: color-mix(in oklch, var(--game-surface-deep) 90%, transparent);
+  color: var(--arena-gold);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease-out;
+}
+.card-preview-indicator svg {
+  width: 14px;
+  height: 14px;
+}
+.card-preview-trigger:is(:hover, :focus-visible) .card-preview-indicator {
+  opacity: 1;
+}
+.card-preview-dialog[data-slot='dialog-content'] {
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  translate: none;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+.card-preview-artwork {
+  position: relative;
+  width: min(100vw, calc((100dvh - 24px) * 63 / 88));
+  margin-inline: auto;
+  filter: drop-shadow(0 20px 28px color-mix(in oklch, var(--arena-night) 80%, transparent));
+}
+.card-preview-dialog > [data-slot='dialog-close'] {
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--game-surface-deep) 45%, transparent);
+  color: var(--arena-text);
+}
+.card-preview-loading {
+  position: absolute;
+  inset: 8%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+.card-preview-loading svg {
+  width: 28px;
+  height: 28px;
+  color: var(--arena-gold);
+  animation: card-preview-loading-spin 1s linear infinite;
+}
+@keyframes card-preview-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.card-preview-artwork > canvas,
+.card-preview-artwork > span {
+  max-height: none;
+  max-width: none;
+  width: 100%;
+}
+.card-preview-hint {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 12px;
+  right: 12px;
+  pointer-events: none;
+  color: var(--arena-muted);
+  font-size: 0.7rem;
+  text-align: center;
+}
+.card-preview-unavailable {
+  display: grid;
+  aspect-ratio: 63 / 88;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  border: 1px solid var(--arena-line);
+  border-radius: 12px;
+  color: var(--arena-muted);
+}
+.collection-card-select {
+  width: 100%;
+  min-height: 36px;
+  margin-top: 10px;
+}
+.collection-card-choice:has(.collection-card-select[aria-pressed='true']) {
+  border-color: var(--arena-gold);
+  background: color-mix(in oklch, var(--arena-gold) 8%, var(--game-surface-panel));
+}
+.trainer-row-select,
+.arena-podium-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.trainer-row[data-interactive='true'] > span,
+.arena-podium-person > span {
+  pointer-events: none;
+}
+.trainer-row .card-preview-trigger,
+.arena-podium-person .card-preview-trigger {
+  pointer-events: auto;
+}
+.trainer-row-select:focus-visible,
+.arena-podium-select:focus-visible {
+  outline: 2px solid var(--arena-gold);
+  outline-offset: 4px;
+}
+.trainer-row:has(.trainer-row-select:enabled):hover {
+  border-color: var(--arena-gold);
+  box-shadow: 0 8px 22px color-mix(in oklch, var(--arena-night) 70%, transparent);
+  transform: translateY(-2px);
+}
+.trainer-row[data-disabled='true'] .trainer-row-identity,
+.trainer-row[data-disabled='true'] .trainer-row-action {
+  opacity: 0.55;
+}
+.trainer-row-select:disabled {
+  cursor: not-allowed;
+}
+.arena-podium-person {
+  position: relative;
+}
+.arena-fan-card > .card-preview-trigger,
+.arena-team-slot > .card-preview-trigger,
+.arena-card-object > .card-preview-trigger {
+  height: 100%;
+}
+.arena-fan-card:focus-within {
+  z-index: 3;
+}
+.arena-fan-card .card-preview-indicator {
+  width: 20px;
+  height: 20px;
+  right: 2px;
+  bottom: 2px;
+}
+.arena-fan-card .card-preview-indicator svg {
+  width: 12px;
+  height: 12px;
+}
+.arena-team-power,
+.arena-power-chip {
+  pointer-events: none;
+}
+.arena-picker-selected-card {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  gap: 6px;
+}
+.arena-picker-selected-card > [data-slot='button'] {
+  flex: 1;
+  min-width: 0;
+}
+.arena-picker-selected-card > .card-preview-trigger {
+  width: 30px;
+  height: 42px;
+  overflow: visible;
+}
+.arena-picker-miniature .card-preview-indicator {
+  display: none;
+}
+.arena-combat-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--game-surface-border);
+  border-radius: 9px;
+  background: var(--game-panel-background);
+  color: var(--arena-text);
+}
+.arena-combat-choice[data-selected='true'] {
+  border-color: var(--arena-gold);
+  background: color-mix(in oklch, var(--arena-gold) 12%, var(--game-surface-base));
+}
+.arena-combat-choice[data-used='true'] {
+  filter: grayscale(1);
+}
+.arena-combat-choice > .card-preview-trigger {
+  flex: 0 0 48px;
+  width: 48px;
+}
+.arena-combat-team .arena-combat-choice .arena-card-image {
+  width: 100%;
+}
+.arena-combat-select {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.arena-combat-select:disabled {
+  cursor: default;
+}
+.arena-combat-select:focus-visible {
+  outline: 2px solid var(--arena-gold);
+  outline-offset: 3px;
+}
+.arena-combat-select-label {
+  color: var(--arena-gold);
+  font-size: 0.65rem;
+}
+.arena-combat-select:disabled .arena-combat-select-label {
+  visibility: hidden;
+}
+.arena-combat-choice .arena-used-mark {
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .arena-combat-choice {
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 4px;
+  }
+  .arena-combat-select {
+    width: 100%;
+    text-align: center;
+  }
+  .arena-combat-select strong {
+    white-space: nowrap;
+  }
+  .arena-combat-choice > .card-preview-trigger {
+    flex-basis: auto;
+    width: 48px;
+  }
+}
+@media (hover: none) {
+  .card-preview-indicator {
+    opacity: 1;
+  }
+  .arena-fan-card .card-preview-indicator {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-preview-loading svg {
+    animation: none;
+  }
+  .card-preview-indicator {
+    transition: none;
+  }
+  .trainer-row:has(.trainer-row-select:enabled):hover {
+    transform: none;
+  }
+}

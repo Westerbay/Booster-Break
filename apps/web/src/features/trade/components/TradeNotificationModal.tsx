@@ -6,6 +6,13 @@ import type {
   TradeNotificationResponse,
 } from '@tcg-collection/shared'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
 import { m } from '@/paraglide/messages'
 import { TradeNotOwnedBadge } from './TradeNotOwnedBadge'
@@ -106,26 +113,21 @@ interface ModalShellProps {
   children?: ReactNode
 }
 
-const ModalShell = ({ title, message, details, children, onClose }: ModalShellProps) => (
-  <div
-    className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/78 p-3 backdrop-blur-sm"
-    role="dialog"
-    aria-modal="true"
-    aria-label={title}
-    onClick={onClose}
-  >
-    <div
-      className="w-full max-w-lg rounded-lg border bg-background p-4 shadow-2xl"
-      onClick={(event) => {
-        event.stopPropagation()
-      }}
-    >
-      <div className="space-y-3">
-        <div className="flex items-start gap-3">
-          <CheckCircle2Icon className="mt-0.5 size-6 text-green-600" aria-hidden="true" />
+function ModalShell({ title, message, details, children, onClose }: ModalShellProps) {
+  function openChanged(open: boolean) {
+    if (!open) onClose()
+  }
+  return (
+    <Dialog open onOpenChange={openChanged}>
+      <DialogContent
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden sm:max-w-lg"
+        closeLabel={m.pvp_close()}
+      >
+        <div className="flex items-start gap-3 pr-10">
+          <CheckCircle2Icon className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="break-words text-sm font-black">{title}</p>
-            <p className="mt-1 break-words text-sm text-muted-foreground">{message}</p>
+            <DialogTitle className="break-words">{title}</DialogTitle>
+            <DialogDescription className="mt-2 break-words">{message}</DialogDescription>
           </div>
         </div>
 
@@ -141,14 +143,14 @@ const ModalShell = ({ title, message, details, children, onClose }: ModalShellPr
         ) : null}
 
         <div className="flex justify-end">
-          <Button type="button" onClick={onClose}>
+          <DialogClose render={<Button type="button" />}>
             {m.trade_notification_confirm()}
-          </Button>
+          </DialogClose>
         </div>
-      </div>
-    </div>
-  </div>
-)
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 const assertUnreachable = (value: never): never => {
   throw new Error(`Unhandled trade notification type: ${value}`)

@@ -97,7 +97,7 @@ export function TradeOffersPanel({
             <button
               type="button"
               key={`${offer.id}-${card.card.id}-${card.finish}`}
-              className="inline-flex w-48 shrink-0 flex-col items-center gap-1 rounded-lg border bg-card px-3 py-3 text-center transition hover:border-sidebar/60"
+              className="inline-flex w-48 shrink-0 flex-col items-center gap-1 rounded-lg border bg-card px-3 py-3 text-center transition hover:border-primary/60"
               onClick={() => {
                 setSelectedOfferCard(card)
               }}
@@ -151,7 +151,7 @@ export function TradeOffersPanel({
         return (
           <article key={offer.id} className="rounded-lg border bg-background p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 max-w-full items-center gap-2">
                 {offer.proposerAvatarUrl ? (
                   <img
                     src={offer.proposerAvatarUrl}
@@ -186,7 +186,7 @@ export function TradeOffersPanel({
                     <>
                       <button
                         type="button"
-                        className="cursor-pointer rounded-md border border-green-700 bg-green-700/10 px-2 py-1 text-xs font-black text-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-md border border-green-700 bg-green-700/10 px-2 py-1 text-xs font-black text-green-700 disabled:cursor-not-allowed disabled:opacity-50 max-sm:min-h-11 max-sm:min-w-11"
                         disabled={isBusy}
                         onClick={() => requestOfferAccept(offer.id)}
                       >
@@ -194,7 +194,7 @@ export function TradeOffersPanel({
                       </button>
                       <button
                         type="button"
-                        className="cursor-pointer rounded-md border border-destructive/60 bg-destructive/10 px-2 py-1 text-xs font-black text-destructive disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-md border border-destructive/60 bg-destructive/10 px-2 py-1 text-xs font-black text-destructive disabled:cursor-not-allowed disabled:opacity-50 max-sm:min-h-11 max-sm:min-w-11"
                         disabled={isBusy}
                         onClick={() => requestOfferCancel(offer.id)}
                       >
@@ -204,7 +204,7 @@ export function TradeOffersPanel({
                   ) : isProposer ? (
                     <button
                       type="button"
-                      className="cursor-pointer rounded-md border border-amber-700 bg-amber-700/10 px-2 py-1 text-xs font-black text-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="cursor-pointer rounded-md border border-amber-700 bg-amber-700/10 px-2 py-1 text-xs font-black text-amber-700 disabled:cursor-not-allowed disabled:opacity-50 max-sm:min-h-11 max-sm:min-w-11"
                       disabled={isBusy}
                       onClick={() => requestOfferCancel(offer.id)}
                     >
@@ -223,7 +223,6 @@ export function TradeOffersPanel({
       {pendingOfferToCancel ? (
         <ConfirmationDialog
           open
-          className="z-50"
           title={m.trade_cancel_offer_title()}
           description={m.trade_cancel_offer_message()}
           confirmLabel={m.trade_cancel_offer_confirm()}
@@ -237,7 +236,6 @@ export function TradeOffersPanel({
       {pendingOfferToAccept ? (
         <ConfirmationDialog
           open
-          className="z-50"
           title={m.trade_accept_offer_title()}
           description={m.trade_accept_offer_message()}
           confirmLabel={m.trade_accept_offer_confirm()}

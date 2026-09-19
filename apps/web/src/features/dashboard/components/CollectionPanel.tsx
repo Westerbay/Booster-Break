@@ -96,8 +96,8 @@ export function CollectionPanel({
       <section
         className={
           fitContent
-            ? 'w-full max-w-6xl rounded-lg border bg-card p-4'
-            : 'min-w-0 rounded-lg border bg-card p-4'
+            ? 'game-panel game-collection w-full max-w-6xl rounded-lg border bg-card p-4'
+            : 'game-panel game-collection min-w-0 rounded-lg border bg-card p-4'
         }
       >
         <div className="space-y-4">
@@ -110,7 +110,7 @@ export function CollectionPanel({
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-4">
               <div className="flex w-full flex-col gap-2 sm:h-9 sm:w-auto sm:flex-row sm:items-center sm:overflow-hidden sm:rounded-md sm:border sm:bg-background sm:transition-colors sm:focus-within:border-foreground sm:focus-within:ring-2 sm:focus-within:ring-foreground/15">
-                <div className="flex h-9 w-full items-center gap-2 rounded-md border bg-background px-2.5 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/15 sm:h-full sm:w-auto sm:flex-none sm:rounded-none sm:border-0 sm:px-0 sm:pl-2.5 sm:focus-within:ring-0">
+                <div className="flex h-11 w-full items-center gap-2 rounded-md border bg-background px-2.5 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/15 sm:h-full sm:w-auto sm:flex-none sm:rounded-none sm:border-0 sm:px-0 sm:pl-2.5 sm:focus-within:ring-0">
                   <SearchIcon
                     aria-hidden="true"
                     className="size-4 shrink-0 text-muted-foreground"
@@ -118,7 +118,7 @@ export function CollectionPanel({
                   <input
                     value={searchQuery}
                     onChange={(event) => onSearchChange(event.target.value)}
-                    className="min-w-0 flex-1 bg-transparent text-sm placeholder:text-xs focus:outline-none sm:w-28"
+                    className="min-w-0 flex-1 bg-transparent text-base placeholder:text-xs focus:outline-none sm:w-28 sm:text-sm"
                     placeholder={m.trade_search_by_pokemon_placeholder()}
                     aria-label={m.trade_search_by_pokemon_aria()}
                   />
@@ -197,14 +197,14 @@ export function CollectionPanel({
             ))}
           </div>
         ) : cards.length > 0 ? (
-          <div className="mt-4 flex min-h-[39rem] min-w-0 max-w-full flex-wrap content-start justify-center gap-3">
+          <div className="game-collection-grid mt-6 grid min-w-0 grid-cols-2 gap-3">
             {cards.map((card) => (
               <CollectionCardItem
                 key={`${card.id}-${card.finish ?? 'normal'}`}
                 card={card}
                 setName={setNameById.get(card.setId)}
                 onSelect={() => setSelectedCard(card)}
-                className="focus-visible:ring-2 focus-visible:ring-ring"
+                className="w-full transition-transform hover:-translate-y-1 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             ))}
           </div>

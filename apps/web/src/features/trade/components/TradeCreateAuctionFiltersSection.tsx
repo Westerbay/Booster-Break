@@ -32,7 +32,7 @@ export function TradeCreateAuctionFiltersSection({
         </p>
         <p className="text-xs text-muted-foreground">{m.trade_offer_preferences_hint()}</p>
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
         <TradeFilterDropdown
           id="auction-requirements-set-ids"
           label={m.trade_required_set_ids()}
@@ -73,7 +73,7 @@ export function TradeCreateAuctionFiltersSection({
         </p>
         <p className="text-xs text-muted-foreground">{m.trade_filters_hint()}</p>
 
-        <div className="mt-2 grid gap-3 md:grid-cols-2">
+        <div className="mt-2 grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
           <TradeFilterDropdown
             id="auction-filters-set-ids"
             label={m.trade_excluded_set_ids()}

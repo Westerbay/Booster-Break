@@ -8,6 +8,7 @@ import { useLocale } from '@/features/i18n/useLocale'
 import { useLogoutMutationOption } from '@/lib/mutations/auth'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { usePokemonLeaderboardQueryOption } from '@/lib/queries/pokemon'
+import { pvpBoardOptions } from '@/lib/queries/pvp'
 import { getLeaderboardConfig, type LeaderboardKind } from '../lib/leaderboard-config'
 
 export const useLeaderboardPage = () => {
@@ -18,6 +19,16 @@ export const useLeaderboardPage = () => {
   const auth = useQuery(useCurrentUserQueryOption())
   const logoutMutation = useMutation(useLogoutMutationOption(queryClient))
   const leaderboard = useQuery(usePokemonLeaderboardQueryOption())
+  const pvp = useQuery({ ...pvpBoardOptions(), enabled: activeLeaderboard === 'elo' })
+  let players
+  if (activeLeaderboard === 'elo') {
+    players = (pvp.data?.trainers ?? []).map((trainer) => ({ ...trainer, score: trainer.elo }))
+  } else {
+    players = (leaderboard.data?.[activeLeaderboard] ?? []).map((player) => ({
+      ...player,
+      score: activeLeaderboard === 'mostCards' ? player.totalCards : player.uniqueCards,
+    }))
+  }
   const activeConfig = getLeaderboardConfig(activeLeaderboard)
 
   const selectTab = (tab: DashboardTab) => {
@@ -33,10 +44,10 @@ export const useLeaderboardPage = () => {
     activeConfig,
     activeLeaderboard,
     auth,
-    leaderboard,
+    leaderboard: activeLeaderboard === 'elo' ? pvp : leaderboard,
     logoutMutation,
     numberFormatter: new Intl.NumberFormat(locale),
-    players: leaderboard.data?.[activeLeaderboard] ?? [],
+    players,
     selectTab,
     setActiveLeaderboard,
   }

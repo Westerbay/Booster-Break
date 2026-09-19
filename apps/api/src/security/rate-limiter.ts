@@ -97,6 +97,9 @@ interface RateLimitPluginOptions {
 }
 
 export const apiRateLimitRules: RateLimitRule[] = [
+  { method: 'POST', path: '/pvp/matches', limit: 12, windowMs: 60_000 },
+  { method: 'GET', path: '/pvp/board', limit: 120, windowMs: 60_000 },
+  { method: 'GET', path: '/pvp/cards', limit: 120, windowMs: 60_000 },
   { method: 'POST', path: '/auth/dev/login', limit: 10, windowMs: 60_000 },
   { method: 'POST', path: '/auth/magic/generate', limit: 10, windowMs: 60_000 },
   { method: 'GET', path: '/auth/slack/start', limit: 30, windowMs: 60_000 },

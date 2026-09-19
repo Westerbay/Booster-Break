@@ -55,12 +55,12 @@ export function TradeFilterDropdown({
         : `${selectedLabels.slice(0, 2).join(', ')} +${selectedLabels.length - 2}`
 
   return (
-    <label className={cn('flex flex-col gap-1', className)}>
+    <label className={cn('flex min-w-0 flex-col gap-1', className)}>
       <span className="text-xs font-black uppercase text-muted-foreground">{label}</span>
       <DropdownMenu>
         <DropdownMenuTrigger
           id={id}
-          className="flex h-9 cursor-pointer items-center justify-between rounded-md border bg-background px-2 py-1.5 text-left text-xs"
+          className="flex h-9 min-w-0 cursor-pointer items-center justify-between rounded-md border bg-background px-2 py-1.5 text-left text-xs max-sm:min-h-11 max-sm:min-w-11"
         >
           <span className="truncate">{renderedSummary}</span>
           <ChevronDownIcon aria-hidden="true" />
@@ -73,7 +73,7 @@ export function TradeFilterDropdown({
               <DropdownMenuCheckboxItem
                 key={`${id}-${option.value}`}
                 checked={selected.includes(option.value)}
-                className="cursor-pointer"
+                className="cursor-pointer max-sm:min-h-11"
                 onCheckedChange={() => {
                   toggle(option.value)
                 }}

@@ -67,7 +67,7 @@ export function PackStage({
   } = useBoosterCarouselSelection(boosterSets)
 
   return (
-    <section className="min-w-0 rounded-lg border bg-card text-card-foreground">
+    <section className="game-panel game-pack-stage min-w-0 rounded-lg border bg-card text-card-foreground">
       <div className="grid min-h-full gap-5 p-4 md:grid-cols-[1fr_1.1fr] md:p-5">
         <PackBoosterStage
           activeSet={activeSet}

@@ -1,0 +1,201 @@
+/* Card ranks keep their API order; only the podium's visual placement changes. */
+.trainer-card-podium {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  overflow: hidden;
+  padding: 66px 7% 0;
+  border: 1px solid oklch(0.55 0.02 250 / 0.18);
+  border-radius: 12px;
+  background: var(--arena-scene-background);
+  color: var(--arena-text);
+}
+.trainer-card-trophy {
+  --podium-metal: var(--arena-gold);
+  --podium-surface: oklch(0.28 0.035 80);
+  --podium-height: 142px;
+  min-width: 0;
+  text-align: center;
+}
+.trainer-card-trophy[data-rank='1'] {
+  grid-column: 2;
+  grid-row: 1;
+}
+.trainer-card-trophy[data-rank='2'] {
+  --podium-metal: oklch(0.83 0.025 245);
+  --podium-surface: oklch(0.29 0.012 245);
+  --podium-height: 112px;
+  grid-column: 1;
+  grid-row: 1;
+}
+.trainer-card-trophy[data-rank='3'] {
+  --podium-metal: oklch(0.74 0.073 58);
+  --podium-surface: oklch(0.26 0.032 58);
+  --podium-height: 90px;
+  grid-column: 3;
+  grid-row: 1;
+}
+.trainer-card-trophy-art {
+  position: relative;
+  width: min(80%, 166px);
+  margin: 0 auto 31px;
+}
+.trainer-card-trophy[data-rank='1'] .trainer-card-trophy-art {
+  width: min(88%, 191px);
+}
+.trainer-card-trophy-art .card-preview-trigger {
+  border-radius: 9px;
+  box-shadow:
+    0 17px 24px color-mix(in oklch, var(--arena-night) 88%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--podium-metal) 44%, transparent);
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trainer-card-trophy[data-rank='1'] .card-preview-trigger {
+  box-shadow:
+    0 20px 30px color-mix(in oklch, var(--arena-night) 90%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--arena-gold) 65%, transparent),
+    0 0 28px color-mix(in oklch, var(--arena-gold) 14%, transparent);
+}
+.trainer-card-trophy-art .card-preview-trigger:is(:hover, :focus-visible) {
+  transform: translateY(-7px);
+}
+.trainer-card-trophy-crown {
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: 28px;
+  height: 28px;
+  transform: translateX(-50%);
+  color: var(--arena-gold);
+  stroke-width: 1.5;
+}
+.trainer-card-trophy-step {
+  position: relative;
+  min-height: var(--podium-height);
+  padding: 29px 12px 20px;
+  border-inline: 1px solid color-mix(in oklch, var(--podium-metal) 16%, transparent);
+  border-top: 1px solid color-mix(in oklch, var(--podium-metal) 60%, transparent);
+  background: linear-gradient(var(--podium-surface), var(--game-surface-base));
+}
+.trainer-card-trophy-step::before {
+  position: absolute;
+  inset: -13px -1px auto;
+  height: 12px;
+  clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+  background: linear-gradient(
+    color-mix(in oklch, var(--podium-metal) 13%, var(--podium-surface)),
+    color-mix(in oklch, var(--podium-metal) 37%, var(--podium-surface))
+  );
+  content: '';
+}
+.trainer-card-trophy-step .trainer-rank-badge {
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  width: 34px;
+  height: 40px;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+}
+.trainer-card-trophy-step h3 {
+  color: var(--arena-text);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.trainer-card-trophy-step p {
+  margin-top: 7px;
+  color: var(--podium-metal);
+  font-size: 0.75rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+}
+.trainer-card-trophy-step small {
+  display: block;
+  margin-top: 8px;
+  color: var(--arena-muted);
+  font-size: 0.625rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.trainer-card-podium[data-count='1'] {
+  grid-template-columns: minmax(0, 285px);
+  justify-content: center;
+}
+.trainer-card-podium[data-count='1'] .trainer-card-trophy[data-rank='1'] {
+  grid-column: 1;
+}
+.trainer-card-podium[data-count='2'] {
+  grid-template-columns: repeat(2, minmax(0, 260px));
+  justify-content: center;
+  padding-inline: 12%;
+}
+@media (max-width: 640px) {
+  .trainer-card-podium {
+    gap: 6px;
+    padding: 49px 10px 0;
+  }
+  .trainer-card-trophy {
+    --podium-height: 148px;
+  }
+  .trainer-card-trophy[data-rank='2'] {
+    --podium-height: 121px;
+  }
+  .trainer-card-trophy[data-rank='3'] {
+    --podium-height: 104px;
+  }
+  .trainer-card-trophy-art {
+    width: 82%;
+    margin-bottom: 29px;
+  }
+  .trainer-card-trophy[data-rank='1'] .trainer-card-trophy-art {
+    width: 90%;
+  }
+  .trainer-card-trophy-crown {
+    top: -32px;
+    width: 22px;
+    height: 22px;
+  }
+  .trainer-card-trophy-step {
+    padding: 25px 5px 14px;
+  }
+  .trainer-card-trophy-step .trainer-rank-badge {
+    width: 29px;
+    height: 35px;
+    top: -17px;
+    font-size: 0.75rem;
+  }
+  .trainer-card-trophy-step .trainer-rank-badge svg {
+    width: 11px;
+    height: 11px;
+  }
+  .trainer-card-trophy-step h3 {
+    font-size: 0.75rem;
+  }
+  .trainer-card-trophy-step p {
+    font-size: 0.6875rem;
+  }
+  .trainer-card-trophy-step small {
+    font-size: 0.5625rem;
+    letter-spacing: 0.025em;
+  }
+  .trainer-card-podium[data-count='1'] {
+    grid-template-columns: minmax(0, 190px);
+  }
+  .trainer-card-podium[data-count='2'] {
+    padding-inline: 8%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trainer-card-trophy-art .card-preview-trigger {
+    transition: none;
+  }
+  .trainer-card-trophy-art .card-preview-trigger:is(:hover, :focus-visible) {
+    transform: none;
+  }
+}

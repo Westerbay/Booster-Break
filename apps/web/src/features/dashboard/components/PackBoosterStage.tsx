@@ -3,6 +3,7 @@ import type { PackOpenStatusResponse, PokemonSetSummary } from '@tcg-collection/
 import { motion, useReducedMotion } from 'motion/react'
 
 import { Button } from '@/components/ui/button'
+import { ArenaBackdrop } from '@/components/game/ArenaBackdrop'
 import { m } from '@/paraglide/messages'
 import { formatRemaining } from '../time'
 import {
@@ -83,7 +84,8 @@ export function PackBoosterStage({
   }
 
   return (
-    <div className="relative isolate flex min-h-[34rem] flex-col items-center justify-center overflow-hidden rounded-lg border bg-[radial-gradient(circle_at_50%_42%,oklch(0.95_0.035_252_/_72%),transparent_34%),linear-gradient(135deg,oklch(0.91_0.065_252),oklch(0.985_0.004_250)_46%,oklch(0.94_0.012_250))] p-5">
+    <div className="game-booster-display relative isolate flex min-h-[34rem] flex-col items-center justify-center overflow-hidden rounded-lg border p-5">
+      <ArenaBackdrop />
       <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
         <motion.div
           className="relative h-[min(28rem,78vw)] w-full max-w-[34rem] touch-pan-y rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"

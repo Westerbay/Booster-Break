@@ -23,6 +23,11 @@ of those APIs and any applicable intellectual property rules.
 - Backend: Elysia
 - Shared contracts: TypeScript package in `packages/shared`
 
+## Multiplayer arena
+
+Surcharge adds simultaneous three-card duels, Elo rankings and trainer/card records.
+See [PvP rules, architecture and local validation](./docs/pvp.md).
+
 ## Scripts
 
 ```bash

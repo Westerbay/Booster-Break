@@ -1,4 +1,5 @@
 import { CheckIcon, EyeIcon, LoaderCircleIcon, PackageOpenIcon, StarIcon } from 'lucide-react'
+import type { KeyboardEvent } from 'react'
 import type { PokemonSetSummary } from '@tcg-collection/shared'
 
 import { buttonVariants } from '@/components/ui/button'
@@ -37,7 +38,7 @@ export function BoosterPickerPanel({
   hideSetCardTitle = false,
 }: BoosterPickerPanelProps) {
   return (
-    <div className="flex flex-col justify-between gap-5 rounded-lg bg-background p-5">
+    <div className="game-booster-picker flex flex-col justify-between gap-5 rounded-lg p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-black uppercase tracking-normal text-muted-foreground">
@@ -221,6 +222,13 @@ function BoosterChoiceCard({
   onSelectSet,
 }: BoosterChoiceCardProps) {
   const selectSet = () => onSelectSet(set.id)
+  function selectSetWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    selectSet()
+  }
+
   const isComplete = set.total > 0 && ownedSetPullCount >= set.total
   const previewImageUrl = set.logoUrl ?? set.symbolUrl ?? set.boosterImageUrl
   const imageFrameClassName = hideSetTitle
@@ -236,14 +244,9 @@ function BoosterChoiceCard({
       tabIndex={0}
       data-active={isActive}
       aria-pressed={isActive}
-      className="group relative min-h-32 cursor-pointer overflow-hidden rounded-lg border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[active=true]:border-sidebar data-[active=true]:ring-2 data-[active=true]:ring-sidebar/20"
+      className="group relative min-h-32 cursor-pointer overflow-hidden rounded-lg border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[active=true]:border-primary data-[active=true]:ring-2 data-[active=true]:ring-primary/40"
       onClick={selectSet}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          selectSet()
-        }
-      }}
+      onKeyDown={selectSetWithKeyboard}
     >
       <span className="sr-only">{m.packs_select_aria({ name: set.name })}</span>
       <div className={imageFrameClassName}>

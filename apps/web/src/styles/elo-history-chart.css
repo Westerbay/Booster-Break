@@ -1,0 +1,224 @@
+.elo-history-chart {
+  margin: 0;
+  padding: 21px 24px 0;
+  border: 1px solid var(--arena-line);
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--arena-panel), var(--arena-night));
+}
+.elo-chart-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+}
+.elo-chart-caption strong {
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.elo-chart-caption strong[data-positive='true'] {
+  color: var(--arena-green);
+}
+.elo-chart-caption strong[data-positive='false'] {
+  color: var(--arena-fire);
+}
+.elo-chart-frame {
+  position: relative;
+  margin: 36px 8px 0 0;
+  padding: 0 0 39px 48px;
+}
+.elo-chart-plot {
+  position: relative;
+  height: 202px;
+}
+.elo-chart-plot svg {
+  display: block;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+}
+.elo-chart-gridline {
+  stroke: color-mix(in oklch, var(--arena-muted) 19%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+}
+.elo-chart-line {
+  fill: none;
+  stroke: var(--arena-gold);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.elo-chart-axis {
+  position: absolute;
+  top: 0;
+  bottom: 39px;
+  left: 0;
+  width: 35px;
+  color: var(--arena-muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+.elo-chart-axis span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+}
+.elo-chart-point {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--arena-gold);
+  border-radius: 50%;
+  background: var(--arena-panel);
+  transform: translate(-50%, -50%);
+}
+.elo-chart-point[data-latest='true'] {
+  width: 10px;
+  height: 10px;
+  background: var(--arena-gold);
+  box-shadow: 0 0 0 5px color-mix(in oklch, var(--arena-gold) 13%, transparent);
+}
+.elo-chart-latest {
+  position: absolute;
+  right: -1px;
+  bottom: 17px;
+  color: var(--arena-gold);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-shadow: 0 2px 5px var(--arena-night);
+}
+.elo-chart-dates {
+  position: absolute;
+  bottom: 11px;
+  right: 0;
+  left: 48px;
+  height: 16px;
+  color: var(--arena-muted);
+  font-size: 0.6875rem;
+}
+.elo-chart-dates time {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.elo-chart-dates time[data-position='0'] {
+  transform: none;
+}
+.elo-chart-dates time[data-position='100'] {
+  transform: translateX(-100%);
+}
+.elo-chart-records {
+  border-top: 1px solid color-mix(in oklch, var(--arena-line) 75%, transparent);
+}
+.elo-chart-records summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding-block: 10px;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+.elo-chart-records summary::-webkit-details-marker {
+  display: none;
+}
+.elo-chart-records summary:hover {
+  color: var(--arena-text);
+}
+.elo-chart-records summary:focus-visible {
+  outline: 2px solid var(--arena-gold);
+  outline-offset: 3px;
+}
+.elo-chart-records summary svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  transition: transform 180ms ease-out;
+}
+.elo-chart-records[open] summary svg {
+  transform: rotate(180deg);
+}
+.elo-chart-records table {
+  width: 100%;
+  margin-bottom: 12px;
+  border-collapse: collapse;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.elo-chart-records th,
+.elo-chart-records td {
+  padding: 9px 0;
+  text-align: right;
+}
+.elo-chart-records th:first-child,
+.elo-chart-records td:first-child {
+  text-align: left;
+}
+.elo-chart-records th {
+  color: var(--arena-muted);
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+.elo-chart-records td {
+  border-top: 1px solid color-mix(in oklch, var(--arena-line) 55%, transparent);
+}
+.elo-chart-records td:nth-child(2) {
+  color: var(--arena-text);
+}
+.elo-chart-records td[data-positive='true'] {
+  color: var(--arena-green);
+}
+.elo-chart-records td[data-positive='false'] {
+  color: var(--arena-fire);
+}
+@media (max-width: 540px) {
+  .elo-history-chart {
+    padding: 17px 15px 0;
+  }
+  .elo-chart-caption {
+    font-size: 0.6875rem;
+  }
+  .elo-chart-caption strong {
+    font-size: 0.6875rem;
+  }
+  .elo-chart-frame {
+    margin-top: 31px;
+    padding-left: 39px;
+  }
+  .elo-chart-plot {
+    height: 180px;
+  }
+  .elo-chart-axis {
+    width: 29px;
+    font-size: 0.625rem;
+  }
+  .elo-chart-dates {
+    left: 39px;
+    font-size: 0.625rem;
+  }
+  .elo-chart-dates time[data-middle='true'] {
+    display: none;
+  }
+  .elo-chart-records table {
+    font-size: 0.6875rem;
+  }
+  .elo-chart-records th,
+  .elo-chart-records td {
+    padding-inline: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .elo-chart-records summary svg {
+    transition: none;
+  }
+}

@@ -121,7 +121,7 @@ export function TradeCreateAuctionPanel({
   }
 
   return (
-    <section className="rounded-lg border bg-card p-4">
+    <section className="min-w-0 rounded-lg border bg-card p-3 sm:p-4">
       <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
         {m.trade_create_auction()}
       </h2>
@@ -133,7 +133,7 @@ export function TradeCreateAuctionPanel({
       ) : null}
 
       {auth.authenticated ? (
-        <form className="mt-3 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-3 min-w-0 space-y-4" onSubmit={handleSubmit}>
           <p className="text-xs text-muted-foreground">
             {m.trade_auction_creation_quota({
               used: activeAuctions,
@@ -181,7 +181,7 @@ export function TradeCreateAuctionPanel({
 
           <button
             type="submit"
-            className="cursor-pointer h-10 w-full rounded-lg bg-sidebar px-3 text-sm font-black text-sidebar-foreground disabled:cursor-not-allowed disabled:opacity-55"
+            className="cursor-pointer h-10 w-full rounded-lg game-primary-button bg-primary px-3 text-sm font-black text-primary-foreground disabled:cursor-not-allowed disabled:opacity-55 max-sm:min-h-11 max-sm:min-w-11"
             disabled={!canCreateAuction || isSubmitting}
           >
             {isSubmitting ? m.trade_publishing() : m.trade_publish()}
