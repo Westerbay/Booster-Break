@@ -8,6 +8,7 @@ import type {
   AuctionFilters,
   TradeOfferStatus,
   TradeAuctionStatus,
+  TradeRecipientOwnershipResponse,
 } from '@tcg-collection/shared'
 import type { AuthService } from '../auth/auth-service'
 
@@ -230,6 +231,12 @@ export interface TradeOfferRepository {
 }
 
 export interface TradeCardRepository {
+  getRecipientCardOwnership(
+    auctionId: string,
+    proposerId: string,
+    cardIds: string[],
+    now: Date,
+  ): Promise<TradeRecipientOwnershipResponse>
   findCards(cardIds: string[]): Promise<TradeAuctionCardSummary[]>
   getUserCardQuantity(
     userId: string,

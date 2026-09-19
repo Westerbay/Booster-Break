@@ -21,6 +21,7 @@ model User {
   sessions     Session[]
   cards        UserCard[]
   giftedCards  GiftedUserCard[]
+  cardDiscoveries UserCardDiscovery[]
   packOpenings PackOpening[]
   tradeAuctions TradeAuction[] @relation("TradeAuctionCreator")
   tradeOffers   TradeOffer[] @relation("TradeOfferProposer")
@@ -97,6 +98,7 @@ model PokemonCard {
   set               PokemonSet        @relation(fields: [setId], references: [id], onDelete: Cascade)
   userCards         UserCard[]
   giftedUserCards   GiftedUserCard[]
+  discoveries       UserCardDiscovery[]
   openingCards      PackOpeningCard[]
   tradeAuctions     TradeAuction[]
   tradeOfferCards   TradeOfferCard[]
@@ -111,6 +113,26 @@ enum TradeAuctionStatus {
   accepted
   cancelled
   expired
+}
+
+// PostgreSQL enum order follows the existing getFinishRank hierarchy.
+enum CardFinish {
+  normal
+  reverse_holo
+  holo
+}
+
+model UserCardDiscovery {
+  userId          String   @map("user_id")
+  cardId          String   @map("card_id")
+  firstObtainedAt DateTime @map("first_obtained_at")
+  bestFinish      CardFinish @default(normal) @map("best_finish")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card            PokemonCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@id([userId, cardId])
+  @@index([cardId])
+  @@map("user_card_discoveries")
 }
 
 enum TradeOfferStatus {

@@ -3,6 +3,7 @@ import { mutationOptions, type QueryClient } from '@tanstack/react-query'
 import { openPokemonPack, openPokemonPackSandbox } from '@/features/dashboard/lib/api'
 import { preloadPackImages } from '@/features/dashboard/lib/preload-pack-images'
 import { pokemonQueryKeys } from '@/features/dashboard/lib/query-keys'
+import { pokedexQueryKeys } from '@/lib/queries/pokedex'
 
 interface OpenPackMutationOptionParams {
   onPreparingChange: (isPreparing: boolean) => void
@@ -21,6 +22,7 @@ export const useOpenPokemonPackMutationOption = (
       onPrepared()
       onPreparingChange(false)
       queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.collection.all })
+      queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
       queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.packStatus() })
     },
     onError: () => {

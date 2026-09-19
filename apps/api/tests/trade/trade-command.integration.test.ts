@@ -1,8 +1,14 @@
 import { afterAll, expect, test } from 'bun:test'
+import { Elysia } from 'elysia'
+import { AuthService } from '../../src/auth/auth-service'
+import { MemoryAuthStore } from '../../src/auth/session-store'
 import type { AuthUser } from '../../src/auth/types'
 import type { AppPrisma } from '../../src/db/prisma'
 import { PrismaTradeRepository } from '../../src/trade/trade-repository'
 import { TradeService } from '../../src/trade/trade-service'
+import { createTradeController } from '../../src/trade/trade-controller'
+import { PokedexRepository } from '../../src/pokemon/pokedex-repository'
+import { PokemonRepository } from '../../src/pokemon/pokemon-repository'
 
 const databaseTest = Bun.env.RUN_DATABASE_TESTS === 'true' ? test : test.skip
 
@@ -21,6 +27,157 @@ const assertDisposableTestDatabase = (): void => {
     throw new Error('Trade integration tests require a loopback database ending in _test')
   }
 }
+
+databaseTest('limits recipient ownership to eligible cards held by the proposer', async () => {
+  const fixture = await createTradeFixture()
+
+  try {
+    const result = await fixture.service.getRecipientCardOwnership(
+      fixture.proposer,
+      fixture.auctionId,
+      [fixture.offerCardId, fixture.auctionCardId],
+    )
+
+    expect(result).toEqual({ cards: [{ cardId: fixture.offerCardId, owned: false }] })
+
+    await fixture.prisma.giftedUserCard.create({
+      data: {
+        userId: fixture.creator.id,
+        cardId: fixture.offerCardId,
+        finish: 'holo',
+        quantity: 1,
+        firstCollectedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    })
+
+    expect(
+      await fixture.service.getRecipientCardOwnership(fixture.proposer, fixture.auctionId, [
+        fixture.offerCardId,
+      ]),
+    ).toEqual({ cards: [{ cardId: fixture.offerCardId, owned: true }] })
+
+    await fixture.prisma.tradeAuction.update({
+      where: { id: fixture.auctionId },
+      data: { filters: { excludedCardIds: [fixture.offerCardId] } },
+    })
+
+    expect(
+      await fixture.service.getRecipientCardOwnership(fixture.proposer, fixture.auctionId, [
+        fixture.offerCardId,
+      ]),
+    ).toEqual({ cards: [] })
+  } finally {
+    await fixture.cleanup()
+  }
+})
+
+databaseTest(
+  'recipient ownership reflects current positive inventory across finishes',
+  async () => {
+    const fixture = await createTradeFixture()
+
+    try {
+      await fixture.prisma.userCard.create({
+        data: {
+          userId: fixture.creator.id,
+          cardId: fixture.offerCardId,
+          finish: 'reverse_holo',
+          quantity: 1,
+          firstCollectedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      })
+      const readOwnership = () =>
+        fixture.service.getRecipientCardOwnership(fixture.proposer, fixture.auctionId, [
+          fixture.offerCardId,
+          fixture.offerCardId,
+        ])
+      expect(await readOwnership()).toEqual({
+        cards: [{ cardId: fixture.offerCardId, owned: true }],
+      })
+
+      await fixture.prisma.userCard.deleteMany({
+        where: { userId: fixture.creator.id, cardId: fixture.offerCardId },
+      })
+      expect(await readOwnership()).toEqual({
+        cards: [{ cardId: fixture.offerCardId, owned: false }],
+      })
+      await fixture.prisma.userCard.deleteMany({
+        where: { userId: fixture.proposer.id, cardId: fixture.offerCardId },
+      })
+      expect(await readOwnership()).toEqual({ cards: [] })
+    } finally {
+      await fixture.cleanup()
+    }
+  },
+)
+
+databaseTest(
+  'recipient ownership requires authentication, bounded IDs and an active other auction',
+  async () => {
+    const fixture = await createTradeFixture()
+
+    try {
+      const auth = new AuthService({
+        sessionCookieName: 'trade_test',
+        store: new MemoryAuthStore(),
+      })
+      const login = await auth.loginForDevelopment({ pseudo: 'trade-http-test' })
+      if (!('sessionId' in login)) throw new Error('Test login failed')
+      const app = new Elysia().use(
+        createTradeController({ service: fixture.service, authService: auth }),
+      )
+      const request = (body: unknown, authenticated = false) =>
+        app.handle(
+          new Request(`http://localhost/trade/auctions/${fixture.auctionId}/recipient-ownership`, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              ...(authenticated ? { Cookie: `trade_test=${login.sessionId}` } : {}),
+            },
+            body: JSON.stringify(body),
+          }),
+        )
+      expect((await request({ cardIds: [fixture.offerCardId] })).status).toBe(401)
+      expect((await request({ cardIds: Array(101).fill(fixture.offerCardId) }, true)).status).toBe(
+        422,
+      )
+      const scopedResponse = await request(
+        { cardIds: [fixture.offerCardId], proposerId: fixture.proposer.id },
+        true,
+      )
+      expect(scopedResponse.status).toBe(200)
+      expect(await scopedResponse.json()).toEqual({ cards: [] })
+
+      expect(
+        await fixture.service.getRecipientCardOwnership(fixture.creator, fixture.auctionId, [
+          fixture.offerCardId,
+        ]),
+      ).toMatchObject({ error: 'cannot_trade_self' })
+      await fixture.prisma.tradeAuction.update({
+        where: { id: fixture.auctionId },
+        data: { expiresAt: new Date(0) },
+      })
+      expect(
+        await fixture.service.getRecipientCardOwnership(fixture.proposer, fixture.auctionId, [
+          fixture.offerCardId,
+        ]),
+      ).toMatchObject({ error: 'auction_expired' })
+      await fixture.prisma.tradeAuction.update({
+        where: { id: fixture.auctionId },
+        data: { status: 'cancelled' },
+      })
+      expect(
+        await fixture.service.getRecipientCardOwnership(fixture.proposer, fixture.auctionId, [
+          fixture.offerCardId,
+        ]),
+      ).toMatchObject({ error: 'auction_closed' })
+    } finally {
+      await fixture.cleanup()
+    }
+  },
+)
 
 databaseTest('rolls back an offer when its durable notification cannot be created', async () => {
   const fixture = await createTradeFixture()
@@ -59,8 +216,18 @@ databaseTest(
     const fixture = await createTradeFixture()
 
     try {
+      await new PokemonRepository(fixture.prisma).recordCardGift(
+        fixture.creator.id,
+        fixture.offerCardId,
+        'normal',
+        1,
+      )
+      await fixture.prisma.userCard.updateMany({
+        where: { userId: fixture.proposer.id, cardId: fixture.offerCardId },
+        data: { finish: 'holo' },
+      })
       const offer = await fixture.service.createOffer(fixture.proposer, fixture.auctionId, {
-        cards: [{ cardId: fixture.offerCardId, finish: 'normal', quantity: 1 }],
+        cards: [{ cardId: fixture.offerCardId, finish: 'holo', quantity: 1 }],
       })
       expect(offer).not.toHaveProperty('error')
       if ('error' in offer) {
@@ -94,6 +261,14 @@ databaseTest(
             expect.objectContaining({ id: offer.id, status: 'pending' }),
           ])
         }
+        const pokedex = new PokedexRepository(fixture.prisma)
+        const creatorSet = await pokedex.getSet(fixture.creator.id, fixture.setId, 1, 12, 'en')
+        expect(creatorSet?.set.discoveredCount).toBe(1)
+        expect(
+          creatorSet?.slots.find((slot) => slot.card.id === fixture.offerCardId)?.card.finish,
+        ).toBe('normal')
+        const proposerSet = await pokedex.getSet(fixture.proposer.id, fixture.setId, 1, 12, 'en')
+        expect(proposerSet?.set.discoveredCount).toBe(0)
       } finally {
         await removeFailure()
       }
@@ -364,6 +539,7 @@ const createTradeFixture = async () => {
     creator,
     proposer,
     auctionId,
+    setId,
     auctionCardId,
     offerCardId,
     service: new TradeService({ tradeRepository: new PrismaTradeRepository(prisma) }),

@@ -13,6 +13,8 @@ import { refreshTradeMarketQueries } from '../hooks/useTradeQueries'
 import { useTradeNotificationViewedMutationOption } from '@/lib/mutations/trade'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { useOwnedCardIdsQueryOption } from '@/lib/queries/pokemon'
+import { pokedexQueryKeys } from '@/lib/queries/pokedex'
+import { pokemonQueryKeys } from '@/features/dashboard/lib/query-keys'
 import { useTradeNotificationsQueryOption } from '@/lib/queries/trade'
 import { tradeQueryKeys } from '../lib/query-keys'
 import { TradeNotificationModal } from './TradeNotificationModal'
@@ -48,6 +50,12 @@ const useTradeNotificationMarketInvalidation = (
         if (signature && invalidatedNotificationSignatures.get(locale) !== signature) {
           invalidatedNotificationSignatures.set(locale, signature)
           void refreshTradeMarketQueries(queryClient)
+          if (
+            data?.notifications.some((notification) => notification.type === 'trade_offer_accepted')
+          ) {
+            void queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.collection.all })
+            void queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
+          }
         }
 
         notify()

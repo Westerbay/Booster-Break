@@ -13,6 +13,7 @@ import { DashboardContent } from '@/features/dashboard/views/DashboardContent'
 import { useLogoutMutationOption } from '@/lib/mutations/auth'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { m } from '@/paraglide/messages'
+import { cn } from '@/lib/utils'
 
 export function DashboardPage() {
   useLocale()
@@ -24,6 +25,11 @@ export function DashboardPage() {
   const queryClient = useQueryClient()
   const auth = useQuery(useCurrentUserQueryOption())
   const logoutMutation = useMutation(useLogoutMutationOption(queryClient))
+  const contentClassName = cn(
+    'game-content mx-auto flex min-h-[calc(100dvh-4rem)] w-full items-start justify-center md:min-h-dvh',
+    shownTab === 'pokedex' ? 'game-content-pokedex' : 'max-w-7xl px-3 py-5 sm:px-6 lg:px-8',
+    shownTab === 'packs' && 'game-content-packs',
+  )
 
   const selectTab = (tab: DashboardTab) => {
     setOpponentId(undefined)
@@ -66,7 +72,7 @@ export function DashboardPage() {
       />
 
       <main id="main-content" className="game-main min-h-dvh min-w-0 pt-16 md:pl-52 md:pt-0">
-        <div className="game-content mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-7xl items-start justify-center px-3 py-5 sm:px-6 md:min-h-dvh lg:px-8">
+        <div className={contentClassName}>
           <DashboardContent
             activeTab={shownTab}
             opponentId={invitation ? undefined : opponentId}

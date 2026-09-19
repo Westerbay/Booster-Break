@@ -2,6 +2,7 @@ import type {
   CreateOfferRequest,
   SupportedLocale,
   TradeOfferResponse,
+  TradeRecipientOwnershipResponse,
 } from '@tcg-collection/shared'
 import { DEFAULT_LOCALE } from '@tcg-collection/shared'
 import type { AuthUser } from '../auth/types'
@@ -21,6 +22,32 @@ const now = () => new Date()
 
 export class TradeOfferService {
   constructor(private readonly options: TradeServiceOptions) {}
+
+  async getRecipientCardOwnership(
+    user: AuthUser,
+    auctionId: string,
+    cardIds: string[],
+  ): Promise<TradeServiceResult<TradeRecipientOwnershipResponse>> {
+    const userOrError = await resolveAuthenticatedTradeUser(
+      user,
+      'Sign in to check cards for a trade offer.',
+    )
+    if ('error' in userOrError) return userOrError
+
+    try {
+      return await this.options.tradeRepository.getRecipientCardOwnership(
+        auctionId,
+        userOrError.id,
+        [...new Set(cardIds)],
+        now(),
+      )
+    } catch (error: unknown) {
+      if (error instanceof TradeRepositoryErrorException) {
+        return toTradeServiceError(error.code)
+      }
+      throw error
+    }
+  }
 
   async createOffer(
     user: AuthUser,

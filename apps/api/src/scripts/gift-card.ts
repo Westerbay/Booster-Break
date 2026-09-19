@@ -1,4 +1,5 @@
 import { prisma } from '../db/prisma'
+import { PokemonRepository } from '../pokemon/pokemon-repository'
 import { parseArgs, toPositiveInt } from './script-utils'
 
 type GiftFinish = 'normal' | 'holo' | 'reverse_holo'
@@ -24,7 +25,6 @@ if (!isValidGiftFinish(finish)) {
   process.exit(1)
 }
 
-const now = new Date()
 const user = await prisma.user.findUnique({ where: { id: userId } })
 
 if (!user) {
@@ -39,29 +39,7 @@ if (!card) {
   process.exit(1)
 }
 
-await prisma.giftedUserCard.upsert({
-  where: {
-    userId_cardId_finish: {
-      userId,
-      cardId,
-      finish,
-    },
-  },
-  create: {
-    userId,
-    cardId,
-    finish,
-    quantity,
-    firstCollectedAt: now,
-    updatedAt: now,
-  },
-  update: {
-    quantity: {
-      increment: quantity,
-    },
-    updatedAt: now,
-  },
-})
+await new PokemonRepository(prisma).recordCardGift(userId, cardId, finish, quantity)
 
 console.log(
   JSON.stringify(

@@ -30,6 +30,7 @@ import {
 import { consumeBoosterCharge, getBoosterChargeStatus, PackCooldownError } from './pack-cooldown'
 import type { Set as TcgDexSet } from '@tcgdex/sdk'
 import type { TcgDexCard } from './tcgdex-client'
+import { recordCardDiscovery } from './card-discovery'
 
 type CollectionInventorySet = {
   name: string
@@ -103,6 +104,9 @@ export class PokemonRepository {
             none: {},
           },
           giftedUserCards: {
+            none: {},
+          },
+          discoveries: {
             none: {},
           },
         },
@@ -428,6 +432,7 @@ export class PokemonRepository {
             updatedAt: openedAt,
           },
         })
+        await recordCardDiscovery(tx, userId, card.id, card.finish ?? 'normal', openedAt)
       }
     })
 
@@ -441,6 +446,23 @@ export class PokemonRepository {
     })
 
     return user?.boosterCooldownAnchor ?? null
+  }
+
+  async recordCardGift(
+    userId: string,
+    cardId: string,
+    finish: CardFinish,
+    quantity: number,
+  ): Promise<void> {
+    const now = new Date()
+    await this.db.$transaction(async (tx) => {
+      const inventory = await tx.giftedUserCard.upsert({
+        where: { userId_cardId_finish: { userId, cardId, finish } },
+        create: { userId, cardId, finish, quantity, firstCollectedAt: now, updatedAt: now },
+        update: { quantity: { increment: quantity }, updatedAt: now },
+      })
+      await recordCardDiscovery(tx, userId, cardId, finish, inventory.firstCollectedAt)
+    })
   }
 
   private async listUserCollectionRows(

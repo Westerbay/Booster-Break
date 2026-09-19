@@ -18,7 +18,7 @@
     linear-gradient(180deg, var(--game-surface-base), var(--game-surface-deep) 78%);
 }
 .game-content {
-  padding-block: clamp(1.5rem, 4vw, 3.5rem);
+  padding-block: var(--game-content-padding-block, clamp(1.5rem, 4vw, 3.5rem));
 }
 .game-nav {
   border-color: var(--sidebar-border);
@@ -165,6 +165,25 @@
 }
 .game-booster-picker {
   background: var(--game-panel-background);
+}
+@media (min-width: 1024px) and (min-height: 700px) {
+  .game-content-packs {
+    --game-content-padding-block: 24px;
+    align-items: center;
+  }
+  .game-pack-layout {
+    height: min(48rem, calc(100dvh - 3rem - 2px));
+    min-height: 0;
+  }
+  .game-pack-stage .game-booster-picker {
+    min-height: 0;
+  }
+  .game-pack-stage .game-booster-picker > div:first-child {
+    flex-shrink: 0;
+  }
+  .game-pack-stage .game-booster-options {
+    min-height: 0;
+  }
 }
 .game-booster-picker > div:first-child > div > p:first-child {
   color: var(--primary);

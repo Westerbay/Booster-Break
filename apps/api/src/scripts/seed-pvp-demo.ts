@@ -2,6 +2,7 @@ import { PrismaAuthStore } from '../auth/prisma-auth-store'
 import { parseArgs } from './script-utils'
 import { TcgDexClient } from '../pokemon/tcgdex-client'
 import { toCardWrite } from '../pokemon/pokemon-mappers'
+import { recordCardDiscovery } from '../pokemon/card-discovery'
 import { cleanupPvpDemoHistory, seedPvpDemoHistory } from './pvp-demo-history'
 
 // This scenario is deliberately restricted to a disposable, loopback test database.
@@ -77,17 +78,20 @@ try {
       demoUserIds.push(user.id)
       for (const id of cardIds) {
         const cardId = `pvp-demo-${id}`
-        await prisma.userCard.upsert({
-          where: { userId_cardId_finish: { userId: user.id, cardId, finish: 'normal' } },
-          create: {
-            userId: user.id,
-            cardId,
-            finish: 'normal',
-            quantity: 1,
-            firstCollectedAt: now,
-            updatedAt: now,
-          },
-          update: {},
+        await prisma.$transaction(async (tx) => {
+          const inventory = await tx.userCard.upsert({
+            where: { userId_cardId_finish: { userId: user.id, cardId, finish: 'normal' } },
+            create: {
+              userId: user.id,
+              cardId,
+              finish: 'normal',
+              quantity: 1,
+              firstCollectedAt: now,
+              updatedAt: now,
+            },
+            update: {},
+          })
+          await recordCardDiscovery(tx, user.id, cardId, 'normal', inventory.firstCollectedAt)
         })
       }
       // Synthetic records are scoped to this demo; never loaded by the production app.

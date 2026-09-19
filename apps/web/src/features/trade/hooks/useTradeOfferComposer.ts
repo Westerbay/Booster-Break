@@ -9,6 +9,7 @@ import type {
 } from '@tcg-collection/shared'
 import { useCreateTradeOfferMutationOption } from '@/lib/mutations/trade'
 import { usePokemonCollectionAllQueryOption } from '@/lib/queries/pokemon'
+import { useTradeRecipientOwnershipQueryOption } from '@/lib/queries/trade-recipient'
 import { toast } from '@/features/toast/toast-store'
 import {
   MAX_PENDING_OFFERS_PER_AUCTION_BY_USER,
@@ -67,6 +68,10 @@ export interface UseTradeOfferComposerResult {
   clearSelection: () => void
   updateSelection: (card: UserCollectionCard, rawValue: string) => void
   isSubmitting: boolean
+  recipientOwnershipByCard: ReadonlyMap<string, boolean>
+  isRecipientOwnershipLoading: boolean
+  recipientOwnershipError: string | null
+  retryRecipientOwnership: () => void
 }
 
 export function useTradeOfferComposer({
@@ -162,6 +167,20 @@ export function useTradeOfferComposer({
   }, [collectionPage, filteredCards])
 
   const selectedEntries = Object.values(selection)
+  const recipientOwnership = useQuery(
+    useTradeRecipientOwnershipQueryOption(
+      userId,
+      auction.id,
+      [...pagedCards, ...selectedEntries.map((entry) => entry.card)].map((card) => card.id),
+      canOffer,
+    ),
+  )
+  const recipientOwnershipByCard = new Map<string, boolean>()
+  if (!recipientOwnership.isError) {
+    for (const card of recipientOwnership.data ?? []) {
+      recipientOwnershipByCard.set(card.cardId, card.owned)
+    }
+  }
   const selectedCardsCount = selectedEntries.length
   const selectedCardsTotal = selectedEntries.reduce((acc, item) => acc + item.quantity, 0)
 
@@ -268,5 +287,9 @@ export function useTradeOfferComposer({
     clearSelection,
     updateSelection,
     isSubmitting: createOffer.isPending,
+    recipientOwnershipByCard,
+    isRecipientOwnershipLoading: recipientOwnership.isLoading,
+    recipientOwnershipError: recipientOwnership.error?.message ?? null,
+    retryRecipientOwnership: () => void recipientOwnership.refetch(),
   }
 }

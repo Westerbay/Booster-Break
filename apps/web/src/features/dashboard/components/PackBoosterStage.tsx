@@ -86,9 +86,9 @@ export function PackBoosterStage({
   return (
     <div className="game-booster-display relative isolate flex min-h-[34rem] flex-col items-center justify-center overflow-hidden rounded-lg border p-5">
       <ArenaBackdrop />
-      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+      <div className="relative aspect-[1.05] min-h-0 w-full max-w-[29.4rem]">
         <motion.div
-          className="relative h-[min(28rem,78vw)] w-full max-w-[34rem] touch-pan-y rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+          className="absolute inset-0 touch-pan-y rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
           drag={sets.length > 1 ? 'x' : false}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.12}
@@ -179,7 +179,7 @@ export function PackBoosterStage({
           </Button>
         </motion.div>
       </div>
-      <div className="mt-4 grid w-full justify-items-center gap-2 md:mt-2">
+      <div className="mt-4 grid w-full shrink-0 justify-items-center gap-2 md:mt-2">
         <div className="flex flex-col items-center gap-1 rounded-2xl border bg-card/88 px-3 py-1.5 text-center shadow-sm">
           <span className="text-xs font-black text-muted-foreground">
             {showMultipleReady

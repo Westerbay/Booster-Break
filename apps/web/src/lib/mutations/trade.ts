@@ -8,6 +8,7 @@ import type {
 } from '@tcg-collection/shared'
 
 import { pokemonQueryKeys } from '@/features/dashboard/lib/query-keys'
+import { pokedexQueryKeys } from '@/lib/queries/pokedex'
 import {
   acceptTradeOffer,
   cancelTradeAuction,
@@ -125,6 +126,7 @@ export const useAcceptTradeOfferMutationOption = (
     onSuccess: async () => {
       await refreshTradeQueries(queryClient)
       await queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.collection.all })
+      await queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
       options?.onSuccess?.()
     },
     onError: options?.onError,

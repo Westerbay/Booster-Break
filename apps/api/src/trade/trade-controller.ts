@@ -9,6 +9,7 @@ import type { TradeControllerErrorCode, TradeControllerOptions } from './trade-t
 import {
   createAuctionSchema,
   createOfferSchema,
+  recipientOwnershipSchema,
   offerIdSchema,
   offerPathSchema,
   notificationIdSchema,
@@ -111,6 +112,23 @@ const createAuthenticatedTradeRoutes = (
         body: createOfferSchema,
         query: tradeLocaleQuerySchema,
       },
+    )
+    .post(
+      '/auctions/:auctionId/recipient-ownership',
+      async (context) => {
+        const { body, currentUser, params, status } = getAuthenticatedContext(context)
+        const result = await service.getRecipientCardOwnership(
+          currentUser,
+          params.auctionId,
+          body.cardIds,
+        )
+
+        if (isTradeServiceError(result)) {
+          return status(toTradeErrorStatus(result.error), result)
+        }
+        return result
+      },
+      { params: tradeIdSchema, body: recipientOwnershipSchema },
     )
     .delete(
       '/offers/:offerId',
