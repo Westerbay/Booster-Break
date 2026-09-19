@@ -1,0 +1,577 @@
+/* The rulebook and collection picker share the arena's steel-and-gold material. */
+.arena-book-trigger {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+}
+.arena-book-trigger > svg {
+  width: 20px;
+  height: 20px;
+}
+.arena-manual,
+.arena-card-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: calc(100% - 2rem);
+  max-height: 88dvh;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--game-surface-border);
+  border-radius: 14px;
+  background: var(--game-panel-background);
+  color: var(--arena-text);
+  box-shadow:
+    0 32px 110px color-mix(in oklch, var(--game-surface-deep) 70%, transparent),
+    inset 0 1px color-mix(in oklch, var(--arena-text) 9%, transparent);
+}
+.arena-manual {
+  max-width: 690px;
+}
+.arena-manual > [data-slot='dialog-close'],
+.arena-card-picker > [data-slot='dialog-close'] {
+  width: 44px;
+  height: 44px;
+  top: 10px;
+  right: 10px;
+  color: var(--arena-muted);
+}
+.arena-manual-heading,
+.arena-picker-heading {
+  flex-shrink: 0;
+  gap: 10px;
+  padding: 30px 64px 25px 32px;
+  border-bottom: 1px solid var(--arena-line);
+  background:
+    radial-gradient(
+      ellipse at 12% 0,
+      color-mix(in oklch, var(--arena-gold) 10%, transparent),
+      transparent 75%
+    ),
+    var(--game-surface-panel);
+}
+.arena-manual-emblem {
+  width: 27px;
+  height: 27px;
+  margin-bottom: 5px;
+  color: var(--arena-gold);
+  stroke-width: 1.3;
+}
+.arena-manual-heading [data-slot='dialog-title'],
+.arena-picker-heading [data-slot='dialog-title'] {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--arena-text);
+}
+.arena-manual-heading [data-slot='dialog-description'],
+.arena-picker-heading [data-slot='dialog-description'] {
+  max-width: 55ch;
+  color: var(--arena-muted);
+  line-height: 1.6;
+}
+.arena-manual-pages {
+  min-height: 0;
+  padding: 4px 32px 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.arena-manual-pages section {
+  padding: 25px 0;
+}
+.arena-manual-pages section + section {
+  border-top: 1px solid color-mix(in oklch, var(--arena-line) 65%, transparent);
+}
+.arena-manual-pages h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.arena-manual-pages h3 > span {
+  min-width: 25px;
+  color: var(--arena-gold);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+.arena-manual-pages p {
+  max-width: 65ch;
+  margin-left: 41px;
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+.arena-manual-pages p + p {
+  margin-top: 12px;
+}
+.arena-manual-pages .arena-manual-note {
+  color: var(--arena-muted);
+  font-size: 0.8rem;
+}
+.arena-manual-pages .arena-manual-example {
+  padding: 14px 0 0;
+  color: var(--arena-gold);
+}
+.arena-manual-intensities {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 0 41px;
+}
+.arena-manual-intensities > span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--arena-muted);
+  font-size: 0.72rem;
+}
+.arena-manual-intensities b {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--arena-gold);
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.arena-manual-intensities svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.5;
+}
+.arena-card-picker {
+  width: calc(100% - 2rem);
+  max-width: 880px;
+  height: min(840px, 92dvh);
+  max-height: 92dvh;
+}
+.arena-picker-heading {
+  padding: 25px 64px 20px 24px;
+}
+.arena-picker-tools {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 20px 24px 16px;
+}
+.arena-picker-search {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+  font-weight: 550;
+}
+.arena-picker-search-field {
+  display: flex;
+  min-width: 0;
+  height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 12px;
+  border: 1px solid var(--arena-line);
+  border-radius: 7px;
+  background: var(--game-surface-base);
+}
+.arena-picker-search-field:focus-within {
+  outline: 2px solid var(--arena-gold);
+  outline-offset: 2px;
+}
+.arena-picker-search-field svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.arena-picker-search-field input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  color: var(--arena-text);
+  font-size: 1rem;
+  font-weight: 400;
+  outline: none;
+}
+.arena-picker-search-field input::placeholder {
+  color: var(--arena-muted);
+}
+.arena-picker-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px 12px;
+  color: var(--arena-muted);
+  font-size: 0.75rem;
+}
+.arena-picker-inventory {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 24px 24px;
+  scrollbar-gutter: stable;
+  background: radial-gradient(
+    ellipse at 50% 110%,
+    color-mix(in oklch, var(--arena-gold) 5%, transparent),
+    transparent 75%
+  );
+}
+.arena-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 16px;
+}
+.arena-picker-card {
+  width: 100%;
+  padding: 8px;
+  border-color: transparent;
+  background: var(--game-surface-base);
+  border-radius: 9px;
+  box-shadow: none;
+  transition:
+    transform 180ms ease-out,
+    border-color 180ms ease-out,
+    background-color 180ms ease-out;
+}
+.arena-picker-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--game-surface-border);
+  background: var(--game-surface-raised);
+}
+.arena-picker-card > article > div:nth-child(2) > div > p:first-child {
+  font-size: 0.78rem;
+  color: var(--arena-text);
+}
+.arena-picker-card > article > div:nth-child(2) > div > p:nth-child(2) {
+  color: var(--arena-muted);
+}
+.arena-picker-power {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 9px;
+  color: var(--arena-gold);
+  font-size: 0.66rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.arena-picker-power svg {
+  width: 11px;
+  height: 11px;
+}
+.arena-picker-skeleton {
+  aspect-ratio: 0.57;
+  border: 1px solid var(--arena-line);
+  border-radius: 9px;
+  background: var(--game-surface-raised);
+}
+.arena-picker-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--arena-line);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.arena-picker-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 24px;
+  border-top: 1px solid var(--arena-line);
+  background: var(--game-surface-panel);
+}
+.arena-picker-selected-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.arena-picker-selected-card {
+  justify-content: flex-start;
+  min-width: 0;
+  height: 44px;
+  padding: 4px 8px 4px 5px;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+.arena-picker-selected-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.arena-picker-miniature {
+  width: 23px;
+  height: 32px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.arena-picker-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.arena-team-heading {
+  align-items: center;
+  gap: 20px;
+}
+.arena-team-heading > div:first-child > p {
+  max-width: 52ch;
+  margin-top: 7px;
+  font-size: 0.85rem;
+  color: var(--arena-muted);
+}
+.arena-team-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  color: var(--arena-gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.arena-budget-track {
+  display: flex;
+  gap: 4px;
+}
+.arena-budget-track i {
+  flex: 1;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--arena-line);
+}
+.arena-budget-track i[data-spent='true'] {
+  background: var(--arena-gold);
+}
+.arena-team-slots {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  isolation: isolate;
+  gap: 28px;
+  padding: 40px 28px 24px;
+  margin-top: 12px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--arena-line);
+  background: radial-gradient(
+    ellipse at 50% 90%,
+    color-mix(in oklch, var(--arena-gold) 9%, transparent),
+    transparent 65%
+  );
+  perspective: 900px;
+}
+.arena-team-position {
+  width: 100%;
+  min-width: 0;
+  max-width: 156px;
+  margin: 0;
+  transition: transform 200ms ease-out;
+}
+.arena-team-position[data-filled='true']:hover {
+  transform: translateY(-5px);
+}
+.arena-team-slot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 63 / 88;
+  border: 1px solid var(--arena-line);
+  border-radius: 9px;
+  background: var(--game-panel-background);
+  box-shadow:
+    inset 0 1px color-mix(in oklch, var(--arena-text) 7%, transparent),
+    0 16px 22px -18px color-mix(in oklch, var(--game-surface-deep) 80%, transparent);
+}
+.arena-team-position[data-filled='true'] .arena-team-slot {
+  border-color: color-mix(in oklch, var(--arena-gold) 50%, var(--arena-line));
+}
+.arena-slot-number {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: color-mix(in oklch, var(--arena-gold) 45%, var(--arena-muted));
+  font-size: 2.75rem;
+  font-weight: 300;
+  letter-spacing: -0.07em;
+  font-variant-numeric: tabular-nums;
+}
+.arena-team-remove {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--arena-line);
+  width: 44px;
+  height: 44px;
+  right: -12px;
+  top: -16px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--arena-text);
+  background: var(--game-surface-raised);
+}
+.arena-team-remove svg {
+  width: 16px;
+  height: 16px;
+}
+.arena-team-power {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 45px;
+  height: 31px;
+  right: -7px;
+  bottom: -6px;
+  border: 1px solid var(--arena-gold);
+  border-radius: 5px;
+  background: var(--arena-gold);
+  color: var(--arena-night);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+.arena-team-power svg {
+  width: 13px;
+  height: 13px;
+}
+.arena-team-position figcaption {
+  margin-top: 16px;
+  color: var(--arena-text);
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.arena-team-search {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+.arena-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--arena-line);
+}
+@media (max-width: 640px) {
+  .arena-manual,
+  .arena-card-picker {
+    width: calc(100% - 1.25rem);
+  }
+  .arena-manual-heading,
+  .arena-picker-heading {
+    padding: 24px 58px 21px 20px;
+  }
+  .arena-manual-heading [data-slot='dialog-title'],
+  .arena-picker-heading [data-slot='dialog-title'] {
+    font-size: 1.75rem;
+  }
+  .arena-manual-pages {
+    padding-inline: 20px;
+  }
+  .arena-manual-pages p {
+    margin-left: 0;
+  }
+  .arena-manual-pages h3 {
+    gap: 10px;
+  }
+  .arena-manual-intensities {
+    gap: 8px;
+    margin-left: 0;
+  }
+  .arena-picker-tools,
+  .arena-picker-inventory,
+  .arena-picker-selection,
+  .arena-picker-pagination {
+    padding-inline: 16px;
+  }
+  .arena-picker-tools {
+    gap: 8px;
+    padding-block: 14px 12px;
+  }
+  .arena-picker-tools > button {
+    padding-inline: 9px;
+    font-size: 0.75rem;
+  }
+  .arena-picker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+  .arena-picker-selection {
+    padding-block: 14px;
+    gap: 12px;
+  }
+  .arena-picker-selected-cards {
+    gap: 6px;
+  }
+  .arena-picker-selected-card {
+    gap: 4px;
+    padding-inline: 5px;
+  }
+  .arena-picker-selected-card > svg {
+    width: 12px;
+    height: 12px;
+  }
+  .arena-picker-miniature {
+    width: 20px;
+    height: 28px;
+  }
+  .arena-picker-selected-name {
+    font-size: 0.65rem;
+  }
+  .arena-picker-confirm {
+    gap: 10px;
+  }
+  .arena-picker-confirm > button {
+    padding-inline: 15px;
+  }
+  .arena-team-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .arena-team-budget {
+    font-size: 0.7rem;
+  }
+  .arena-team-slots {
+    gap: 16px;
+    padding: 26px 10px 20px;
+  }
+  .arena-slot-number {
+    font-size: 2rem;
+  }
+  .arena-team-position figcaption {
+    font-size: 0.7rem;
+  }
+  .arena-composer-actions {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 360px) {
+  .arena-picker-heading [data-slot='dialog-title'] {
+    font-size: 1.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-picker-card,
+  .arena-team-position {
+    transition: none;
+  }
+}

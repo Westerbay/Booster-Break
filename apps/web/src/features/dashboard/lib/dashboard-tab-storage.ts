@@ -21,5 +21,12 @@ export const setStoredDashboardTab = (tab: DashboardTab) => {
 }
 
 const isDashboardContentTab = (tab: string | null): tab is DashboardTab => {
-  return tab === 'packs' || tab === 'sandbox' || tab === 'collection' || tab === 'trade'
+  return (
+    tab === 'packs' ||
+    tab === 'sandbox' ||
+    tab === 'collection' ||
+    tab === 'trade' ||
+    tab === 'boards' ||
+    tab === 'pvp'
+  )
 }

@@ -54,7 +54,7 @@ export function LanguageSelector({
       className={cn(
         'rounded-lg border p-2',
         isCompact && 'p-1.5',
-        isSurface ? 'border-border bg-background' : 'border-sidebar-accent/24 bg-sidebar-accent/10',
+        isSurface ? 'border-border bg-background' : 'border-sidebar-border bg-sidebar',
         className,
       )}
     >
@@ -75,7 +75,7 @@ export function LanguageSelector({
             isCompact && 'h-9 px-2.5',
             isSurface
               ? 'border-border bg-card text-card-foreground hover:bg-muted focus-visible:ring-ring'
-              : 'border-sidebar-accent/28 bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90 focus-visible:ring-sidebar-ring',
+              : 'border-sidebar-border bg-secondary/50 text-sidebar-foreground hover:bg-secondary focus-visible:ring-sidebar-ring',
           )}
         >
           <span className="flex items-center gap-2">

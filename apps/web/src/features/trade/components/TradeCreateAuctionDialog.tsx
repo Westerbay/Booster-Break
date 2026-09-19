@@ -1,6 +1,5 @@
 import type { AuthMeResponse, SupportedLocale } from '@tcg-collection/shared'
-import { XIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { m } from '@/paraglide/messages'
 import { TradeCreateAuctionPanel } from './TradeCreateAuctionPanel'
 
@@ -21,45 +20,24 @@ export function TradeCreateAuctionDialog({
   onClose,
   onAuctionCreated,
 }: TradeCreateAuctionDialogProps) {
-  if (!open) {
-    return null
+  function openChanged(nextOpen: boolean) {
+    if (!nextOpen) onClose()
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/78 p-3 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-label={m.trade_create_auction()}
-      onClick={onClose}
-    >
-      <div
-        className="max-h-[92dvh] w-[min(56rem,calc(100vw-1.5rem))] overflow-y-auto overflow-x-hidden rounded-lg border bg-background p-4 text-foreground shadow-2xl sm:p-6"
-        onClick={(event) => {
-          event.stopPropagation()
-        }}
+    <Dialog open={open} onOpenChange={openChanged}>
+      <DialogContent
+        className="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] min-w-0 max-w-4xl overflow-y-auto sm:max-w-4xl"
+        closeLabel={m.pvp_close()}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-            {m.trade_create_auction()}
-          </h2>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={onClose}
-            aria-label={m.trade_cancel()}
-          >
-            <XIcon aria-hidden="true" />
-          </Button>
-        </div>
+        <DialogTitle className="pr-12">{m.trade_create_auction()}</DialogTitle>
         <TradeCreateAuctionPanel
           key={`trade-create-${locale}`}
           auth={auth}
           activeAuctions={activeAuctions}
           onAuctionCreated={onAuctionCreated}
         />
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

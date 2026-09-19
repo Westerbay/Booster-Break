@@ -12,6 +12,9 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: (search: Record<string, unknown>): { invitation?: string } => ({
+    invitation: typeof search.invitation === 'string' ? search.invitation : undefined,
+  }),
   component: DashboardPage,
 })
 

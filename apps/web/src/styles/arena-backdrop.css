@@ -1,0 +1,173 @@
+/* A graphic tournament chamber shared by every surface that stages cards. */
+.arena-backdrop {
+  --chamber-night: oklch(0.19 0.022 255);
+  --chamber-air: oklch(0.32 0.037 250);
+  --chamber-metal: oklch(0.38 0.035 250);
+  --chamber-shadow: oklch(0.22 0.026 255);
+  --chamber-deck-back: oklch(0.39 0.041 250);
+  --chamber-deck: oklch(0.31 0.035 250);
+  --chamber-edge: oklch(0.53 0.037 240);
+  --chamber-gold: oklch(0.79 0.115 78);
+  --chamber-bronze: oklch(0.5 0.066 72);
+  --chamber-light: oklch(0.9 0.085 82);
+  --chamber-blue: oklch(0.71 0.075 235);
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+}
+.arena-backdrop-color-air {
+  stop-color: var(--chamber-air);
+}
+.arena-backdrop-color-night {
+  stop-color: var(--chamber-night);
+}
+.arena-backdrop-color-metal {
+  stop-color: var(--chamber-metal);
+}
+.arena-backdrop-color-shadow {
+  stop-color: var(--chamber-shadow);
+}
+.arena-backdrop-color-deck-back {
+  stop-color: var(--chamber-deck-back);
+}
+.arena-backdrop-color-deck {
+  stop-color: var(--chamber-deck);
+}
+.arena-backdrop-color-bronze {
+  stop-color: var(--chamber-bronze);
+}
+.arena-backdrop-color-light {
+  stop-color: var(--chamber-light);
+}
+.arena-backdrop-color-blue {
+  stop-color: var(--chamber-blue);
+}
+.arena-backdrop-wall {
+  fill: none;
+  stroke: var(--chamber-edge);
+  stroke-width: 2;
+  opacity: 0.18;
+}
+.arena-backdrop-roof {
+  fill: var(--chamber-shadow);
+  stroke: var(--chamber-metal);
+  stroke-width: 2;
+}
+.arena-backdrop-roof-edge {
+  fill: none;
+  stroke: var(--chamber-bronze);
+  stroke-width: 2;
+}
+.arena-backdrop-terrace-edge {
+  fill: none;
+  stroke: var(--chamber-edge);
+  stroke-width: 3;
+  opacity: 0.74;
+}
+.arena-backdrop-seat-lines {
+  fill: none;
+  stroke: var(--chamber-night);
+  stroke-width: 8;
+  stroke-dasharray: 4 9;
+}
+.arena-backdrop-aisles {
+  fill: none;
+  stroke: var(--chamber-night);
+  stroke-width: 15;
+}
+.arena-backdrop-stand-lights {
+  fill: none;
+  stroke: var(--chamber-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.arena-backdrop-rib {
+  fill: var(--chamber-shadow);
+  stroke: var(--chamber-edge);
+  stroke-width: 1.5;
+}
+.arena-backdrop-rib-face {
+  fill: var(--chamber-metal);
+}
+.arena-backdrop-rib-edge {
+  fill: none;
+  stroke: var(--chamber-bronze);
+  stroke-width: 2;
+}
+.arena-backdrop-light-housing,
+.arena-backdrop-rib-foot {
+  fill: var(--chamber-night);
+  stroke: var(--chamber-metal);
+  stroke-width: 2;
+}
+.arena-backdrop-light-bar {
+  fill: none;
+  stroke: var(--chamber-gold);
+  stroke-width: 7;
+  stroke-linejoin: bevel;
+}
+.arena-backdrop-light-core {
+  fill: none;
+  stroke: var(--chamber-light);
+  stroke-width: 2;
+  stroke-linejoin: bevel;
+}
+.arena-backdrop-floor {
+  fill: var(--chamber-shadow);
+}
+.arena-backdrop-floor-joints {
+  fill: none;
+  stroke: var(--chamber-edge);
+  stroke-width: 1.5;
+  opacity: 0.26;
+}
+.arena-backdrop-platform-shadow {
+  fill: var(--chamber-night);
+  opacity: 0.85;
+}
+.arena-backdrop-fascia-seam {
+  fill: none;
+  stroke: var(--chamber-metal);
+  stroke-width: 3;
+}
+.arena-backdrop-underlight {
+  fill: none;
+  stroke: var(--chamber-gold);
+  stroke-width: 3;
+  opacity: 0.52;
+}
+.arena-backdrop-deck-bevel {
+  fill: none;
+  stroke: var(--chamber-edge);
+  stroke-width: 2;
+}
+.arena-backdrop-field-line {
+  fill: none;
+  stroke: var(--chamber-gold);
+  stroke-width: 1.5;
+  opacity: 0.56;
+}
+.arena-backdrop-field-line-inner {
+  fill: none;
+  stroke: var(--chamber-edge);
+  stroke-width: 1;
+  opacity: 0.58;
+}
+.arena-backdrop-center-mark {
+  fill: var(--chamber-shadow);
+  stroke: var(--chamber-gold);
+  stroke-width: 2;
+}
+.arena-backdrop-field-detail {
+  fill: none;
+  stroke: var(--chamber-light);
+  stroke-width: 3;
+  opacity: 0.75;
+}

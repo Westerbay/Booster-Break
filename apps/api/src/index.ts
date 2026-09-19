@@ -21,6 +21,8 @@ import { createRateLimitPlugin } from './security/rate-limiter'
 import { createTradeController } from './trade/trade-controller'
 import { PrismaTradeRepository } from './trade/trade-repository'
 import { TradeService } from './trade/trade-service'
+import { createPvpController } from './pvp/pvp-controller'
+import { PvpService } from './pvp/pvp-service'
 
 const config = getConfig()
 const authStore = new PrismaAuthStore(prisma)
@@ -109,6 +111,7 @@ export const app = new Elysia()
       authService,
     }),
   )
+  .use(createPvpController(new PvpService(prisma), authService))
   .get('/health', (): HealthResponse => {
     return {
       ok: true,

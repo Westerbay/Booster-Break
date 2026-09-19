@@ -1,5 +1,12 @@
 import { CheckCircle2Icon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { m } from '@/paraglide/messages'
 
 interface TradeOfferSuccessDialogProps {
@@ -8,37 +15,29 @@ interface TradeOfferSuccessDialogProps {
 }
 
 export function TradeOfferSuccessDialog({ open, onClose }: TradeOfferSuccessDialogProps) {
-  if (!open) {
-    return null
+  function openChanged(nextOpen: boolean) {
+    if (!nextOpen) onClose()
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/78 p-3 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-label={m.trade_offer_success_title()}
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-sm rounded-lg border bg-background p-4 shadow-2xl"
-        onClick={(event) => {
-          event.stopPropagation()
-        }}
+    <Dialog open={open} onOpenChange={openChanged}>
+      <DialogContent
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto"
+        closeLabel={m.pvp_close()}
       >
-        <div className="flex items-start gap-3">
-          <CheckCircle2Icon className="mt-0.5 size-6 shrink-0 text-green-600" aria-hidden="true" />
+        <div className="flex items-start gap-3 pr-10">
+          <CheckCircle2Icon className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="text-sm font-black">{m.trade_offer_success_title()}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{m.trade_offer_success_message()}</p>
+            <DialogTitle>{m.trade_offer_success_title()}</DialogTitle>
+            <DialogDescription className="mt-2">
+              {m.trade_offer_success_message()}
+            </DialogDescription>
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
-          <Button type="button" onClick={onClose}>
-            {m.trade_offer_success_ok()}
-          </Button>
+        <div className="flex justify-end">
+          <DialogClose render={<Button type="button" />}>{m.trade_offer_success_ok()}</DialogClose>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

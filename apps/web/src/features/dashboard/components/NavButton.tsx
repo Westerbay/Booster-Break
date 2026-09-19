@@ -33,7 +33,7 @@ export function NavButton({
           tabIndex={-1}
           className={cn(
             'flex w-full cursor-not-allowed items-center rounded-lg text-sm font-semibold text-sidebar-foreground/88 opacity-45 transition-colors focus-visible:outline-none',
-            size === 'mobile' ? 'h-11 gap-3 px-3' : 'h-10 shrink-0 gap-2 px-3',
+            size === 'mobile' ? 'h-11 gap-3 px-3' : 'h-12 shrink-0 gap-3 px-3',
           )}
           onClick={(event) => event.preventDefault()}
         >
@@ -58,8 +58,8 @@ export function NavButton({
       type="button"
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex w-full cursor-pointer items-center rounded-lg text-sm font-semibold transition-colors hover:bg-sidebar-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-        size === 'mobile' ? 'h-11 gap-3 px-3' : 'h-10 shrink-0 gap-2 px-3',
+        'game-nav-link flex w-full cursor-pointer items-center rounded-lg text-sm font-semibold transition-colors hover:bg-sidebar-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+        size === 'mobile' ? 'h-11 gap-3 px-3' : 'h-12 shrink-0 gap-3 px-3',
         isActive
           ? 'bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent'
           : 'text-sidebar-foreground/88',
@@ -67,8 +67,10 @@ export function NavButton({
       title={isDisabled ? undefined : label}
       onClick={onSelect}
     >
-      <Icon aria-hidden="true" />
-      {label}
+      <span className="game-nav-symbol" aria-hidden="true">
+        <Icon />
+      </span>
+      <span className="game-nav-label">{label}</span>
     </button>
   )
 

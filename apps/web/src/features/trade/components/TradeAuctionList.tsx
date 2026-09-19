@@ -43,7 +43,7 @@ export function TradeAuctionList({
 
   if (auctions.length === 0) {
     return (
-      <section className="rounded-lg border bg-card p-4">
+      <section className="game-panel rounded-lg border bg-card p-4">
         <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
           {m.trade_active_auctions()}
         </h2>
@@ -55,7 +55,7 @@ export function TradeAuctionList({
   }
 
   return (
-    <section className="rounded-lg border bg-card p-4">
+    <section className="game-panel rounded-lg border bg-card p-4">
       <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
         {m.trade_active_auctions()}
       </h2>
@@ -72,8 +72,8 @@ export function TradeAuctionList({
               className={cn(
                 'w-60 shrink-0 cursor-pointer overflow-hidden rounded-lg border p-3 transition sm:w-64',
                 isSelected
-                  ? 'border-sidebar bg-sidebar/8 ring-2 ring-sidebar'
-                  : 'border-border bg-background hover:border-sidebar/60',
+                  ? 'border-primary bg-primary/8 ring-2 ring-primary'
+                  : 'border-border bg-background hover:border-primary/60',
               )}
               onClick={() => onSelectAuction(auction.id)}
               role="button"

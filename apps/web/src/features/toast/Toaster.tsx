@@ -32,10 +32,8 @@ function ToastItem({ toastMessage }: { toastMessage: ToastMessage }) {
     <div
       className={cn(
         'flex items-start gap-3 rounded-lg border bg-card p-3 text-card-foreground shadow-xl shadow-foreground/10',
-        toastMessage.tone === 'error' &&
-          'border-destructive/35 bg-[oklch(0.985_0.012_27)] text-foreground',
-        toastMessage.tone === 'success' &&
-          'border-[oklch(0.58_0.13_145/35%)] bg-[oklch(0.985_0.016_145)] text-foreground',
+        toastMessage.tone === 'error' && 'border-destructive/50',
+        toastMessage.tone === 'success' && 'border-[oklch(0.77_0.105_160/50%)]',
       )}
     >
       <div
@@ -48,7 +46,7 @@ function ToastItem({ toastMessage }: { toastMessage: ToastMessage }) {
       <p className="min-w-0 flex-1 text-sm font-semibold leading-5">{toastMessage.message}</p>
       <button
         type="button"
-        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="-my-2 -mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => toast.dismiss(toastMessage.id)}
         aria-label={m.toast_dismiss()}
       >

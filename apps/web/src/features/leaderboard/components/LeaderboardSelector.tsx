@@ -24,27 +24,25 @@ export function LeaderboardSelector({
   onLeaderboardChange,
 }: LeaderboardSelectorProps) {
   const activeLabel = getLeaderboardConfig(activeLeaderboard).title
+  function handleLeaderboardChange(nextLeaderboard: string) {
+    onLeaderboardChange(nextLeaderboard as LeaderboardKind)
+  }
 
   return (
-    <div className="w-full sm:w-64">
-      <p className="mb-2 text-xs font-black uppercase tracking-wide text-muted-foreground">
-        {m.leaderboard_select_label()}
-      </p>
+    <div className="leaderboard-selector">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           aria-label={m.leaderboard_select_label()}
-          className="flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-lg border bg-background px-3 text-left text-sm font-black text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="leaderboard-selector-trigger"
         >
-          <span className="truncate">{activeLabel}</span>
-          <ChevronDownIcon className="size-4 shrink-0" aria-hidden="true" />
+          <span>
+            <small>{m.leaderboard_select_label()}</small>
+            <strong>{activeLabel}</strong>
+          </span>
+          <ChevronDownIcon aria-hidden="true" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={6} className="w-64">
-          <DropdownMenuRadioGroup
-            value={activeLeaderboard}
-            onValueChange={(nextLeaderboard) =>
-              onLeaderboardChange(nextLeaderboard as LeaderboardKind)
-            }
-          >
+          <DropdownMenuRadioGroup value={activeLeaderboard} onValueChange={handleLeaderboardChange}>
             {leaderboardOptions.map((leaderboardOption) => {
               const optionConfig = getLeaderboardConfig(leaderboardOption)
 
@@ -54,7 +52,7 @@ export function LeaderboardSelector({
                   value={leaderboardOption}
                   closeOnClick
                   label={optionConfig.title}
-                  className="min-h-10 cursor-pointer px-2.5 font-bold"
+                  className="min-h-11 cursor-pointer px-2.5"
                 >
                   <span>{optionConfig.title}</span>
                 </DropdownMenuRadioItem>

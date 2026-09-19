@@ -1,18 +1,19 @@
 import type { ComponentType, SVGProps } from 'react'
-import type { LeaderboardPlayer } from '@tcg-collection/shared'
+import type { LeaderboardEntry } from '../lib/leaderboard-config'
 
 import type { LeaderboardKind } from '../lib/leaderboard-config'
 import { LeaderboardList } from './LeaderboardList'
 import { LeaderboardSelector } from './LeaderboardSelector'
+import { LeaderboardPodium } from './LeaderboardPodium'
 
 interface LeaderboardPanelProps {
   title: string
   description: string
   scoreLabel: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
-  players: LeaderboardPlayer[]
+  players: LeaderboardEntry[]
+  currentUserId?: string
   isPending: boolean
-  getScore: (player: LeaderboardPlayer) => number
   numberFormatter: Intl.NumberFormat
   activeLeaderboard: LeaderboardKind
   onLeaderboardChange: (leaderboard: LeaderboardKind) => void
@@ -24,22 +25,20 @@ export function LeaderboardPanel({
   scoreLabel,
   icon: Icon,
   players,
+  currentUserId,
   isPending,
-  getScore,
   numberFormatter,
   activeLeaderboard,
   onLeaderboardChange,
 }: LeaderboardPanelProps) {
   return (
-    <section className="rounded-lg border bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Icon className="size-5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-lg font-black">{title}</h2>
-            <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+    <section className="leaderboard-panel" aria-busy={isPending}>
+      <div className="leaderboard-panel-toolbar">
+        <div className="leaderboard-panel-heading">
+          <Icon aria-hidden="true" />
+          <div>
+            <h2>{title}</h2>
+            <p>{description}</p>
           </div>
         </div>
         <LeaderboardSelector
@@ -49,18 +48,32 @@ export function LeaderboardPanel({
       </div>
 
       {isPending ? (
-        <div className="mt-4 space-y-3">
+        <div className="leaderboard-loading" aria-hidden="true">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-16 rounded-lg bg-muted" />
+            <div key={index} className="leaderboard-loading-row">
+              <span />
+              <span />
+              <span />
+            </div>
           ))}
         </div>
       ) : (
-        <LeaderboardList
-          players={players}
-          scoreLabel={scoreLabel}
-          getScore={getScore}
-          numberFormatter={numberFormatter}
-        />
+        <>
+          {players.length > 0 && (
+            <LeaderboardPodium
+              players={players}
+              scoreLabel={scoreLabel}
+              numberFormatter={numberFormatter}
+              currentUserId={currentUserId}
+            />
+          )}
+          <LeaderboardList
+            players={players}
+            currentUserId={currentUserId}
+            scoreLabel={scoreLabel}
+            numberFormatter={numberFormatter}
+          />
+        </>
       )}
     </section>
   )

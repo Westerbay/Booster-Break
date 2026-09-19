@@ -1,9 +1,10 @@
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { BookOpenIcon, Clock3Icon, EyeIcon, UserRoundIcon, XIcon } from 'lucide-react'
+import { BookOpenIcon, Clock3Icon, EyeIcon, UserRoundIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { TradeAuctionResponse, TradeOfferResponse } from '@tcg-collection/shared'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useLocale } from '@/features/i18n/useLocale'
 import { m } from '@/paraglide/messages'
 import { formatCardFinish } from '@/features/dashboard/lib/card-format'
@@ -148,6 +149,9 @@ export function TradeView() {
     setIsAuctionCardOpen(false)
     setIsAuctionSetPreviewOpen(false)
   }
+  function auctionDetailsOpenChanged(open: boolean) {
+    if (!open) closeAuctionDetails()
+  }
   const closeOfferSuccessDialog = () => {
     setIsOfferSuccessDialogOpen(false)
   }
@@ -211,10 +215,12 @@ export function TradeView() {
 
   return (
     <div className="flex w-full max-w-7xl flex-col gap-4">
-      <header className="rounded-lg border bg-card p-4">
+      <header className="game-page-heading p-1 pb-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl font-black">{m.trade_view_title()}</h1>
+            <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+              {m.trade_view_title()}
+            </h1>
             <p className="text-sm text-muted-foreground">{m.trade_view_subtitle()}</p>
             {currentUserId ? (
               <p className="mt-1 text-xs text-muted-foreground">
@@ -285,33 +291,12 @@ export function TradeView() {
       />
 
       {isDetailsDialogOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/78 p-3 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={m.trade_auction_details()}
-          onClick={closeAuctionDetails}
-        >
-          <div
-            className="max-h-[92dvh] w-[min(56rem,calc(100vw-1.5rem))] overflow-y-auto overflow-x-hidden rounded-lg border bg-background p-4 text-foreground shadow-2xl sm:p-6"
-            onClick={(event) => {
-              event.stopPropagation()
-            }}
+        <Dialog open onOpenChange={auctionDetailsOpenChanged}>
+          <DialogContent
+            className="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto overflow-x-hidden sm:max-w-4xl"
+            closeLabel={m.pvp_close()}
           >
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-                {m.trade_auction_details()}
-              </h2>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={closeAuctionDetails}
-                aria-label={m.trade_cancel()}
-              >
-                <XIcon aria-hidden="true" />
-              </Button>
-            </div>
+            <DialogTitle className="pr-12">{m.trade_auction_details()}</DialogTitle>
 
             {selectedAuction ? (
               <div className="space-y-4">
@@ -550,36 +535,35 @@ export function TradeView() {
                 {m.trade_pick_auction_to_inspect()}
               </p>
             )}
-          </div>
-        </div>
-      ) : null}
+            {selectedAuction && isAuctionCardOpen ? (
+              <CardImageDialog
+                card={{
+                  ...selectedAuction.offeredCard,
+                  finish: selectedAuction.offeredCardFinish,
+                }}
+                onClose={() => setIsAuctionCardOpen(false)}
+              />
+            ) : null}
 
-      {selectedAuction && isAuctionCardOpen ? (
-        <CardImageDialog
-          card={{
-            ...selectedAuction.offeredCard,
-            finish: selectedAuction.offeredCardFinish,
-          }}
-          onClose={() => setIsAuctionCardOpen(false)}
-        />
-      ) : null}
-
-      {selectedAuction && isAuctionSetPreviewOpen ? (
-        <BoosterPreviewDialog
-          cards={setCardsToDisplay}
-          isPending={selectedAuctionSetCardsQuery.isPending}
-          set={
-            selectedAuctionSet ?? {
-              id: selectedAuction.offeredCard.setId,
-              name: getAuctionSetName(selectedAuction.offeredCard.setId),
-              series: '',
-              total: 0,
-              releaseDate: '',
-            }
-          }
-          ownedCardIds={ownedCardIds}
-          onClose={() => setIsAuctionSetPreviewOpen(false)}
-        />
+            {selectedAuction && isAuctionSetPreviewOpen ? (
+              <BoosterPreviewDialog
+                cards={setCardsToDisplay}
+                isPending={selectedAuctionSetCardsQuery.isPending}
+                set={
+                  selectedAuctionSet ?? {
+                    id: selectedAuction.offeredCard.setId,
+                    name: getAuctionSetName(selectedAuction.offeredCard.setId),
+                    series: '',
+                    total: 0,
+                    releaseDate: '',
+                  }
+                }
+                ownedCardIds={ownedCardIds}
+                onClose={() => setIsAuctionSetPreviewOpen(false)}
+              />
+            ) : null}
+          </DialogContent>
+        </Dialog>
       ) : null}
 
       <TradeOfferSuccessDialog open={isOfferSuccessDialogOpen} onClose={closeOfferSuccessDialog} />

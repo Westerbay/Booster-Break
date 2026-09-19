@@ -35,20 +35,20 @@ export function TradeSortPreferenceMenu({
       <DropdownMenuTrigger
         aria-label={m.trade_card_preference_label()}
         className={cn(
-          'flex cursor-pointer items-center justify-between gap-2 rounded-md border px-2 py-1 text-left text-xs',
+          'flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-md border px-2 py-1 text-left text-xs max-sm:min-h-11 max-sm:min-w-11',
           'bg-background text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           className,
         )}
       >
-        <span>{selectedLabel ?? value}</span>
-        <ChevronDownIcon aria-hidden="true" />
+        <span className="min-w-0 truncate">{selectedLabel ?? value}</span>
+        <ChevronDownIcon className="shrink-0" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-36">
         {options.map((option) => (
           <DropdownMenuItem
             key={option.value}
             onClick={() => onValueChange(option.value)}
-            className="h-9 cursor-pointer px-2.5"
+            className="h-9 cursor-pointer px-2.5 max-sm:min-h-11"
           >
             <span className="mr-auto">{option.label}</span>
             {option.value === value ? <CheckIcon aria-hidden="true" /> : null}

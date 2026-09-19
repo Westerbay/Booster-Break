@@ -26,6 +26,12 @@ model User {
   tradeOffers   TradeOffer[] @relation("TradeOfferProposer")
   tradeNotifications TradeNotification[] @relation("TradeUserNotifications")
   magicLoginTokens MagicLoginToken[]
+  pvpRating PvpRating?
+  pvpChallenges PvpMatch[] @relation("PvpChallenger")
+  pvpInvitations PvpMatch[] @relation("PvpOpponent")
+  pvpSeat PvpSeat?
+  pvpCardStats PvpCardStat[]
+  pvpResults PvpResult[]
 
   @@map("users")
 }
@@ -94,6 +100,7 @@ model PokemonCard {
   openingCards      PackOpeningCard[]
   tradeAuctions     TradeAuction[]
   tradeOfferCards   TradeOfferCard[]
+  pvpStats          PvpCardStat[]
 
   @@index([setId])
   @@map("pokemon_cards")
@@ -229,4 +236,78 @@ model PackOpeningCard {
 
   @@id([packOpeningId, position])
   @@map("pack_opening_cards")
+}
+
+enum PvpMatchStatus {
+  waiting
+  active
+  completed
+  cancelled
+}
+
+model PvpMatch {
+  id String @id
+  challengerId String @map("challenger_id")
+  opponentId String @map("opponent_id")
+  status PvpMatchStatus @default(waiting)
+  stateJson String @map("state_json")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  challenger User @relation("PvpChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
+  opponent User @relation("PvpOpponent", fields: [opponentId], references: [id], onDelete: Cascade)
+  seats PvpSeat[]
+  results PvpResult[]
+
+  @@index([challengerId, createdAt])
+  @@index([opponentId, status, createdAt])
+  @@index([status, expiresAt])
+  @@map("pvp_matches")
+}
+
+// A trainer can reserve or play only one duel at a time.
+model PvpSeat {
+  userId String @id @map("user_id")
+  matchId String @map("match_id")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match PvpMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  @@index([matchId])
+  @@map("pvp_seats")
+}
+
+model PvpRating {
+  userId String @id @map("user_id")
+  elo Int @default(1200)
+  wins Int @default(0)
+  losses Int @default(0)
+  draws Int @default(0)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([elo, wins])
+  @@map("pvp_ratings")
+}
+
+model PvpCardStat {
+  userId String @map("user_id")
+  cardId String @map("card_id")
+  wins Int @default(0)
+  losses Int @default(0)
+  draws Int @default(0)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card PokemonCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  @@id([userId, cardId])
+  @@index([userId, wins])
+  @@map("pvp_card_stats")
+}
+
+model PvpResult {
+  matchId String @map("match_id")
+  userId String @map("user_id")
+  eloBefore Int @map("elo_before")
+  eloAfter Int @map("elo_after")
+  createdAt DateTime @default(now()) @map("created_at")
+  match PvpMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([matchId, userId])
+  @@index([userId, createdAt])
+  @@map("pvp_results")
 }
