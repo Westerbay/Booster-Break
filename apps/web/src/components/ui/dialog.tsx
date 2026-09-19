@@ -33,7 +33,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
       data-slot="dialog-overlay"
       forceRender
       className={cn(
-        'fixed inset-0 z-0 bg-background/85 duration-150 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 motion-reduce:transition-none',
+        'fixed inset-0 z-0 bg-[var(--game-scrim)] duration-150 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 motion-reduce:transition-none',
         className,
       )}
       {...props}

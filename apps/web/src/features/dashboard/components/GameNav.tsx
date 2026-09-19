@@ -14,6 +14,7 @@ import {
 import type { AuthMeResponse } from '@tcg-collection/shared'
 
 import { m } from '@/paraglide/messages'
+import { ThemeSelector } from '@/features/theme/ThemeSelector'
 
 import type { DashboardTab, NavItem } from '../types'
 import { AuthNavCard } from './AuthNavCard'
@@ -94,6 +95,7 @@ export function GameNav({
             />
           ))}
 
+          <ThemeSelector className="mt-1" />
           <LanguageSelector className="mt-1" />
           <AuthNavCard
             key={auth?.authenticated ? 'mobile-authenticated' : 'mobile-guest'}
@@ -134,6 +136,7 @@ export function GameNav({
           ))}
         </div>
 
+        <ThemeSelector className="mb-2" />
         <LanguageSelector className="mb-2" />
         <AuthNavCard
           key={auth?.authenticated ? 'desktop-authenticated' : 'desktop-guest'}

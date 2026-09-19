@@ -1,16 +1,5 @@
 /* A graphic tournament chamber shared by every surface that stages cards. */
 .arena-backdrop {
-  --chamber-night: oklch(0.19 0.022 255);
-  --chamber-air: oklch(0.32 0.037 250);
-  --chamber-metal: oklch(0.38 0.035 250);
-  --chamber-shadow: oklch(0.22 0.026 255);
-  --chamber-deck-back: oklch(0.39 0.041 250);
-  --chamber-deck: oklch(0.31 0.035 250);
-  --chamber-edge: oklch(0.53 0.037 240);
-  --chamber-gold: oklch(0.79 0.115 78);
-  --chamber-bronze: oklch(0.5 0.066 72);
-  --chamber-light: oklch(0.9 0.085 82);
-  --chamber-blue: oklch(0.71 0.075 235);
   position: absolute;
   z-index: -1;
   inset: 0;

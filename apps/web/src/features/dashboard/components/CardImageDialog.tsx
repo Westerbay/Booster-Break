@@ -47,7 +47,7 @@ export function CardImageDialog({ card, onClose, finalFocus }: CardImageDialogPr
     <Dialog open onOpenChange={openChanged}>
       <DialogContent
         className="card-preview-dialog"
-        overlayClassName="bg-background/92 supports-backdrop-filter:backdrop-blur-sm"
+        overlayClassName="bg-[var(--game-card-scrim)] supports-backdrop-filter:backdrop-blur-sm"
         closeLabel={m.pvp_close()}
         finalFocus={finalFocus}
         onClick={closeBackground}
