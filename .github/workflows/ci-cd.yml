@@ -19,8 +19,9 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  API_IMAGE_NAME: mathis-gala/booster-break/api
-  WEB_IMAGE_NAME: mathis-gala/booster-break/web
+  # docker/metadata-action lowercases image names for GHCR.
+  API_IMAGE_NAME: ${{ github.repository }}/api
+  WEB_IMAGE_NAME: ${{ github.repository }}/web
 
 jobs:
   quality:
