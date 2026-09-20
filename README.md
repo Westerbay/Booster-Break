@@ -136,7 +136,12 @@ GitHub Actions runs the full quality gate on pull requests and pushes to `dev` a
 bun run format:check
 bun run lint
 bun run typecheck
+bun --cwd apps/api prisma:migrate:deploy
+bun run test
 ```
+
+The quality job runs migrations and tests against its PostgreSQL service, with
+`RUN_DATABASE_TESTS=true`.
 
 Publishing a GitHub release whose commit is on `main` builds and pushes same-origin Docker
 images for the Raspberry Pi/server deployment. Stable releases also update `latest`:
@@ -149,7 +154,7 @@ ghcr.io/westerbay/booster-break/api:latest
 For the server deployment, leave `VITE_API_ORIGIN` empty in the web image. The frontend calls
 same-origin `/api/*`, and Caddy proxies those requests to the API container.
 
-Leave `VITE_API_ORIGIN` empty only for local development, where the Vite dev server proxies `/api`
+For local development, also leave `VITE_API_ORIGIN` empty: the Vite dev server proxies `/api`
 to `http://127.0.0.1:3100`.
 
 For the recommended same-origin server deployment, use:
