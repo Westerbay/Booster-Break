@@ -39,6 +39,7 @@ async function fixture() {
       series: 'Tests',
       total: 3,
       releaseDate: '2026-09-19',
+      boosterImageUrl: 'https://example.com/booster.png',
       rawJson: '{}',
       syncedAt: '',
       cards: {

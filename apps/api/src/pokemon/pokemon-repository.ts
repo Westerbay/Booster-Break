@@ -24,6 +24,7 @@ import {
 import {
   DISABLED_BOOSTER_SET_IDS,
   FEATURED_HISTORICAL_BOOSTER_SET_IDS,
+  hasBoosterArtwork,
   PINNED_MODERN_BOOSTER_SET_IDS,
   SYNCED_BOOSTER_LIMIT,
 } from './pokemon-config'
@@ -115,22 +116,21 @@ export class PokemonRepository {
   }
 
   async listSets(locale: SupportedLocale = 'fr'): Promise<PokemonSetSummary[]> {
-    const sets = await this.db.pokemonSet.findMany({
-      where: {
-        id: {
-          notIn: [...DISABLED_BOOSTER_SET_IDS],
+    const sets = (
+      await this.db.pokemonSet.findMany({
+        where: {
+          id: {
+            notIn: [...DISABLED_BOOSTER_SET_IDS],
+          },
+          releaseDate: {
+            contains: '-',
+          },
         },
-        releaseDate: {
-          contains: '-',
+        orderBy: {
+          releaseDate: 'desc',
         },
-        boosterImageUrl: {
-          not: null,
-        },
-      },
-      orderBy: {
-        releaseDate: 'desc',
-      },
-    })
+      })
+    ).filter(hasBoosterArtwork)
 
     const featuredSetIds = new Set<string>(FEATURED_HISTORICAL_BOOSTER_SET_IDS)
     const modernSets = sets.filter((set) => !featuredSetIds.has(set.id))
@@ -183,7 +183,7 @@ export class PokemonRepository {
       },
     })
 
-    return set ? toSetSummary(set, locale) : undefined
+    return set && hasBoosterArtwork(set) ? toSetSummary(set, locale) : undefined
   }
 
   async listCards(setId?: string, locale: SupportedLocale = 'fr'): Promise<PokemonCardSummary[]> {

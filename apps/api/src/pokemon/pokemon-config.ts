@@ -14,3 +14,6 @@ export const MAX_OVERLOAD_BOOSTERS = 1
 export const SANDBOX_PACK_OPEN_MIN_YEAR = 2003
 export const SANDBOX_PACK_OPEN_MAX_YEAR = 2022
 export const SANDBOX_PACK_OPEN_COOLDOWN_SECONDS = 5
+// Gift-only sets carry no booster artwork: never list, open or shelve them in the Pokédex.
+export const hasBoosterArtwork = (set: { boosterImageUrl: string | null }): boolean =>
+  Boolean(set.boosterImageUrl)

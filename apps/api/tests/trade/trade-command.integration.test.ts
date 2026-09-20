@@ -470,6 +470,7 @@ const createTradeFixture = async () => {
       series: 'Trade tests',
       total: 2,
       releaseDate: '2026-07-14',
+      boosterImageUrl: 'https://example.com/booster.png',
       rawJson: '{}',
       syncedAt: new Date().toISOString(),
       cards: {
