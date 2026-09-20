@@ -214,12 +214,11 @@ export class PokemonRepository {
   }
 
   async listCards(setId?: string, locale: SupportedLocale = 'fr'): Promise<PokemonCardSummary[]> {
+    const notIn = getUnreleasedBoosterSetIds()
     const cards = await this.db.pokemonCard.findMany({
-      where: setId
-        ? {
-            setId,
-          }
-        : undefined,
+      where: {
+        setId: setId ? { equals: setId, notIn } : { notIn },
+      },
       orderBy: [
         {
           setId: 'asc',
