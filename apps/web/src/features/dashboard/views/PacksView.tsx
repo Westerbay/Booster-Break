@@ -53,7 +53,7 @@ export function PacksView() {
     <div className="w-full max-w-6xl">
       <UpcomingPackBanner
         sets={upcomingSets.data ?? []}
-        dataUpdatedAt={upcomingSets.dataUpdatedAt}
+        queryUpdatedAt={Math.max(upcomingSets.dataUpdatedAt, upcomingSets.errorUpdatedAt)}
       />
       <PackStage
         sets={sets.data ?? []}

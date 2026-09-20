@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useReducer, useSyncExternalStore } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { XIcon } from 'lucide-react'
 import type { UpcomingPokemonSet } from '@tcg-collection/shared'
@@ -7,6 +7,7 @@ import { pokemonQueryKeys } from '../lib/query-keys'
 import { formatCountdown } from '../time'
 import { useLocale } from '@/features/i18n/useLocale'
 import { wallClock } from '@/lib/clock'
+import { pokedexQueryKeys } from '@/lib/queries/pokedex'
 import { m } from '@/paraglide/messages'
 
 // Module-level: a closed teaser stays closed across views, and returns on reload.
@@ -17,28 +18,31 @@ const MAX_TIMEOUT_MS = 2_147_483_647
 
 interface UpcomingPackBannerProps {
   sets: UpcomingPokemonSet[]
-  dataUpdatedAt: number
+  queryUpdatedAt: number
 }
 
-export function UpcomingPackBanner({ sets, dataUpdatedAt }: UpcomingPackBannerProps) {
+export function UpcomingPackBanner({ sets, queryUpdatedAt }: UpcomingPackBannerProps) {
   const queryClient = useQueryClient()
   const [, forceRender] = useReducer((tick: number) => tick + 1, 0)
-  const nextReleaseAt =
-    sets.length > 0 ? Math.min(...sets.map((set) => new Date(set.releasesAt).getTime())) : undefined
+  // Infinity on an empty list, NaN on an unparsable instant: neither arms the timer.
+  const nextReleaseAt = Math.min(...sets.map((set) => new Date(set.releasesAt).getTime()))
 
-  // Kept in the parent so closing the banner can't stop it. dataUpdatedAt re-arms it.
+  // Kept in the parent so closing the banner can't stop it. A finished fetch re-arms it.
   useEffect(() => {
-    if (nextReleaseAt === undefined) {
+    if (!Number.isFinite(nextReleaseAt)) {
       return
     }
 
     const timerId = window.setTimeout(
-      () => queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.all }),
+      () => {
+        queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.setsAll })
+        queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
+      },
       Math.min(Math.max(nextReleaseAt - Date.now() + 1_000, RELEASE_RECHECK_MS), MAX_TIMEOUT_MS),
     )
 
     return () => window.clearTimeout(timerId)
-  }, [nextReleaseAt, dataUpdatedAt, queryClient])
+  }, [nextReleaseAt, queryUpdatedAt, queryClient])
 
   const visibleSets = sets.filter((set) => !dismissedSetIds.has(set.id))
 
@@ -76,20 +80,19 @@ function UpcomingPackRow({ set, onDismiss }: UpcomingPackRowProps) {
   const { locale } = useLocale()
   const release = new Date(set.releasesAt)
   const countdown = formatCountdown(release.getTime() - now, locale)
+  const releaseLabel = useMemo(
+    () =>
+      new Date(set.releasesAt).toLocaleString(locale, { dateStyle: 'long', timeStyle: 'short' }),
+    [set.releasesAt, locale],
+  )
 
   return (
-    <div className="pack-teaser pointer-events-auto">
+    <div className="game-panel pack-teaser pointer-events-auto">
       {set.logoUrl ? <img src={set.logoUrl} alt="" className="pack-teaser-logo" /> : null}
       <p className="pack-teaser-text">
         <span className="pack-teaser-eyebrow">{m.upcoming_pack_eyebrow()}</span>
         <span>{m.upcoming_pack_title({ name: set.name })}</span>
-        <time
-          dateTime={release.toISOString()}
-          title={new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(
-            release,
-          )}
-          className="pack-teaser-countdown"
-        >
+        <span title={releaseLabel} className="pack-teaser-countdown">
           <span className="sr-only">{countdown}</span>
           <span aria-hidden="true">
             {[...countdown].map((character, index) =>
@@ -102,7 +105,7 @@ function UpcomingPackRow({ set, onDismiss }: UpcomingPackRowProps) {
               ),
             )}
           </span>
-        </time>
+        </span>
       </p>
       <button
         type="button"
