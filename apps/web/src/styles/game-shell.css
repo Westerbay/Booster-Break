@@ -19,7 +19,6 @@
 }
 .game-content {
   padding-block: var(--game-content-padding-block, clamp(1.5rem, 4vw, 3.5rem));
-  /* safe: a view taller than the viewport top-aligns instead of losing its head above the scroll. */
   align-items: safe center;
 }
 .game-nav {
