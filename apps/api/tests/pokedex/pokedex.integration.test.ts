@@ -456,6 +456,7 @@ databaseTest('a scheduled booster stays out of the Pokédex until it is released
         series: 'Tests',
         total: 1,
         releaseDate: '2026-09-19',
+        boosterImageUrl: 'https://example.test/booster.png',
         rawJson: '{}',
         syncedAt: '',
         cards: {
