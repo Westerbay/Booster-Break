@@ -6,6 +6,7 @@ import type {
   PokemonCardSummary,
   PokemonSetSummary,
   SupportedLocale,
+  UpcomingPokemonSet,
   UserCollectionResponse,
 } from '@tcg-collection/shared'
 import { getFinishRank, getRarityRank } from '@tcg-collection/shared'
@@ -22,11 +23,13 @@ import {
   toSetWrite,
 } from './pokemon-mappers'
 import {
-  DISABLED_BOOSTER_SET_IDS,
   FEATURED_HISTORICAL_BOOSTER_SET_IDS,
   hasBoosterArtwork,
   PINNED_MODERN_BOOSTER_SET_IDS,
+  SCHEDULED_BOOSTER_RELEASES,
   SYNCED_BOOSTER_LIMIT,
+  getTeasedBoosterSetIds,
+  getUnreleasedBoosterSetIds,
 } from './pokemon-config'
 import { consumeBoosterCharge, getBoosterChargeStatus, PackCooldownError } from './pack-cooldown'
 import type { Set as TcgDexSet } from '@tcgdex/sdk'
@@ -120,7 +123,7 @@ export class PokemonRepository {
       await this.db.pokemonSet.findMany({
         where: {
           id: {
-            notIn: [...DISABLED_BOOSTER_SET_IDS],
+            notIn: getUnreleasedBoosterSetIds(),
           },
           releaseDate: {
             contains: '-',
@@ -154,6 +157,30 @@ export class PokemonRepository {
     return [...recentSets, ...historicalSets].map((set) => toSetSummary(set, locale))
   }
 
+  async listUpcomingSets(locale: SupportedLocale = 'fr'): Promise<UpcomingPokemonSet[]> {
+    const setIds = getTeasedBoosterSetIds()
+
+    if (setIds.length === 0) {
+      return []
+    }
+
+    const sets = await this.db.pokemonSet.findMany({
+      where: {
+        id: {
+          in: setIds,
+        },
+        boosterImageUrl: {
+          not: null,
+        },
+      },
+    })
+
+    return sets.map((set) => ({
+      ...toSetSummary(set, locale),
+      releasesAt: SCHEDULED_BOOSTER_RELEASES[set.id],
+    }))
+  }
+
   async hasCompleteSet(setId: string, expectedTotal: number): Promise<boolean> {
     const set = await this.db.pokemonSet.findUnique({
       where: { id: setId },
@@ -173,7 +200,7 @@ export class PokemonRepository {
     setId: string,
     locale: SupportedLocale = 'fr',
   ): Promise<PokemonSetSummary | undefined> {
-    if (DISABLED_BOOSTER_SET_IDS.includes(setId)) {
+    if (getUnreleasedBoosterSetIds().includes(setId)) {
       return undefined
     }
 
@@ -187,12 +214,11 @@ export class PokemonRepository {
   }
 
   async listCards(setId?: string, locale: SupportedLocale = 'fr'): Promise<PokemonCardSummary[]> {
+    const notIn = getUnreleasedBoosterSetIds()
     const cards = await this.db.pokemonCard.findMany({
-      where: setId
-        ? {
-            setId,
-          }
-        : undefined,
+      where: {
+        setId: setId ? { equals: setId, notIn } : { notIn },
+      },
       orderBy: [
         {
           setId: 'asc',

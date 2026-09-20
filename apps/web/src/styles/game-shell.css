@@ -294,3 +294,86 @@
     transition: none;
   }
 }
+
+.pack-teaser {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  border: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);
+  border-radius: 8px;
+}
+.pack-teaser-logo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 8px oklch(0.81 0.115 80 / 0.28));
+}
+.pack-teaser-text {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.pack-teaser-eyebrow {
+  color: var(--primary);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.pack-teaser-countdown {
+  color: var(--primary);
+}
+/* 1ch cells: the display font ignores tabular-nums, so the bar resized every second. */
+.pack-teaser-digit {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+}
+.pack-teaser-dismiss {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 160ms ease-out,
+    background-color 160ms ease-out;
+}
+.pack-teaser-dismiss:hover {
+  color: var(--foreground);
+  background: var(--game-surface-raised);
+}
+.pack-teaser-dismiss:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pack-teaser-dismiss {
+    transition: none;
+  }
+}
+
+/* Capped: a wide logo pushes the countdown onto a third line. */
+@media (max-width: 639px) {
+  .pack-teaser {
+    gap: 8px;
+    padding: 6px 6px 6px 10px;
+  }
+  .pack-teaser-logo {
+    height: 36px;
+    max-width: 124px;
+    object-fit: contain;
+  }
+  .pack-teaser-text {
+    font-size: 0.9rem;
+  }
+}
