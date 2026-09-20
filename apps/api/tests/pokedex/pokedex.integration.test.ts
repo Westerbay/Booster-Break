@@ -7,6 +7,7 @@ import { hashSessionToken } from '../../src/auth/session-token'
 import { PokemonRepository } from '../../src/pokemon/pokemon-repository'
 import { PokedexRepository } from '../../src/pokemon/pokedex-repository'
 import { createPokedexController } from '../../src/pokemon/pokedex-controller'
+import { getUnreleasedBoosterSetIds } from '../../src/pokemon/pokemon-config'
 import { PrismaTradeRepository } from '../../src/trade/trade-repository'
 import { TradeService } from '../../src/trade/trade-service'
 
@@ -441,6 +442,50 @@ databaseTest(
     }
   },
 )
+
+databaseTest('a scheduled booster stays out of the Pokédex until it is released', async () => {
+  const scheduledSetId = getUnreleasedBoosterSetIds()[0]
+
+  if (!scheduledSetId) {
+    return
+  }
+
+  const f = await fixture()
+  try {
+    await f.prisma.pokemonSet.create({
+      data: {
+        id: scheduledSetId,
+        name: 'Scheduled set',
+        nameFr: 'Extension programmée',
+        series: 'Tests',
+        total: 1,
+        releaseDate: '2026-09-19',
+        rawJson: '{}',
+        syncedAt: '',
+        cards: {
+          create: [
+            {
+              id: `${scheduledSetId}-1`,
+              localId: '1',
+              name: 'Card 1',
+              nameFr: 'Carte 1',
+              rawJson: '{}',
+              syncedAt: '',
+            },
+          ],
+        },
+      },
+    })
+
+    const overview = await f.pokedex.overview(f.alice.id, 'en')
+
+    expect(overview.sets.map((set) => set.id)).not.toContain(scheduledSetId)
+    expect(await f.pokedex.getSet(f.alice.id, scheduledSetId, 1, 12, 'en')).toBeUndefined()
+  } finally {
+    await f.prisma.pokemonSet.delete({ where: { id: scheduledSetId } })
+    await f.cleanup()
+  }
+})
 
 afterAll(async () => {
   if (Bun.env.RUN_DATABASE_TESTS === 'true') {

@@ -5,7 +5,7 @@ import type {
 } from '@tcg-collection/shared'
 import type { Prisma } from '@prisma/client'
 import { toCardSummary, toSetSummary } from './pokemon-mappers'
-import { hasBoosterArtwork } from './pokemon-config'
+import { getUnreleasedBoosterSetIds, hasBoosterArtwork } from './pokemon-config'
 
 const cardNumberOrder = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
 
@@ -15,7 +15,7 @@ export class PokedexRepository {
   async overview(userId: string, locale: SupportedLocale): Promise<PokedexOverviewResponse> {
     const [catalog, counts] = await Promise.all([
       this.db.pokemonSet.findMany({
-        where: { cards: { some: {} } },
+        where: { cards: { some: {} }, id: { notIn: getUnreleasedBoosterSetIds() } },
         include: { _count: { select: { cards: true } } },
         orderBy: [{ releaseDate: 'desc' }, { id: 'asc' }],
       }),
@@ -47,6 +47,8 @@ export class PokedexRepository {
     pageSize: number,
     locale: SupportedLocale,
   ): Promise<PokedexSetResponse | undefined> {
+    if (getUnreleasedBoosterSetIds().includes(setId)) return undefined
+
     const set = await this.db.pokemonSet.findUnique({
       where: { id: setId },
       include: { cards: { select: { id: true, localId: true } } },
