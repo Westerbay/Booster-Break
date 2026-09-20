@@ -1,4 +1,4 @@
-import { afterAll, expect, test } from 'bun:test'
+import { afterAll, expect, setSystemTime, test } from 'bun:test'
 import { Elysia } from 'elysia'
 import { getFinishRank, type CardFinish } from '@tcg-collection/shared'
 import { AuthService } from '../../src/auth/auth-service'
@@ -7,7 +7,7 @@ import { hashSessionToken } from '../../src/auth/session-token'
 import { PokemonRepository } from '../../src/pokemon/pokemon-repository'
 import { PokedexRepository } from '../../src/pokemon/pokedex-repository'
 import { createPokedexController } from '../../src/pokemon/pokedex-controller'
-import { getUnreleasedBoosterSetIds } from '../../src/pokemon/pokemon-config'
+import { SCHEDULED_BOOSTER_RELEASES } from '../../src/pokemon/pokemon-config'
 import { PrismaTradeRepository } from '../../src/trade/trade-repository'
 import { TradeService } from '../../src/trade/trade-service'
 
@@ -444,14 +444,10 @@ databaseTest(
 )
 
 databaseTest('a scheduled booster stays out of the Pokédex until it is released', async () => {
-  const scheduledSetId = getUnreleasedBoosterSetIds()[0]
-
-  if (!scheduledSetId) {
-    return
-  }
-
+  const [scheduledSetId, releasesAt] = Object.entries(SCHEDULED_BOOSTER_RELEASES)[0]!
   const f = await fixture()
   try {
+    setSystemTime(new Date(Date.parse(releasesAt) - 1))
     await f.prisma.pokemonSet.create({
       data: {
         id: scheduledSetId,
@@ -481,8 +477,18 @@ databaseTest('a scheduled booster stays out of the Pokédex until it is released
 
     expect(overview.sets.map((set) => set.id)).not.toContain(scheduledSetId)
     expect(await f.pokedex.getSet(f.alice.id, scheduledSetId, 1, 12, 'en')).toBeUndefined()
+
+    setSystemTime(new Date(Date.parse(releasesAt)))
+
+    const released = await f.pokedex.overview(f.alice.id, 'en')
+
+    expect(released.sets.map((set) => set.id)).toContain(scheduledSetId)
+    expect(await f.pokedex.getSet(f.alice.id, scheduledSetId, 1, 12, 'en')).toBeDefined()
   } finally {
-    await f.prisma.pokemonSet.delete({ where: { id: scheduledSetId } })
+    setSystemTime()
+    await f.prisma.pokemonSet.deleteMany({
+      where: { id: scheduledSetId, name: 'Scheduled set' },
+    })
     await f.cleanup()
   }
 })

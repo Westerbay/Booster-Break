@@ -10,10 +10,19 @@ import {
 const releaseAt = Date.parse(SCHEDULED_BOOSTER_RELEASES.me05)
 
 describe('scheduled booster releases', () => {
-  test('only schedules valid instants with an explicit UTC offset', () => {
+  test('only schedules instants whose offset really lands on Paris wall-clock time', () => {
+    const inParis = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Paris',
+      dateStyle: 'short',
+      timeStyle: 'short',
+      hour12: false,
+    })
+
     for (const releasesAt of Object.values(SCHEDULED_BOOSTER_RELEASES)) {
       expect(releasesAt).toMatch(/(Z|[+-]\d{2}:\d{2})$/)
       expect(Date.parse(releasesAt)).not.toBeNaN()
+      const [day, wallClockTime] = releasesAt.split('T')
+      expect(inParis.format(Date.parse(releasesAt))).toBe(`${day}, ${wallClockTime!.slice(0, 5)}`)
     }
   })
 
