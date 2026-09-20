@@ -3,10 +3,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { XIcon } from 'lucide-react'
 import type { UpcomingPokemonSet } from '@tcg-collection/shared'
 
-import { packOpenClock } from '../lib/pack-open-clock'
 import { pokemonQueryKeys } from '../lib/query-keys'
 import { formatCountdown } from '../time'
 import { useLocale } from '@/features/i18n/useLocale'
+import { wallClock } from '@/lib/clock'
 import { m } from '@/paraglide/messages'
 
 // Module-level: a closed teaser stays closed across views, and returns on reload.
@@ -33,7 +33,7 @@ export function UpcomingPackBanner({ sets, dataUpdatedAt }: UpcomingPackBannerPr
     }
 
     const timerId = window.setTimeout(
-      () => queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.setsAll }),
+      () => queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.all }),
       Math.min(Math.max(nextReleaseAt - Date.now() + 1_000, RELEASE_RECHECK_MS), MAX_TIMEOUT_MS),
     )
 
@@ -47,7 +47,7 @@ export function UpcomingPackBanner({ sets, dataUpdatedAt }: UpcomingPackBannerPr
   }
 
   return (
-    <aside className="pointer-events-none fixed inset-x-0 top-[4.5rem] z-20 flex flex-col items-center gap-2 px-3 md:top-3 md:left-44">
+    <aside className="pointer-events-none fixed inset-x-0 top-[4.5rem] z-20 flex flex-col items-center gap-2 px-3 md:top-3 md:left-52">
       {visibleSets.map((set) => (
         <UpcomingPackRow
           key={set.id}
@@ -68,30 +68,33 @@ interface UpcomingPackRowProps {
 }
 
 function UpcomingPackRow({ set, onDismiss }: UpcomingPackRowProps) {
-  const now = useSyncExternalStore(packOpenClock.subscribe, packOpenClock.getSnapshot)
+  const now = useSyncExternalStore(
+    wallClock.subscribe,
+    wallClock.getSnapshot,
+    wallClock.getSnapshot,
+  )
   const { locale } = useLocale()
   const release = new Date(set.releasesAt)
   const countdown = formatCountdown(release.getTime() - now, locale)
 
   return (
-    <div className="pointer-events-auto flex max-w-full items-center gap-x-3 rounded-lg border bg-accent py-2 pr-2 pl-4 text-accent-foreground shadow-md">
-      {set.logoUrl ? <img src={set.logoUrl} alt="" className="h-8 w-auto" /> : null}
-      <p className="text-sm font-semibold">
-        <span className="mr-1 text-xs font-black uppercase">{m.upcoming_pack_eyebrow()}</span>{' '}
-        {m.upcoming_pack_title({ name: set.name })}{' '}
+    <div className="pack-teaser pointer-events-auto">
+      {set.logoUrl ? <img src={set.logoUrl} alt="" className="pack-teaser-logo" /> : null}
+      <p className="pack-teaser-text">
+        <span className="pack-teaser-eyebrow">{m.upcoming_pack_eyebrow()}</span>
+        <span>{m.upcoming_pack_title({ name: set.name })}</span>
         <time
           dateTime={release.toISOString()}
           title={new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(
             release,
           )}
-          className="font-black"
+          className="pack-teaser-countdown"
         >
           <span className="sr-only">{countdown}</span>
-          {/* 1ch cells: the fallback font ignores tabular-nums. */}
           <span aria-hidden="true">
             {[...countdown].map((character, index) =>
               /\d/.test(character) ? (
-                <span key={index} className="inline-block w-[1ch] text-center">
+                <span key={index} className="pack-teaser-digit">
                   {character}
                 </span>
               ) : (
@@ -103,7 +106,7 @@ function UpcomingPackRow({ set, onDismiss }: UpcomingPackRowProps) {
       </p>
       <button
         type="button"
-        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="pack-teaser-dismiss"
         onClick={onDismiss}
         aria-label={m.toast_dismiss()}
       >
