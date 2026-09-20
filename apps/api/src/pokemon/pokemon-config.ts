@@ -2,7 +2,6 @@ export const POKEMON_SYNC_START_DATE = '2024-01-01'
 export const SYNCED_BOOSTER_LIMIT = 8
 export const PINNED_MODERN_BOOSTER_SET_IDS = ['me05', 'me04'] as const
 export const FEATURED_HISTORICAL_BOOSTER_SET_IDS = ['swsh12.5'] as const
-// Absolute instants: a redeploy must never shift a release.
 export const SCHEDULED_BOOSTER_RELEASES: Readonly<Record<string, string>> = {
   me05: '2026-09-28T10:00:00+02:00',
 }

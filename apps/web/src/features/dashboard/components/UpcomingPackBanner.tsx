@@ -10,7 +10,6 @@ import { wallClock } from '@/lib/clock'
 import { pokedexQueryKeys } from '@/lib/queries/pokedex'
 import { m } from '@/paraglide/messages'
 
-// Module-level: a closed teaser stays closed across views, and returns on reload.
 const dismissedSetIds = new Set<string>()
 
 const RELEASE_RECHECK_MS = 5_000
@@ -27,7 +26,7 @@ export function UpcomingPackBanner({ sets, queryUpdatedAt }: UpcomingPackBannerP
   // Infinity on an empty list, NaN on an unparsable instant: neither arms the timer.
   const nextReleaseAt = Math.min(...sets.map((set) => new Date(set.releasesAt).getTime()))
 
-  // Kept in the parent so closing the banner can't stop it. A finished fetch re-arms it.
+  // In the parent so dismissing a teaser cannot cancel the release refresh.
   useEffect(() => {
     if (!Number.isFinite(nextReleaseAt)) {
       return

@@ -295,7 +295,6 @@
   }
 }
 
-/* The release teaser floats over the shell, so it carries the panel's own materials. */
 .pack-teaser {
   display: flex;
   max-width: 100%;
@@ -363,7 +362,7 @@
   }
 }
 
-/* A wide set logo would squeeze the countdown onto three lines on a phone. */
+/* Capped: a wide logo pushes the countdown onto a third line. */
 @media (max-width: 639px) {
   .pack-teaser {
     gap: 8px;
