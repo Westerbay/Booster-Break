@@ -5,6 +5,7 @@ import type {
 } from '@tcg-collection/shared'
 import type { Prisma } from '@prisma/client'
 import { toCardSummary, toSetSummary } from './pokemon-mappers'
+import { hasBoosterArtwork } from './pokemon-config'
 
 const cardNumberOrder = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
 
@@ -27,7 +28,7 @@ export class PokedexRepository {
       `,
     ])
     const discoveries = new Map(counts.map((row) => [row.setId, Number(row.count)]))
-    const sets = catalog.map((set) => ({
+    const sets = catalog.filter(hasBoosterArtwork).map((set) => ({
       ...toSetSummary(set, locale),
       catalogCount: set._count.cards,
       discoveredCount: discoveries.get(set.id) ?? 0,
@@ -50,7 +51,7 @@ export class PokedexRepository {
       where: { id: setId },
       include: { cards: { select: { id: true, localId: true } } },
     })
-    if (!set?.cards.length) return undefined
+    if (!set?.cards.length || !hasBoosterArtwork(set)) return undefined
 
     // Only the small number/id index is read for the set. Artwork and discovery
     // metadata are fetched for the bounded page, in natural collector-number order.
