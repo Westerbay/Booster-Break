@@ -19,6 +19,8 @@
 }
 .game-content {
   padding-block: var(--game-content-padding-block, clamp(1.5rem, 4vw, 3.5rem));
+  /* safe: a view taller than the viewport top-aligns instead of losing its head above the scroll. */
+  align-items: safe center;
 }
 .game-nav {
   border-color: var(--sidebar-border);
@@ -169,7 +171,6 @@
 @media (min-width: 1024px) and (min-height: 700px) {
   .game-content-packs {
     --game-content-padding-block: 24px;
-    align-items: center;
   }
   .game-pack-layout {
     height: min(48rem, calc(100dvh - 3rem - 2px));
