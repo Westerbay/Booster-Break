@@ -19,7 +19,7 @@ export const useLeaderboardPage = () => {
   const auth = useQuery(useCurrentUserQueryOption())
   const logoutMutation = useMutation(useLogoutMutationOption(queryClient))
   const leaderboard = useQuery(usePokemonLeaderboardQueryOption())
-  const pvp = useQuery({ ...pvpBoardOptions(), enabled: activeLeaderboard === 'elo' })
+  const pvp = useQuery({ ...pvpBoardOptions(1, true), enabled: activeLeaderboard === 'elo' })
   let players
   if (activeLeaderboard === 'elo') {
     players = (pvp.data?.trainers ?? []).map((trainer) => ({ ...trainer, score: trainer.elo }))

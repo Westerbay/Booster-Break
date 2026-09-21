@@ -1,10 +1,10 @@
 import type { LeaderboardEntry } from '../lib/leaderboard-config'
 import { TrainerRow } from '@/features/trainers/components/TrainerRow'
-import { m } from '@/paraglide/messages'
 
 interface LeaderboardListProps {
   players: LeaderboardEntry[]
   scoreLabel: string
+  emptyMessage: string
   numberFormatter: Intl.NumberFormat
   currentUserId?: string
 }
@@ -12,10 +12,11 @@ interface LeaderboardListProps {
 export function LeaderboardList({
   players,
   scoreLabel,
+  emptyMessage,
   numberFormatter,
   currentUserId,
 }: LeaderboardListProps) {
-  if (players.length === 0) return <p className="leaderboard-empty">{m.leaderboard_empty()}</p>
+  if (players.length === 0) return <p className="leaderboard-empty">{emptyMessage}</p>
   return (
     <ol className="leaderboard-roster">
       {players.map((player, index) => (

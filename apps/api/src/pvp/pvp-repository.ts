@@ -109,20 +109,30 @@ export class PvpRepository {
     return { cards, page, hasMore: rows.length > pageSize }
   }
 
-  async board(locale: SupportedLocale, page: number, userId?: string): Promise<PvpBoardResponse> {
+  async board(
+    locale: SupportedLocale,
+    page: number,
+    { userId, rankedOnly = false }: { userId?: string; rankedOnly?: boolean } = {},
+  ): Promise<PvpBoardResponse> {
     const pageSize = 20
-    const filter = userId ? Prisma.sql`WHERE "userId" = ${userId}` : Prisma.empty
+    let filter = Prisma.empty
+    if (userId) filter = Prisma.sql`WHERE "userId" = ${userId}`
+    else if (rankedOnly) filter = Prisma.sql`WHERE wins + losses + draws > 0`
     const [rows, total] = await Promise.all([
       this.db.$queryRaw<RankedTrainer[]>(Prisma.sql`
         WITH ranked AS (
           SELECT u.id AS "userId", COALESCE(u.display_name, u.pseudo) AS name, u.avatar_url AS "avatarUrl",
             COALESCE(r.elo, ${PVP_RULES.initialElo})::int AS elo, COALESCE(r.wins, 0)::int AS wins,
             COALESCE(r.losses, 0)::int AS losses, COALESCE(r.draws, 0)::int AS draws,
-            ROW_NUMBER() OVER (ORDER BY COALESCE(r.elo, ${PVP_RULES.initialElo}) DESC, COALESCE(r.wins, 0) DESC, u.id) AS rank
+            ROW_NUMBER() OVER (ORDER BY COALESCE(r.wins + r.losses + r.draws, 0) > 0 DESC, COALESCE(r.elo, ${PVP_RULES.initialElo}) DESC, COALESCE(r.wins, 0) DESC, u.id) AS rank
           FROM users u LEFT JOIN pvp_ratings r ON r.user_id = u.id
         ) SELECT * FROM ranked ${filter} ORDER BY rank LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `),
-      this.db.user.count(),
+      rankedOnly
+        ? this.db.pvpRating.count({
+            where: { OR: [{ wins: { gt: 0 } }, { losses: { gt: 0 } }, { draws: { gt: 0 } }] },
+          })
+        : this.db.user.count(),
     ])
     const topCards = await this.topCards(
       rows.map((row) => row.userId),

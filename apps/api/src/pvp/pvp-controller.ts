@@ -27,8 +27,8 @@ export function createPvpController(service: PvpService, authService: AuthServic
       else if (error.code === 'pvp_forbidden') code = 403
       return status(code, { error: error.code, message: error.message })
     })
-    .get('/board', ({ locale, query }) => service.board(locale, query.page), {
-      query: z.object({ page }),
+    .get('/board', ({ locale, query }) => service.board(locale, query.page, query.ranked), {
+      query: z.object({ page, ranked: z.stringbool().default(false) }),
     })
     .get('/trainers/:userId', ({ locale, params }) => service.trainer(params.userId, locale), {
       params: z.object({ userId: id }),
