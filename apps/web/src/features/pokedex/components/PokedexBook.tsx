@@ -40,7 +40,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
     duration: reducedMotion ? 0 : 0.68,
     ease: [0.3, 0.05, 0.25, 1] as const,
   }
-  const controlsVisible = hasSelectedSet && !book.turn
+  const controlsVisible = hasSelectedSet && !book.turn && !book.pending
   const pageLabel = getPageLabel()
 
   function renderPage(scene: BookScene, side: 'left' | 'right', decorative = false) {

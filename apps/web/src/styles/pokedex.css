@@ -412,6 +412,17 @@
 .pokedex-book-controls[data-visible='false'] {
   visibility: hidden;
 }
+.pokedex-book-controls {
+  max-height: 44px;
+  transition-property: min-height, max-height;
+  transition-duration: 0.68s;
+  transition-timing-function: cubic-bezier(0.3, 0.05, 0.25, 1);
+}
+.pokedex-book[data-section='cover'] .pokedex-book-controls {
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+}
 .pokedex-query-error {
   position: absolute;
   z-index: 5;
@@ -488,6 +499,9 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pokedex-card {
+    transition: none;
+  }
+  .pokedex-book-controls {
     transition: none;
   }
 }
