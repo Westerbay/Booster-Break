@@ -7,6 +7,7 @@ import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { usePokedexQueryOption } from '@/lib/queries/pokedex'
 import { m } from '@/paraglide/messages'
 import { PokedexBook } from './components/PokedexBook'
+import { getStoredPokedexSetId, setStoredPokedexSetId } from './lib/pokedex-set-storage'
 import '@/styles/pokedex.css'
 import '@/styles/pokedex-endpapers.css'
 
@@ -15,9 +16,14 @@ export function PokedexView() {
   const auth = useQuery(useCurrentUserQueryOption())
   const userId = auth.data?.authenticated ? auth.data.user.id : undefined
   const overview = useQuery(usePokedexQueryOption(userId))
-  const [selectedId, setSelectedId] = useState<string>()
+  const [selectedId, setSelectedId] = useState(getStoredPokedexSetId)
   const sets = overview.data?.sets ?? []
   const selectedSet = sets.find((set) => set.id === selectedId) ?? sets[0]
+
+  function selectSet(setId: string) {
+    setSelectedId(setId)
+    setStoredPokedexSetId(setId)
+  }
 
   function retry() {
     if (auth.error) void auth.refetch()
@@ -33,7 +39,7 @@ export function PokedexView() {
           set={selectedSet}
           hasSelectedSet={selectedSet.id === selectedId}
           sets={sets}
-          onSetChange={setSelectedId}
+          onSetChange={selectSet}
         />
       </section>
     )

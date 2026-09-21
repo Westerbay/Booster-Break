@@ -54,9 +54,10 @@ export function usePokedexBook(
   const lastIndex = layout.cardPageCount + 1
   const busy = Boolean(animatedTurn)
 
-  function navigate(index: number) {
+  // `target` is for a set picked this very render: `set` and `hasSelectedSet` still hold the previous one.
+  function navigate(index: number, target?: PokedexSetSummary) {
     if (busy) return
-    if (!hasSelectedSet && index > 0) return
+    if (!target && !hasSelectedSet && index > 0) return
     const bounded = Math.max(0, Math.min(lastIndex, index))
     if (pending && bounded > 0) return
     if (bounded === layout.index) return
@@ -64,10 +65,10 @@ export function usePokedexBook(
     turnId.current += 1
     setTurn({
       id: turnId.current,
-      from: shownScene,
+      from: target ? { ...shownScene, set: target } : shownScene,
       direction: bounded > shownScene.layout.index ? 1 : -1,
     })
-    setPosition(bookPositionAt(bounded, set.catalogCount, spread))
+    setPosition(bookPositionAt(bounded, (target ?? set).catalogCount, spread))
   }
   function previous() {
     navigate(layout.index - 1)
@@ -77,6 +78,9 @@ export function usePokedexBook(
   }
   function cover() {
     navigate(0)
+  }
+  function open(target: PokedexSetSummary) {
+    if (layout.index === 0) navigate(1, target)
   }
   function completeTurn(id: number) {
     setTurn((current) => (current?.id === id ? undefined : current))
@@ -141,6 +145,7 @@ export function usePokedexBook(
     previous,
     next,
     cover,
+    open,
     completeTurn,
     retry,
     warmNext,

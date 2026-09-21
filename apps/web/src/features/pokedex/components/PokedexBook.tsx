@@ -40,7 +40,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
     duration: reducedMotion ? 0 : 0.68,
     ease: [0.3, 0.05, 0.25, 1] as const,
   }
-  const controlsVisible = hasSelectedSet && !book.turn
+  const controlsVisible = hasSelectedSet && !book.turn && !book.pending
   const pageLabel = getPageLabel()
 
   function renderPage(scene: BookScene, side: 'left' | 'right', decorative = false) {
@@ -52,6 +52,8 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
         hasSelectedSet={hasSelectedSet}
         decorative={decorative}
         onSetChange={chooseSet}
+        onOpen={openBook}
+        onWarm={book.warmNext}
         onReturnToCover={book.cover}
         onSelect={setSelectedCard}
       />
@@ -100,7 +102,11 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
   }
   function chooseSet(setId: string) {
     onSetChange(setId)
-    bookElementRef.current?.focus({ preventScroll: true })
+    const target = sets.find((candidate) => candidate.id === setId)
+    if (target) book.open(target)
+  }
+  function openBook() {
+    book.open(set)
   }
   function getPageLabel() {
     const { layout } = book
@@ -142,7 +148,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
         <div
           className="pokedex-book-stage"
           aria-busy={book.busy || book.pending}
-          inert={Boolean(book.turn)}
+          inert={Boolean(book.turn) || book.pending}
           onTouchStart={book.startTouch}
           onTouchEnd={book.endTouch}
         >
@@ -192,7 +198,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
           <span className="sr-only" aria-live="polite">
             {book.pending ? m.pokedex_loading() : pageLabel}
           </span>
-          {hasSelectedSet && book.layout.index < book.lastIndex && (
+          {hasSelectedSet && !closed && book.layout.index < book.lastIndex && (
             <Button
               variant="ghost"
               disabled={book.busy || book.pending}

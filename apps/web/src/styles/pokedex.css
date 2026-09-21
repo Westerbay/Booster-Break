@@ -17,9 +17,10 @@
   min-height: 440px;
 }
 .pokedex-book {
+  --pokedex-book-gap: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--pokedex-book-gap);
   position: relative;
   isolation: isolate;
   width: min(100%, 1040px);
@@ -115,6 +116,13 @@
 }
 .pokedex-cover-sheet > * {
   height: 100%;
+}
+/* The cover spans the empty controls row so the stage never resizes, which would reflow the book mid-turn. */
+.pokedex-book .pokedex-cover {
+  height: calc(100% + 44px + var(--pokedex-book-gap));
+}
+.pokedex-book .pokedex-loading {
+  bottom: calc(-44px - var(--pokedex-book-gap));
 }
 .pokedex-spread {
   display: grid;
@@ -463,8 +471,8 @@
     height: calc(100dvh - 4rem - 2 * var(--game-content-padding-block));
   }
   .pokedex-book {
+    --pokedex-book-gap: 6px;
     padding: 9px 9px 4px 13px;
-    gap: 6px;
   }
   .pokedex-leaf {
     padding: 10px 8px 7px;
