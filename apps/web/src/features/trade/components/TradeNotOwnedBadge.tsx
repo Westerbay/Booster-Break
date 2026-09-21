@@ -10,12 +10,12 @@ interface TradeNotOwnedBadgeProps {
 
 const badgeSizeClassNames = {
   default: 'gap-1 px-2 py-0.5 text-xs tracking-wide shadow',
-  compact: 'gap-0.5 px-1.5 py-0.5 text-[10px] leading-none tracking-normal shadow-sm',
+  compact: 'gap-1 px-2 py-1 text-[10px] leading-none tracking-wide shadow-sm',
 } as const
 
 const iconSizeClassNames = {
   default: 'size-3',
-  compact: 'size-2.5',
+  compact: 'size-3',
 } as const
 
 export function TradeNotOwnedBadge({ className, size = 'default' }: TradeNotOwnedBadgeProps) {

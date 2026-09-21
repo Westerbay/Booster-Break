@@ -6,6 +6,7 @@ import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { CardImageDialog } from '@/features/dashboard/components/CardImageDialog'
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
 import { TradeNotOwnedBadge } from './TradeNotOwnedBadge'
+import { TradeCardRaritySet } from './TradeCardRaritySet'
 
 interface TradeOffersPanelProps {
   auction: TradeAuctionResponse
@@ -122,6 +123,7 @@ export function TradeOffersPanel({
                 )}
               </div>
               <p className="mt-1 max-w-full truncate text-sm font-black">{card.card.name}</p>
+              <TradeCardRaritySet rarity={card.card.rarity} setId={card.card.setId} />
               <p className="text-sm font-black text-muted-foreground">x{card.quantity}</p>
               <p className="text-sm text-muted-foreground">
                 {card.card.supertype ?? m.trade_other_type()}
