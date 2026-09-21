@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import { ChevronLeftIcon, ChevronRightIcon, LoaderCircleIcon } from 'lucide-react'
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import type { PokedexSetSummary, PokemonCardSummary } from '@tcg-collection/shared'
 import { Button } from '@/components/ui/button'
 import { CardImageDialog } from '@/features/dashboard/components/CardImageDialog'
@@ -9,6 +9,7 @@ import { usePokedexBook, type BookScene } from '../hooks/usePokedexBook'
 import { PokedexBookPage } from './PokedexBookPage'
 import { PokedexCoverTurn } from './PokedexCoverTurn'
 import { PokedexPageTurn } from './PokedexPageTurn'
+import { PokedexBookLoading } from './PokedexBookLoading'
 
 interface PokedexBookProps {
   userId: string
@@ -160,12 +161,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
           ) : (
             renderScene(book.shownScene)
           )}
-          {book.pending && (
-            <span className="pokedex-turn-loading" role="status">
-              <LoaderCircleIcon aria-hidden="true" />
-              <span>{m.pokedex_loading_assets()}</span>
-            </span>
-          )}
+          {book.pending && <PokedexBookLoading set={set} />}
           {book.error && book.layout.kind === 'cards' && (
             <div className="pokedex-query-error" role="alert">
               <p>{book.error.message}</p>

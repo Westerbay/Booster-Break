@@ -1,0 +1,266 @@
+.pokedex-loading {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: grid;
+  justify-items: center;
+}
+.pokedex-loading-panel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 20px;
+  width: min(100%, 32rem);
+  height: 100%;
+  padding: 28px 32px;
+  overflow: auto;
+  text-align: center;
+  border: 1px solid color-mix(in oklch, var(--primary) 38%, var(--border));
+  border-radius: 4px 10px 10px 4px;
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      color-mix(in oklch, var(--primary) 11%, transparent),
+      transparent 60%
+    ),
+    repeating-linear-gradient(
+      115deg,
+      transparent 0 3px,
+      color-mix(in oklch, var(--foreground) 2%, transparent) 3px 4px
+    ),
+    var(--binder-cover);
+}
+.pokedex-loading-panel::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 10px;
+  border: 1px solid color-mix(in oklch, var(--primary) 16%, transparent);
+  border-radius: 2px 6px 6px 2px;
+  pointer-events: none;
+}
+.pokedex-loading-eyebrow {
+  color: var(--muted-foreground);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pokedex-loading-scene {
+  position: relative;
+  flex: 0 0 auto;
+  width: 260px;
+  height: 236px;
+  margin-block: 4px 10px;
+}
+.pokedex-loading-orbit {
+  position: absolute;
+  inset: 6px 18px;
+  border: 1px solid color-mix(in oklch, var(--primary) 20%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 16px color-mix(in oklch, var(--primary) 3%, transparent);
+}
+.pokedex-loading-orbit::before,
+.pokedex-loading-orbit::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--primary);
+  transform: translateY(-50%) rotate(45deg);
+}
+.pokedex-loading-orbit::before {
+  left: -3px;
+}
+.pokedex-loading-orbit::after {
+  right: -3px;
+}
+.pokedex-loading-card {
+  --card-angle: 0deg;
+  --card-offset: 0px;
+  position: absolute;
+  inset: 20px 63px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--primary) 65%, var(--border));
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 7px,
+      color-mix(in oklch, var(--primary) 5%, transparent) 7px 8px
+    ),
+    var(--binder-cover);
+  box-shadow: 0 12px 24px -8px var(--game-dialog-shadow);
+  transform: translate(var(--card-offset), 0) rotate(var(--card-angle));
+  animation: pokedex-card-suspend 3.6s ease-in-out infinite;
+}
+.pokedex-loading-card::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid color-mix(in oklch, var(--primary) 25%, transparent);
+  border-radius: 4px;
+}
+.pokedex-loading-card[data-position='left'] {
+  --card-angle: -17deg;
+  --card-offset: -37px;
+  animation-delay: -1.2s;
+}
+.pokedex-loading-card[data-position='right'] {
+  --card-angle: 17deg;
+  --card-offset: 37px;
+  animation-delay: -2.4s;
+}
+.pokedex-loading-card[data-position='front']::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    color-mix(in oklch, var(--primary) 20%, transparent) 50%,
+    transparent 60%
+  );
+  animation: pokedex-foil-sweep 3.6s ease-in-out infinite;
+}
+.pokedex-loading-card .pokedex-cover-crest {
+  width: 58px;
+  height: 58px;
+  margin: 0;
+}
+.pokedex-loading-card-label {
+  color: var(--primary);
+  font: 700 0.9rem var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.pokedex-loading-card-stars {
+  color: var(--primary);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+}
+.pokedex-loading-copy h2 {
+  color: var(--foreground);
+  font: 700 2rem/1.05 var(--font-display);
+  text-wrap: balance;
+}
+.pokedex-loading-set {
+  margin-top: 10px;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.pokedex-loading-description {
+  max-width: 34ch;
+  margin: 14px auto 0;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.pokedex-loading-status {
+  width: 100%;
+  max-width: 20rem;
+  margin-top: 6px;
+}
+.pokedex-loading-track {
+  height: 3px;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--primary) 13%, transparent);
+}
+.pokedex-loading-track > span {
+  display: block;
+  width: 30%;
+  height: 100%;
+  background: var(--primary);
+  animation: pokedex-loading-sweep 1.8s ease-in-out infinite;
+}
+.pokedex-loading-status p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--foreground);
+  font-size: 0.7rem;
+}
+.pokedex-loading-signal {
+  flex: 0 0 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.pokedex-loading-note {
+  color: var(--muted-foreground);
+  font-size: 0.65rem;
+}
+@keyframes pokedex-card-suspend {
+  50% {
+    transform: translate(var(--card-offset), -8px) rotate(var(--card-angle));
+  }
+}
+@keyframes pokedex-foil-sweep {
+  0%,
+  15% {
+    transform: translateX(-65%);
+  }
+  70%,
+  100% {
+    transform: translateX(65%);
+  }
+}
+@keyframes pokedex-loading-sweep {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(440%);
+  }
+}
+@media (max-width: 767px), (max-height: 760px) {
+  .pokedex-loading-panel {
+    padding: 20px 24px;
+    gap: 14px;
+  }
+  .pokedex-loading-scene {
+    zoom: 0.78;
+    margin-block: 0;
+  }
+  .pokedex-loading-copy h2 {
+    font-size: 1.7rem;
+  }
+  .pokedex-loading-description {
+    margin-top: 10px;
+  }
+}
+@media (max-height: 640px) {
+  .pokedex-loading-panel {
+    gap: 10px;
+  }
+  .pokedex-loading-scene {
+    zoom: 0.56;
+  }
+  .pokedex-loading-note {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pokedex-loading-card,
+  .pokedex-loading-card[data-position='front']::after,
+  .pokedex-loading-track > span {
+    animation: none;
+  }
+  .pokedex-loading-track > span {
+    width: 100%;
+    opacity: 0.35;
+  }
+}

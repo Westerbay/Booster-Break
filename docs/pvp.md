@@ -134,3 +134,8 @@ Prisma records this migration so subsequent deploys do not subtract again.
 Deploy the migration with the matching application version while PvP writes are
 stopped: it takes exclusive locks on ratings and results for an atomic conversion.
 Do not run this SQL manually a second time or roll back only the application version.
+
+`20260921010000_pvp_elo_nonnegative` then adds PostgreSQL `CHECK` constraints
+to current Elo and both history values. Inserts and updates below zero are rejected,
+including direct SQL writes. These constraints are maintained in migration SQL
+because Prisma cannot represent them in its schema.

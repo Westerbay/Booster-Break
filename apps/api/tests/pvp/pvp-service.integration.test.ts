@@ -450,6 +450,7 @@ databaseTest(
         { alice: 1600, bob: 1000, winner: f.alice, expected: 1 },
         { alice: 0, bob: 0, winner: f.bob, expected: 0 },
         { alice: 5, bob: 0, winner: f.bob, expected: -5 },
+        { alice: 0, bob: 5, winner: f.alice, expected: 5 },
       ]) {
         for (const [userId, elo] of [
           [f.alice, scenario.alice],

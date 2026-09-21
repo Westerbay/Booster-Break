@@ -4,7 +4,7 @@ import { Client } from 'pg'
 const databaseTest = Bun.env.RUN_DATABASE_TESTS === 'true' ? test : test.skip
 
 databaseTest(
-  'rebases legacy ratings and history without negatives and changes the insert default',
+  'rebases legacy ratings and history, starts at 100 and rejects negative inserts or updates',
   async () => {
     const url = new URL(Bun.env.DATABASE_URL ?? 'https://invalid')
     if (!['127.0.0.1', 'localhost'].includes(url.hostname) || !url.pathname.endsWith('_test'))
@@ -26,6 +26,14 @@ databaseTest(
         ),
       ).text()
       await client.query(migration)
+      await client.query(
+        await Bun.file(
+          new URL(
+            '../../prisma/migrations/20260921010000_pvp_elo_nonnegative/migration.sql',
+            import.meta.url,
+          ),
+        ).text(),
+      )
       expect((await client.query('SELECT elo, wins FROM pvp_ratings ORDER BY elo')).rows).toEqual([
         { elo: 0, wins: 7 },
         { elo: 0, wins: 7 },
@@ -41,6 +49,18 @@ databaseTest(
       expect(
         (await client.query('INSERT INTO pvp_ratings DEFAULT VALUES RETURNING elo')).rows,
       ).toEqual([{ elo: 100 }])
+      for (const statement of [
+        'INSERT INTO pvp_ratings (elo) VALUES (-1)',
+        'UPDATE pvp_ratings SET elo = -1',
+        'INSERT INTO pvp_results VALUES (-1, 0)',
+        'INSERT INTO pvp_results VALUES (0, -1)',
+        'UPDATE pvp_results SET elo_before = -1',
+        'UPDATE pvp_results SET elo_after = -1',
+      ]) {
+        await expect(client.query(statement)).rejects.toMatchObject({ code: '23514' })
+      }
+      await client.query('INSERT INTO pvp_ratings (elo) VALUES (0)')
+      await client.query('INSERT INTO pvp_results VALUES (0, 0)')
     } finally {
       await client.end()
     }

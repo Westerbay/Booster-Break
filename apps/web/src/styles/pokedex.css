@@ -412,25 +412,6 @@
 .pokedex-book-controls[data-visible='false'] {
   visibility: hidden;
 }
-.pokedex-turn-loading {
-  position: absolute;
-  z-index: 5;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 24px;
-  text-align: center;
-  background: var(--binder-paper);
-  color: var(--primary);
-}
-.pokedex-turn-loading svg {
-  width: 32px;
-  height: 32px;
-  animation: pokedex-spin 1s linear infinite;
-}
 .pokedex-query-error {
   position: absolute;
   z-index: 5;
@@ -473,11 +454,6 @@
   color: var(--muted-foreground);
   max-width: 48ch;
 }
-@keyframes pokedex-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 @media (max-width: 767px) {
   .game-content-pokedex {
     --game-content-padding-block: 16px;
@@ -513,8 +489,5 @@
 @media (prefers-reduced-motion: reduce) {
   .pokedex-card {
     transition: none;
-  }
-  .pokedex-turn-loading svg {
-    animation: none;
   }
 }
