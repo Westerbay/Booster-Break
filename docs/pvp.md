@@ -28,7 +28,7 @@ page session. Active trade notifications are shown first.
   printed weakness. Each card plays once. A tied round consumes both cards and
   energy without awarding a point.
 - Two won rounds or the higher score after three rounds wins the match. Equal
-  final scores draw. Elo starts at 1200. Expected score is
+  final scores draw. Elo starts at 100. Expected score is
   `1 / (1 + 10 ** ((opponentElo - elo) / 400))`; the rating change is
   `round(24 * (score - expected))`, with score 1 / 0.5 / 0 for a win / draw / loss.
   The opponent receives the exact opposite change. The transfer is capped by the
@@ -122,3 +122,15 @@ DATABASE_URL='postgresql://postgres@127.0.0.1:55439/booster_pvp_test' bun src/sc
 ```
 
 Never point this seed or the integration tests at a shared or production database.
+
+### Elo baseline migration
+
+`20260921000000_pvp_elo_start_100` changes the default to 100 and subtracts 1100
+from existing ratings and result history, clamping each value at zero. Wins, losses,
+draws and matches are preserved. Historical deltas near the floor may shrink because
+they are derived from the clamped before/after values. Earlier migrations are unchanged;
+Prisma records this migration so subsequent deploys do not subtract again.
+
+Deploy the migration with the matching application version while PvP writes are
+stopped: it takes exclusive locks on ratings and results for an atomic conversion.
+Do not run this SQL manually a second time or roll back only the application version.

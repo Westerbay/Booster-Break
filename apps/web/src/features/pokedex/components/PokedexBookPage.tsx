@@ -28,7 +28,7 @@ export function PokedexBookPage({
 }: PokedexBookPageProps) {
   if (scene.layout.kind === 'cards') {
     const offset = side === 'right' ? POKEDEX_SLOTS_PER_LEAF : 0
-    const slots = scene.data?.slots.slice(offset, offset + POKEDEX_SLOTS_PER_LEAF) ?? []
+    const slots = scene.slots?.slice(offset, offset + POKEDEX_SLOTS_PER_LEAF) ?? []
     const leaf = scene.layout.firstLeaf + (side === 'right' ? 1 : 0)
     const number = leaf <= scene.layout.lastLeaf ? leaf : undefined
     return (

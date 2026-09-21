@@ -111,10 +111,10 @@ databaseTest(
       ])
       expect(results.every((result) => result.status === 'completed')).toBe(true)
       const profile = await f.service.trainer(f.alice, 'en')
-      expect(profile.trainer).toMatchObject({ elo: 1212, wins: 1, losses: 0, draws: 0 })
+      expect(profile.trainer).toMatchObject({ elo: 112, wins: 1, losses: 0, draws: 0 })
       expect(profile.trainer.topCards.map((record) => record.wins)).toEqual([1, 1])
       expect(profile.history).toHaveLength(1)
-      expect((await f.service.trainer(f.bob, 'en')).trainer).toMatchObject({ elo: 1188, losses: 1 })
+      expect((await f.service.trainer(f.bob, 'en')).trainer).toMatchObject({ elo: 88, losses: 1 })
     } finally {
       await f.cleanup()
     }
@@ -205,7 +205,7 @@ databaseTest(
       const result = await f.service.get(f.alice, match.id, 'en')
       expect(result).toMatchObject({ status: 'completed', winnerId: null, eloChange: 0 })
       const profile = await f.service.trainer(f.alice, 'en')
-      expect(profile.trainer).toMatchObject({ elo: 1200, draws: 1 })
+      expect(profile.trainer).toMatchObject({ elo: 100, draws: 1 })
       expect(profile.trainer.topCards.map((entry) => entry.draws)).toEqual([1, 1, 1])
       expect(await f.prisma.pvpSeat.count({ where: { matchId: match.id } })).toBe(0)
       expect((await f.service.create(f.bob, f.alice, f.team, 'en')).status).toBe('waiting')
@@ -245,7 +245,7 @@ databaseTest(
       ).toBe(true)
       expect((await f.service.trainer(f.alice, 'en')).trainer).toMatchObject({
         wins: 1,
-        elo: 1212,
+        elo: 112,
         topCards: [],
       })
       expect(await f.prisma.pvpResult.count({ where: { matchId: match.id } })).toBe(2)
@@ -274,7 +274,7 @@ databaseTest('forfeiting cannot award unplayed cards or be submitted by a specta
     await f.service.leave(f.alice, match.id, 'en')
     expect((await f.service.trainer(f.bob, 'en')).trainer).toMatchObject({
       wins: 1,
-      elo: 1212,
+      elo: 112,
       topCards: [],
     })
   } finally {
@@ -395,7 +395,7 @@ databaseTest('an idle active match cancels without ratings and releases its seat
     })
     expect(await f.prisma.pvpSeat.count({ where: { matchId: match.id } })).toBe(0)
     expect((await f.service.trainer(f.alice, 'en')).trainer).toMatchObject({
-      elo: 1200,
+      elo: 100,
       wins: 0,
       losses: 0,
       draws: 0,

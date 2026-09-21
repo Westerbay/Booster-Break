@@ -7,7 +7,7 @@ export const PVP_RULES = {
   energy: 5,
   maxCommitment: 3,
   rounds: 3,
-  initialElo: 1200,
+  initialElo: 100,
   eloK: 24,
   lowPowerMaxHp: 100,
   mediumPowerMaxHp: 180,

@@ -8,7 +8,7 @@ export type LeaderboardEntry = Pick<LeaderboardPlayer, 'userId' | 'name' | 'avat
   score: number
 }
 
-export const leaderboardOptions: LeaderboardKind[] = ['mostUniqueCards', 'mostCards', 'elo']
+export const leaderboardOptions: LeaderboardKind[] = ['elo', 'mostUniqueCards', 'mostCards']
 
 export const getLeaderboardConfig = (kind: LeaderboardKind) => {
   switch (kind) {

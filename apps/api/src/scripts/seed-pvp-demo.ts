@@ -99,7 +99,7 @@ try {
         where: { userId: user.id },
         create: {
           userId: user.id,
-          elo: [1608, 1536, 1420, 1368, 1284, 1216][index],
+          elo: [508, 436, 320, 268, 184, 116][index],
           wins: 72 - index * 10,
           losses: 26 + index,
           draws: 4,

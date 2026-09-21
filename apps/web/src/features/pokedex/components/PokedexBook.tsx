@@ -163,7 +163,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
           {book.pending && (
             <span className="pokedex-turn-loading" role="status">
               <LoaderCircleIcon aria-hidden="true" />
-              <span className="sr-only">{m.pokedex_loading()}</span>
+              <span>{m.pokedex_loading_assets()}</span>
             </span>
           )}
           {book.error && book.layout.kind === 'cards' && (
@@ -187,8 +187,6 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
               variant="ghost"
               disabled={book.busy}
               onClick={book.previous}
-              onPointerEnter={book.warmPrevious}
-              onFocus={book.warmPrevious}
               aria-label={m.pokedex_previous()}
             >
               <ChevronLeftIcon aria-hidden="true" />
@@ -201,7 +199,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
           {hasSelectedSet && book.layout.index < book.lastIndex && (
             <Button
               variant="ghost"
-              disabled={book.busy}
+              disabled={book.busy || book.pending}
               data-direction="next"
               onClick={book.next}
               onPointerEnter={book.warmNext}

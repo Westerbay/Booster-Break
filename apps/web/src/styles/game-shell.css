@@ -34,7 +34,7 @@
 }
 .game-desktop-nav::after {
   position: absolute;
-  right: -1px;
+  right: 0;
   top: 14%;
   width: 1px;
   height: 36%;
@@ -89,6 +89,8 @@
   color: var(--game-cta-icon);
 }
 .game-nav-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
