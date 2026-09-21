@@ -1,7 +1,7 @@
 import { useRef, useState, type KeyboardEvent, type RefObject, type TouchEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import type { PokedexSetResponse, PokedexSetSummary } from '@tcg-collection/shared'
-import { usePokedexSetQueryOption } from '@/lib/queries/pokedex'
+import type { PokedexSlot, PokedexSetSummary } from '@tcg-collection/shared'
+import { pokedexBookQueryOptions } from '@/lib/queries/pokedex'
 import { useBookSpread } from '../lib/book-layout'
 import {
   bookPositionAt,
@@ -13,7 +13,7 @@ import {
 export interface BookScene {
   layout: BookLayout
   set: PokedexSetSummary
-  data?: PokedexSetResponse
+  slots?: PokedexSlot[]
 }
 interface BookTurn {
   id: number
@@ -33,34 +33,17 @@ export function usePokedexBook(
   const turnId = useRef(0)
   const touch = useRef<{ x: number; y: number } | null>(null)
   const layout = resolveBookPosition(position, set.catalogCount, spread)
-  const nextLayout = resolveBookPosition(
-    bookPositionAt(layout.index + 1, set.catalogCount, spread),
-    set.catalogCount,
-    spread,
-  )
-  const previousLayout = resolveBookPosition(
-    bookPositionAt(layout.index - 1, set.catalogCount, spread),
-    set.catalogCount,
-    spread,
-  )
-  const query = useQuery(
-    usePokedexSetQueryOption(
-      userId,
-      layout.kind === 'cards' ? set.id : undefined,
-      layout.cardPage,
-      layout.pageSize,
-    ),
-  )
-  const nextOptions = usePokedexSetQueryOption(userId, set.id, nextLayout.cardPage, layout.pageSize)
-  const previousOptions = usePokedexSetQueryOption(
-    userId,
-    set.id,
-    previousLayout.cardPage,
-    layout.pageSize,
-  )
   const queryClient = useQueryClient()
+  const query = useQuery(
+    pokedexBookQueryOptions(queryClient, userId, set.id, layout.kind === 'cards'),
+  )
   const pending = layout.kind === 'cards' && query.isPending
-  const scene: BookScene = { layout, set: query.data?.set ?? set, data: query.data }
+  const offset = (layout.cardPage - 1) * layout.pageSize
+  const scene: BookScene = {
+    layout,
+    set: query.data?.set ?? set,
+    slots: query.data?.slots.slice(offset, offset + layout.pageSize),
+  }
   const compatibleTurn = turn?.from.layout.pageSize === layout.pageSize
   if (turn && !compatibleTurn) setTurn(undefined)
   const shownScene = pending && compatibleTurn ? turn.from : scene
@@ -75,6 +58,7 @@ export function usePokedexBook(
     if (busy) return
     if (!hasSelectedSet && index > 0) return
     const bounded = Math.max(0, Math.min(lastIndex, index))
+    if (pending && bounded > 0) return
     if (bounded === layout.index) return
     bookElementRef.current?.focus({ preventScroll: true })
     turnId.current += 1
@@ -101,10 +85,8 @@ export function usePokedexBook(
     void query.refetch()
   }
   function warmNext() {
-    if (nextLayout.kind === 'cards') void queryClient.prefetchQuery(nextOptions)
-  }
-  function warmPrevious() {
-    if (previousLayout.kind === 'cards') void queryClient.prefetchQuery(previousOptions)
+    if (hasSelectedSet && layout.kind === 'cover')
+      void queryClient.prefetchQuery(pokedexBookQueryOptions(queryClient, userId, set.id, true))
   }
   function keyboard(event: KeyboardEvent<HTMLDivElement>) {
     if (!hasSelectedSet) return
@@ -162,7 +144,6 @@ export function usePokedexBook(
     completeTurn,
     retry,
     warmNext,
-    warmPrevious,
     keyboard,
     startTouch,
     endTouch,

@@ -299,7 +299,7 @@ model PvpSeat {
 
 model PvpRating {
   userId String @id @map("user_id")
-  elo Int @default(1200)
+  elo Int @default(100)
   wins Int @default(0)
   losses Int @default(0)
   draws Int @default(0)

@@ -14,7 +14,7 @@ import { getLeaderboardConfig, type LeaderboardKind } from '../lib/leaderboard-c
 export const useLeaderboardPage = () => {
   const { locale } = useLocale()
   const navigate = useNavigate()
-  const [activeLeaderboard, setActiveLeaderboard] = useState<LeaderboardKind>('mostUniqueCards')
+  const [activeLeaderboard, setActiveLeaderboard] = useState<LeaderboardKind>('elo')
   const queryClient = useQueryClient()
   const auth = useQuery(useCurrentUserQueryOption())
   const logoutMutation = useMutation(useLogoutMutationOption(queryClient))

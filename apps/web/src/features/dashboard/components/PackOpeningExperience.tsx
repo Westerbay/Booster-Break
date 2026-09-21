@@ -1615,9 +1615,6 @@ function PackRecap({
 }: PackRecapProps) {
   const headingRef = useRef<HTMLElement>(null)
   const [selectedCardIndex, setSelectedCardIndex] = useState<number>()
-  const [activeRendererIndex, setActiveRendererIndex] = useState<number>()
-  const [renderAllRecapCards, setRenderAllRecapCards] = useState(true)
-  const [zoomInteractionReady, setZoomInteractionReady] = useState(false)
   const [hasInspectedCard, setHasInspectedCard] = useState(false)
   const [recapEntranceComplete, setRecapEntranceComplete] = useState(false)
   const selectedCard = selectedCardIndex === undefined ? undefined : cards[selectedCardIndex]
@@ -1634,7 +1631,6 @@ function PackRecap({
   }, [])
 
   const closeSelectedCard = useCallback(() => {
-    setZoomInteractionReady(false)
     setSelectedCardIndex(undefined)
   }, [])
 
@@ -1696,7 +1692,6 @@ function PackRecap({
             <div key={`${card.id}-${index}-recap-slot`} className="relative aspect-63/88 w-full">
               <motion.button
                 type="button"
-                layout
                 className={cn(
                   'aspect-63/88 rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950/70',
                   isSelected
@@ -1734,11 +1729,7 @@ function PackRecap({
                 }
                 transition={
                   isSelected
-                    ? {
-                        layout: shouldReduceMotion
-                          ? { duration: 0.1 }
-                          : { type: 'spring', stiffness: 235, damping: 25, mass: 0.92 },
-                      }
+                    ? { duration: 0 }
                     : shouldReduceMotion
                       ? { delay: index * 0.025, duration: 0.12 }
                       : hasInspectedCard || recapEntranceComplete
@@ -1771,28 +1762,10 @@ function PackRecap({
                 onClick={() => {
                   if (isSelected) return
                   setHasInspectedCard(true)
-                  setZoomInteractionReady(false)
-                  setRenderAllRecapCards(false)
-                  setActiveRendererIndex(index)
                   setSelectedCardIndex(index)
                 }}
                 onKeyDown={(event) => {
                   if (isSelected && event.key === 'Escape') closeSelectedCard()
-                }}
-                onLayoutAnimationComplete={() => {
-                  if (selectedCardIndex === index) {
-                    setZoomInteractionReady(true)
-                    return
-                  }
-
-                  if (
-                    selectedCardIndex === undefined &&
-                    activeRendererIndex === index &&
-                    !renderAllRecapCards
-                  ) {
-                    setActiveRendererIndex(undefined)
-                    setRenderAllRecapCards(true)
-                  }
                 }}
                 onAnimationComplete={() => {
                   if (
@@ -1821,8 +1794,8 @@ function PackRecap({
                     rarity={card.rarity}
                     supertype={card.supertype}
                     isEvolved={card.isEvolved}
-                    interactive={isSelected && zoomInteractionReady}
-                    rendering={renderAllRecapCards || activeRendererIndex === index}
+                    interactive={isSelected}
+                    rendering={!selectedCard || isSelected}
                     resetOnInteractiveDisable
                     cameraDistance={6.6}
                     rotationLimit={0.48}
