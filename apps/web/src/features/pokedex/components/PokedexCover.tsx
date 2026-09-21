@@ -10,9 +10,10 @@ interface PokedexCoverProps {
   set?: PokedexSetSummary
   onSetChange: (setId: string) => void
   onOpen: () => void
+  onWarm: () => void
 }
 
-export function PokedexCover({ sets, set, onSetChange, onOpen }: PokedexCoverProps) {
+export function PokedexCover({ sets, set, onSetChange, onOpen, onWarm }: PokedexCoverProps) {
   const [failedImages, setFailedImages] = useState<string[]>([])
   const imageUrl = [set?.logoUrl, set?.symbolUrl].find((url) => url && !failedImages.includes(url))
   const hint = set ? m.pokedex_cover_selected_hint() : m.pokedex_cover_hint()
@@ -33,6 +34,7 @@ export function PokedexCover({ sets, set, onSetChange, onOpen }: PokedexCoverPro
       className="pokedex-endpaper pokedex-cover"
       data-openable={Boolean(set)}
       onClick={set ? openFromCover : undefined}
+      onPointerEnter={set ? onWarm : undefined}
     >
       <span className="pokedex-cover-stitch" aria-hidden="true" />
       <header className="pokedex-cover-heading">
@@ -58,7 +60,12 @@ export function PokedexCover({ sets, set, onSetChange, onOpen }: PokedexCoverPro
 
       <div className="pokedex-cover-edition">
         {set && (
-          <Button variant="arena" className="pokedex-cover-choose" onClick={onOpen}>
+          <Button
+            variant="arena"
+            className="pokedex-cover-choose"
+            onClick={onOpen}
+            onFocus={onWarm}
+          >
             <BookOpenIcon aria-hidden="true" />
             {m.pokedex_cover_open()}
           </Button>

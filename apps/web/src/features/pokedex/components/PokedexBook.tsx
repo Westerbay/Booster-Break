@@ -53,6 +53,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
         decorative={decorative}
         onSetChange={chooseSet}
         onOpen={openBook}
+        onWarm={book.warmNext}
         onReturnToCover={book.cover}
         onSelect={setSelectedCard}
       />
@@ -147,7 +148,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
         <div
           className="pokedex-book-stage"
           aria-busy={book.busy || book.pending}
-          inert={Boolean(book.turn)}
+          inert={Boolean(book.turn) || book.pending}
           onTouchStart={book.startTouch}
           onTouchEnd={book.endTouch}
         >

@@ -54,9 +54,10 @@ export function usePokedexBook(
   const lastIndex = layout.cardPageCount + 1
   const busy = Boolean(animatedTurn)
 
-  function navigate(index: number) {
+  // `target` is for a set picked this very render: `set` and `hasSelectedSet` still hold the previous one.
+  function navigate(index: number, target?: PokedexSetSummary) {
     if (busy) return
-    if (!hasSelectedSet && index > 0) return
+    if (!target && !hasSelectedSet && index > 0) return
     const bounded = Math.max(0, Math.min(lastIndex, index))
     if (pending && bounded > 0) return
     if (bounded === layout.index) return
@@ -64,10 +65,10 @@ export function usePokedexBook(
     turnId.current += 1
     setTurn({
       id: turnId.current,
-      from: shownScene,
+      from: target ? { ...shownScene, set: target } : shownScene,
       direction: bounded > shownScene.layout.index ? 1 : -1,
     })
-    setPosition(bookPositionAt(bounded, set.catalogCount, spread))
+    setPosition(bookPositionAt(bounded, (target ?? set).catalogCount, spread))
   }
   function previous() {
     navigate(layout.index - 1)
@@ -78,13 +79,8 @@ export function usePokedexBook(
   function cover() {
     navigate(0)
   }
-  // Takes the set explicitly: right after a pick, `set` and `hasSelectedSet` are still the previous render's.
   function open(target: PokedexSetSummary) {
-    if (busy || layout.index !== 0) return
-    bookElementRef.current?.focus({ preventScroll: true })
-    turnId.current += 1
-    setTurn({ id: turnId.current, from: { ...shownScene, set: target }, direction: 1 })
-    setPosition(bookPositionAt(1, target.catalogCount, spread))
+    if (layout.index === 0) navigate(1, target)
   }
   function completeTurn(id: number) {
     setTurn((current) => (current?.id === id ? undefined : current))
