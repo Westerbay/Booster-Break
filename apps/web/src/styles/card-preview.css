@@ -58,8 +58,8 @@
   gap: 0;
   padding: 0;
   overflow: hidden;
+  /* No `transform` beside this: lightningcss's minifier wrongly lets it swallow `translate: none`. */
   translate: none;
-  transform: none;
   border: 0;
   border-radius: 0;
   background: transparent;
