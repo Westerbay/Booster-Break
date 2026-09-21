@@ -197,7 +197,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
           <span className="sr-only" aria-live="polite">
             {book.pending ? m.pokedex_loading() : pageLabel}
           </span>
-          {hasSelectedSet && book.layout.index < book.lastIndex && (
+          {hasSelectedSet && !closed && book.layout.index < book.lastIndex && (
             <Button
               variant="ghost"
               disabled={book.busy || book.pending}
