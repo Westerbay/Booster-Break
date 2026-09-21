@@ -38,6 +38,7 @@ interface TradeOfferComposerCardsSectionProps {
   recipientOwnershipByCard: ReadonlyMap<string, boolean>
   onlyNewForRecipient: boolean
   onOnlyNewForRecipientChange: (value: boolean) => void
+  isRecipientOwnershipUnavailable: boolean
 }
 
 export function TradeOfferComposerCardsSection({
@@ -68,8 +69,20 @@ export function TradeOfferComposerCardsSection({
   recipientOwnershipByCard,
   onlyNewForRecipient,
   onOnlyNewForRecipientChange,
+  isRecipientOwnershipUnavailable,
 }: TradeOfferComposerCardsSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
+
+  const getEmptyMessage = () => {
+    if (isLoading && searchQuery.length === 0) return m.trade_loading_cards_for_offer()
+    if (onlyNewForRecipient && isRecipientOwnershipUnavailable) {
+      return m.trade_recipient_unavailable()
+    }
+    if (onlyNewForRecipient && searchQuery.length === 0) {
+      return m.trade_offer_no_new_for_recipient({ name: recipientName })
+    }
+    return m.trade_search_no_match()
+  }
 
   return (
     <>
@@ -91,7 +104,6 @@ export function TradeOfferComposerCardsSection({
           variant={onlyNewForRecipient ? 'default' : 'outline'}
           className="h-9"
           title={m.trade_filter_only_new_for_recipient({ name: recipientName })}
-          aria-label={m.trade_filter_only_new_for_recipient({ name: recipientName })}
           aria-pressed={onlyNewForRecipient}
           onClick={() => {
             onOnlyNewForRecipientChange(!onlyNewForRecipient)
@@ -133,9 +145,7 @@ export function TradeOfferComposerCardsSection({
       <div className="flex min-h-[14rem] min-w-0 flex-wrap content-start justify-center gap-3">
         {filteredCards.length === 0 ? (
           <p className="rounded-md bg-background p-3 text-sm text-muted-foreground">
-            {isLoading && searchQuery.length === 0
-              ? m.trade_loading_cards_for_offer()
-              : m.trade_search_no_match()}
+            {getEmptyMessage()}
           </p>
         ) : (
           filteredCards.map((card) => {

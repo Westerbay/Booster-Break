@@ -25,7 +25,6 @@ export function TradeRecipientBadge({
   return (
     <span
       title={description}
-      aria-label={description}
       className={cn(
         'inline-flex h-6 items-center gap-1.5 rounded-full pr-2.5 pl-0.5 text-[0.62rem] font-bold whitespace-nowrap shadow-md',
         owned
@@ -45,10 +44,13 @@ export function TradeRecipientBadge({
           className="size-full object-cover"
         />
         <Avatar.Fallback>
-          {Array.from(recipientName.trim())[0]?.toLocaleUpperCase()}
+          {Array.from(recipientName.trim())[0]?.toLocaleUpperCase() ?? '?'}
         </Avatar.Fallback>
       </Avatar.Root>
-      <span className="min-w-0 truncate">{label}</span>
+      <span className="min-w-0 truncate" aria-hidden="true">
+        {label}
+      </span>
+      <span className="sr-only">{description}</span>
     </span>
   )
 }

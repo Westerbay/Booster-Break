@@ -299,6 +299,7 @@
   "trade_recipient_unavailable": "Sa collection ne peut pas être vérifiée pour le moment.",
   "trade_recipient_retry": "Réessayer",
   "trade_filter_only_not_owned": "Non possédées uniquement",
+  "trade_offer_no_new_for_recipient": "{name} possède déjà toutes tes cartes proposables.",
   "trade_filter_only_new": "Nouvelles uniquement",
   "trade_filter_only_new_for_recipient": "Nouvelles pour {name} uniquement",
   "trade_cancel": "Annuler",

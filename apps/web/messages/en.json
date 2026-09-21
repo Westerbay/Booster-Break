@@ -299,6 +299,7 @@
   "trade_recipient_unavailable": "Their collection cannot be checked right now.",
   "trade_recipient_retry": "Try again",
   "trade_filter_only_not_owned": "Only not owned",
+  "trade_offer_no_new_for_recipient": "{name} already owns all the cards you can offer.",
   "trade_filter_only_new": "Only new",
   "trade_filter_only_new_for_recipient": "Only new for {name}",
   "trade_cancel": "Cancel",

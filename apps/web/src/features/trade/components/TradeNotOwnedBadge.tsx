@@ -13,11 +13,6 @@ const badgeSizeClassNames = {
   compact: 'gap-1 px-2 py-1 text-[10px] leading-none tracking-wide shadow-sm',
 } as const
 
-const iconSizeClassNames = {
-  default: 'size-3',
-  compact: 'size-3',
-} as const
-
 export function TradeNotOwnedBadge({ className, size = 'default' }: TradeNotOwnedBadgeProps) {
   return (
     <span
@@ -27,7 +22,7 @@ export function TradeNotOwnedBadge({ className, size = 'default' }: TradeNotOwne
         className,
       )}
     >
-      <BookOpenIcon className={iconSizeClassNames[size]} aria-hidden="true" />
+      <BookOpenIcon className="size-3" aria-hidden="true" />
       {m.trade_card_not_owned()}
     </span>
   )

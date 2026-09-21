@@ -139,6 +139,9 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
                 recipientAvatarUrl={auction.creatorAvatarUrl}
               />
             </span>
+            <span className="sr-only">
+              {owned ? m.trade_recipient_owned_short() : m.trade_recipient_new_short()} :
+            </span>
             {owned ? m.trade_recipient_legend_owned() : m.trade_recipient_legend_new()}
           </span>
         ))}
@@ -193,6 +196,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           recipientOwnershipByCard={recipientOwnershipByCard}
           onlyNewForRecipient={onlyNewForRecipient}
           onOnlyNewForRecipientChange={handleOnlyNewForRecipientChange}
+          isRecipientOwnershipUnavailable={Boolean(recipientOwnershipError)}
         />
 
         <div className="flex flex-wrap gap-2">
