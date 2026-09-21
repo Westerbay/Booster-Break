@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import type { PokedexSetSummary } from '@tcg-collection/shared'
+import { BookOpenIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { m } from '@/paraglide/messages'
 import { PokedexSetPicker } from './PokedexSetPicker'
 
@@ -7,9 +9,10 @@ interface PokedexCoverProps {
   sets: PokedexSetSummary[]
   set?: PokedexSetSummary
   onSetChange: (setId: string) => void
+  onOpen: () => void
 }
 
-export function PokedexCover({ sets, set, onSetChange }: PokedexCoverProps) {
+export function PokedexCover({ sets, set, onSetChange, onOpen }: PokedexCoverProps) {
   const [failedImages, setFailedImages] = useState<string[]>([])
   const imageUrl = [set?.logoUrl, set?.symbolUrl].find((url) => url && !failedImages.includes(url))
   const hint = set ? m.pokedex_cover_selected_hint() : m.pokedex_cover_hint()
@@ -17,9 +20,20 @@ export function PokedexCover({ sets, set, onSetChange }: PokedexCoverProps) {
   function imageFailed() {
     if (imageUrl) setFailedImages((urls) => [...urls, imageUrl])
   }
+  function openFromCover(event: MouseEvent<HTMLDivElement>) {
+    const target = event.target
+    // React bubbles clicks from the portalled set picker through here, so only react to the cover's own surface.
+    if (!(target instanceof Element) || !event.currentTarget.contains(target)) return
+    if (target.closest('button')) return
+    onOpen()
+  }
 
   return (
-    <div className="pokedex-endpaper pokedex-cover">
+    <div
+      className="pokedex-endpaper pokedex-cover"
+      data-openable={Boolean(set)}
+      onClick={set ? openFromCover : undefined}
+    >
       <span className="pokedex-cover-stitch" aria-hidden="true" />
       <header className="pokedex-cover-heading">
         <p className="pokedex-endpaper-eyebrow">{m.pokedex_cover_eyebrow()}</p>
@@ -43,7 +57,17 @@ export function PokedexCover({ sets, set, onSetChange }: PokedexCoverProps) {
       </div>
 
       <div className="pokedex-cover-edition">
-        <PokedexSetPicker sets={sets} onSetChange={onSetChange} />
+        {set && (
+          <Button variant="arena" className="pokedex-cover-choose" onClick={onOpen}>
+            <BookOpenIcon aria-hidden="true" />
+            {m.pokedex_cover_open()}
+          </Button>
+        )}
+        <PokedexSetPicker
+          sets={sets}
+          variant={set ? 'arena-outline' : 'arena'}
+          onSetChange={onSetChange}
+        />
       </div>
 
       <footer className="pokedex-cover-footer">

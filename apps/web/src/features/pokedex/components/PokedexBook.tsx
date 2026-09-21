@@ -52,6 +52,7 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
         hasSelectedSet={hasSelectedSet}
         decorative={decorative}
         onSetChange={chooseSet}
+        onOpen={openBook}
         onReturnToCover={book.cover}
         onSelect={setSelectedCard}
       />
@@ -100,7 +101,11 @@ export function PokedexBook({ userId, set, hasSelectedSet, sets, onSetChange }: 
   }
   function chooseSet(setId: string) {
     onSetChange(setId)
-    bookElementRef.current?.focus({ preventScroll: true })
+    const target = sets.find((candidate) => candidate.id === setId)
+    if (target) book.open(target)
+  }
+  function openBook() {
+    book.open(set)
   }
   function getPageLabel() {
     const { layout } = book

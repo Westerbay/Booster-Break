@@ -141,9 +141,14 @@
     0 0 0 5px var(--primary);
 }
 .pokedex-cover-edition {
+  display: grid;
+  gap: 0.6rem;
   width: 100%;
   max-width: 20rem;
   margin-inline: auto;
+}
+.pokedex-cover[data-openable='true'] {
+  cursor: pointer;
 }
 .pokedex-cover-choose {
   width: 100%;

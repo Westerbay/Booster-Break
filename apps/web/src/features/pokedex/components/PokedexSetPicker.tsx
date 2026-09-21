@@ -14,10 +14,11 @@ import { m } from '@/paraglide/messages'
 
 interface PokedexSetPickerProps {
   sets: PokedexSetSummary[]
+  variant: 'arena' | 'arena-outline'
   onSetChange: (setId: string) => void
 }
 
-export function PokedexSetPicker({ sets, onSetChange }: PokedexSetPickerProps) {
+export function PokedexSetPicker({ sets, variant, onSetChange }: PokedexSetPickerProps) {
   const [open, setOpen] = useState(false)
   const pendingSetId = useRef<string | undefined>(undefined)
 
@@ -40,7 +41,7 @@ export function PokedexSetPicker({ sets, onSetChange }: PokedexSetPickerProps) {
 
   return (
     <Dialog open={open} onOpenChange={openChanged} onOpenChangeComplete={openChangedComplete}>
-      <DialogTrigger render={<Button variant="arena" className="pokedex-cover-choose" />}>
+      <DialogTrigger render={<Button variant={variant} className="pokedex-cover-choose" />}>
         <LibraryBigIcon aria-hidden="true" />
         {m.pokedex_cover_choose()}
         <ArrowRightIcon aria-hidden="true" />

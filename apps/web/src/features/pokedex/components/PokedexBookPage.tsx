@@ -12,6 +12,7 @@ interface PokedexBookPageProps {
   hasSelectedSet: boolean
   decorative?: boolean
   onSetChange: (setId: string) => void
+  onOpen: () => void
   onReturnToCover: () => void
   onSelect: (card: PokemonCardSummary) => void
 }
@@ -23,6 +24,7 @@ export function PokedexBookPage({
   hasSelectedSet,
   decorative,
   onSetChange,
+  onOpen,
   onReturnToCover,
   onSelect,
 }: PokedexBookPageProps) {
@@ -49,6 +51,7 @@ export function PokedexBookPage({
         set={hasSelectedSet ? scene.set : undefined}
         sets={sets}
         onSetChange={onSetChange}
+        onOpen={onOpen}
       />
     )
   return <PokedexSummary set={scene.set} onReturnToCover={onReturnToCover} />

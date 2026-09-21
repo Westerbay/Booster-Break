@@ -522,7 +522,8 @@
   "pokedex_front_page": "Page de garde",
   "pokedex_back_page": "Bilan de l’extension",
   "pokedex_cover_choose": "Choisir une extension",
+  "pokedex_cover_open": "Ouvrir le classeur",
   "pokedex_cover_hint": "Choisissez une extension pour personnaliser votre classeur.",
   "pokedex_picker_description": "Choisissez le classeur que vous souhaitez feuilleter.",
-  "pokedex_cover_selected_hint": "Utilisez « Suivant » pour feuilleter vos découvertes."
+  "pokedex_cover_selected_hint": "Ouvrez le classeur pour feuilleter vos découvertes."
 }

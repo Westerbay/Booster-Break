@@ -522,7 +522,8 @@
   "pokedex_front_page": "Front page",
   "pokedex_back_page": "Expansion summary",
   "pokedex_cover_choose": "Choose an expansion",
+  "pokedex_cover_open": "Open the binder",
   "pokedex_cover_hint": "Choose an expansion to personalise your binder.",
   "pokedex_picker_description": "Choose the binder you want to browse.",
-  "pokedex_cover_selected_hint": "Use “Next” to browse your discoveries."
+  "pokedex_cover_selected_hint": "Open the binder to browse your discoveries."
 }

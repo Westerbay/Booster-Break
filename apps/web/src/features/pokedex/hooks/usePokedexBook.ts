@@ -78,6 +78,14 @@ export function usePokedexBook(
   function cover() {
     navigate(0)
   }
+  // Takes the set explicitly: right after a pick, `set` and `hasSelectedSet` are still the previous render's.
+  function open(target: PokedexSetSummary) {
+    if (busy || layout.index !== 0) return
+    bookElementRef.current?.focus({ preventScroll: true })
+    turnId.current += 1
+    setTurn({ id: turnId.current, from: { ...shownScene, set: target }, direction: 1 })
+    setPosition(bookPositionAt(1, target.catalogCount, spread))
+  }
   function completeTurn(id: number) {
     setTurn((current) => (current?.id === id ? undefined : current))
   }
@@ -141,6 +149,7 @@ export function usePokedexBook(
     previous,
     next,
     cover,
+    open,
     completeTurn,
     retry,
     warmNext,
