@@ -17,6 +17,7 @@ export const getLeaderboardConfig = (kind: LeaderboardKind) => {
         title: m.pvp_elo_leaderboard_title(),
         description: m.pvp_elo_leaderboard_description(),
         scoreLabel: 'Elo',
+        emptyMessage: m.pvp_no_trainers(),
         icon: SwordsIcon,
       }
     case 'mostCards':
@@ -24,6 +25,7 @@ export const getLeaderboardConfig = (kind: LeaderboardKind) => {
         title: m.leaderboard_most_cards_title(),
         description: m.leaderboard_most_cards_description(),
         scoreLabel: m.leaderboard_total_cards_label(),
+        emptyMessage: m.leaderboard_empty(),
         icon: Layers3Icon,
       }
     case 'mostUniqueCards':
@@ -31,6 +33,7 @@ export const getLeaderboardConfig = (kind: LeaderboardKind) => {
         title: m.leaderboard_most_unique_title(),
         description: m.leaderboard_most_unique_description(),
         scoreLabel: m.leaderboard_unique_cards_label(),
+        emptyMessage: m.leaderboard_empty(),
         icon: CrownIcon,
       }
   }

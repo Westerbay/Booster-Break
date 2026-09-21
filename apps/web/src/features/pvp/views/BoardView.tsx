@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CrownIcon, SwordsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLocale } from '@/features/i18n/useLocale'
-import { pvpBoardOptions } from '@/lib/queries/pvp'
+import { pvpBoardOptions, pvpTrainerOptions } from '@/lib/queries/pvp'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { m } from '@/paraglide/messages'
 import { CardTrio } from '../components/CardTrio'
@@ -17,9 +17,10 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
   const { locale } = useLocale()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string | null>(null)
-  const board = useQuery(pvpBoardOptions(page))
+  const board = useQuery(pvpBoardOptions(page, true))
   const auth = useQuery(useCurrentUserQueryOption())
   const userId = auth.data?.authenticated ? auth.data.user.id : undefined
+  const self = useQuery({ ...pvpTrainerOptions(userId ?? ''), enabled: Boolean(userId) })
   function enter() {
     onEnter()
   }
@@ -45,6 +46,15 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
       />
     )
   const trainers = board.data?.trainers ?? []
+  const selfTrainer = self.data?.trainer
+  const unrankedSelf =
+    selfTrainer &&
+    selfTrainer.wins + selfTrainer.losses + selfTrainer.draws === 0 &&
+    board.data &&
+    page * board.data.pageSize >= board.data.total &&
+    !trainers.some((trainer) => trainer.userId === selfTrainer.userId)
+      ? selfTrainer
+      : undefined
   const podium = [trainers[1], trainers[0], trainers[2]].filter((trainer) => trainer !== undefined)
   return (
     <section className="pvp arena-board">
@@ -138,8 +148,9 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
             onSelect={setSelected}
           />
         ))}
+        {unrankedSelf && <TrainerBanner trainer={unrankedSelf} isSelf onSelect={setSelected} />}
       </div>
-      {!board.isPending && !board.error && !trainers.length && (
+      {!board.isPending && !board.error && !trainers.length && !unrankedSelf && (
         <p className="arena-empty">{m.pvp_no_trainers()}</p>
       )}
       {board.data && board.data.total > board.data.pageSize && (

@@ -11,10 +11,10 @@ export const pvpQueryKeys = {
     ['pvp', 'private', userId, 'match', id, locale] as const,
 }
 
-export function pvpBoardOptions(page = 1) {
+export function pvpBoardOptions(page = 1, ranked = false) {
   return queryOptions({
-    queryKey: ['pvp', 'board', getLocale(), page],
-    queryFn: async () => pvpData(await api.pvp.board.get({ query: { page } })),
+    queryKey: ['pvp', 'board', getLocale(), page, ranked],
+    queryFn: async () => pvpData(await api.pvp.board.get({ query: { page, ranked } })),
     staleTime: 10_000,
     refetchInterval: 15_000,
     meta: { suppressToast: true },

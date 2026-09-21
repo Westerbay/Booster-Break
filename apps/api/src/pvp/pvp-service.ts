@@ -104,12 +104,12 @@ export class PvpService {
     return new PvpRepository(this.db).cards(userId, locale, page, search, filters)
   }
 
-  async board(locale: SupportedLocale, page = 1) {
-    return new PvpRepository(this.db).board(locale, page)
+  async board(locale: SupportedLocale, page = 1, rankedOnly = false) {
+    return new PvpRepository(this.db).board(locale, page, { rankedOnly })
   }
 
   async trainer(userId: string, locale: SupportedLocale): Promise<PvpTrainerDetail> {
-    const board = await new PvpRepository(this.db).board(locale, 1, userId)
+    const board = await new PvpRepository(this.db).board(locale, 1, { userId })
     const trainer = board.trainers[0]
     if (!trainer) throw new PvpError('pvp_not_found')
     const rows = await this.db.pvpResult.findMany({

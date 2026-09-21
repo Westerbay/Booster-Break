@@ -10,6 +10,7 @@ interface LeaderboardPanelProps {
   title: string
   description: string
   scoreLabel: string
+  emptyMessage: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   players: LeaderboardEntry[]
   currentUserId?: string
@@ -23,6 +24,7 @@ export function LeaderboardPanel({
   title,
   description,
   scoreLabel,
+  emptyMessage,
   icon: Icon,
   players,
   currentUserId,
@@ -71,6 +73,7 @@ export function LeaderboardPanel({
             players={players}
             currentUserId={currentUserId}
             scoreLabel={scoreLabel}
+            emptyMessage={emptyMessage}
             numberFormatter={numberFormatter}
           />
         </>
