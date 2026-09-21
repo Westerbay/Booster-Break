@@ -17,7 +17,7 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
   const { locale } = useLocale()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string | null>(null)
-  const board = useQuery(pvpBoardOptions(page))
+  const board = useQuery(pvpBoardOptions(page, true))
   const auth = useQuery(useCurrentUserQueryOption())
   const userId = auth.data?.authenticated ? auth.data.user.id : undefined
   function enter() {
