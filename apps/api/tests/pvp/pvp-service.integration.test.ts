@@ -121,6 +121,34 @@ databaseTest(
   },
 )
 
+databaseTest('the Elo ranking hides trainers who have never battled', async () => {
+  const f = await fixture(4)
+  try {
+    const idle = f.users[3]!
+    await f.prisma.pvpRating.createMany({
+      data: [
+        { userId: f.alice, elo: 112, wins: 1 },
+        { userId: f.bob, elo: 88, losses: 1 },
+        { userId: idle, elo: 100 },
+      ],
+    })
+    const ranking = await f.service.board('en', 1, true)
+    expect(ranking.trainers.map(({ userId, rank }) => ({ userId, rank }))).toEqual([
+      { userId: f.alice, rank: 1 },
+      { userId: f.bob, rank: 2 },
+    ])
+    expect(ranking.total).toBe(2)
+    const roster = await f.service.board('en')
+    expect(roster.trainers.map((trainer) => trainer.userId).sort()).toEqual([...f.users].sort())
+    expect(roster.trainers.slice(0, 2).map((trainer) => trainer.userId)).toEqual([f.alice, f.bob])
+    expect(roster.total).toBe(4)
+    expect((await f.service.trainer(f.bob, 'en')).trainer.rank).toBe(2)
+    expect((await f.service.trainer(f.stranger, 'en')).trainer).toMatchObject({ elo: 100, wins: 0 })
+  } finally {
+    await f.cleanup()
+  }
+})
+
 afterAll(async () => {
   if (Bun.env.RUN_DATABASE_TESTS === 'true') {
     const { prisma } = await import('../../src/db/prisma')
@@ -304,6 +332,8 @@ databaseTest(
         )
       expect((await request('/board')).status).toBe(200)
       expect((await request('/board?page=-1')).status).toBe(422)
+      expect((await request('/board?ranked=true')).status).toBe(200)
+      expect((await request('/board?ranked=maybe')).status).toBe(422)
       for (const path of ['/lobby', '/cards', '/matches/private'])
         expect((await request(path)).status).toBe(401)
       expect((await request('/matches', { opponentId: f.bob, team: f.team })).status).toBe(401)

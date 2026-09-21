@@ -49,6 +49,7 @@ export function LeaderboardPage() {
                 title={activeConfig.title}
                 description={activeConfig.description}
                 scoreLabel={activeConfig.scoreLabel}
+                emptyMessage={activeConfig.emptyMessage}
                 icon={activeConfig.icon}
                 players={players}
                 currentUserId={auth.data?.authenticated ? auth.data.user.id : undefined}
