@@ -7,6 +7,7 @@ import { TradeRecipientBadge } from './TradeRecipientBadge'
 
 interface TradeOfferComposerPreviewSectionProps {
   recipientName: string
+  recipientAvatarUrl?: string
   recipientOwnershipByCard: ReadonlyMap<string, boolean>
   selectedEntries: {
     card: UserCollectionCard
@@ -17,6 +18,7 @@ interface TradeOfferComposerPreviewSectionProps {
 export function TradeOfferComposerPreviewSection({
   selectedEntries,
   recipientName,
+  recipientAvatarUrl,
   recipientOwnershipByCard,
 }: TradeOfferComposerPreviewSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
@@ -55,6 +57,8 @@ export function TradeOfferComposerPreviewSection({
               <TradeRecipientBadge
                 owned={recipientOwnershipByCard.get(card.card.id)}
                 recipientName={recipientName}
+                recipientAvatarUrl={recipientAvatarUrl}
+                className="mt-1"
               />
               <p className="text-sm font-black text-muted-foreground">x {card.quantity}</p>
               <p className="text-sm text-muted-foreground">
