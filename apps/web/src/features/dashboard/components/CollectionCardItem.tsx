@@ -20,6 +20,7 @@ interface CollectionCardItemProps {
   onSelect?: () => void
   onImageClick?: () => void
   badge?: ReactNode
+  nameAdornment?: ReactNode
   className?: string
   children?: ReactNode
   artwork?: ReactNode
@@ -35,6 +36,7 @@ export const CollectionCardItem = memo(function CollectionCardItem({
   onSelect,
   onImageClick,
   badge,
+  nameAdornment,
   className,
   children,
   artwork,
@@ -92,7 +94,10 @@ export const CollectionCardItem = memo(function CollectionCardItem({
       </div>
       <div className="mt-1.5 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-[0.66rem] font-black">{card.name}</p>
+          <div className="flex min-w-0 items-center gap-1">
+            {nameAdornment}
+            <p className="truncate text-[0.66rem] font-black">{card.name}</p>
+          </div>
           <p className="truncate text-[0.62rem] font-semibold text-muted-foreground">
             {meta.length > 0 ? meta.join(' · ') : null}
           </p>

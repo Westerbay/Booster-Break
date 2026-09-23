@@ -54,3 +54,27 @@ export function TradeRecipientBadge({
     </span>
   )
 }
+
+interface TradeRecipientDotProps {
+  owned: boolean | undefined
+  recipientName: string
+  className?: string
+}
+
+export function TradeRecipientDot({ owned, recipientName, className }: TradeRecipientDotProps) {
+  if (owned === undefined) return null
+
+  const description = owned
+    ? m.trade_recipient_owned_by({ name: recipientName })
+    : m.trade_recipient_new({ name: recipientName })
+
+  return (
+    <span title={description} className={cn('inline-flex shrink-0 items-center', className)}>
+      <span
+        aria-hidden="true"
+        className={cn('size-2 rounded-full', owned ? 'bg-muted-foreground/50' : 'bg-primary')}
+      />
+      <span className="sr-only">{description}</span>
+    </span>
+  )
+}

@@ -8,7 +8,7 @@ import { TradeCollectionCardItem } from './TradeCollectionCardItem'
 import { TradeSortPreferenceMenu } from './TradeSortPreferenceMenu'
 import { CardListFiltersMenu } from '@/features/dashboard/components/CardListFiltersMenu'
 import { MAX_PENDING_OFFERS_PER_AUCTION_BY_USER, offerCardKey } from '../lib/trade-utils'
-import { TradeRecipientBadge } from './TradeRecipientBadge'
+import { TradeRecipientDot } from './TradeRecipientBadge'
 
 interface TradeOfferComposerCardsSectionProps {
   collectionPage: number
@@ -34,7 +34,6 @@ interface TradeOfferComposerCardsSectionProps {
   getCardQuantity: (card: UserCollectionCard) => number
   updateSelection: (card: UserCollectionCard, rawValue: string) => void
   recipientName: string
-  recipientAvatarUrl?: string
   recipientOwnershipByCard: ReadonlyMap<string, boolean>
   onlyNewForRecipient: boolean
   onOnlyNewForRecipientChange: (value: boolean) => void
@@ -65,7 +64,6 @@ export function TradeOfferComposerCardsSection({
   getCardQuantity,
   updateSelection,
   recipientName,
-  recipientAvatarUrl,
   recipientOwnershipByCard,
   onlyNewForRecipient,
   onOnlyNewForRecipientChange,
@@ -163,13 +161,13 @@ export function TradeOfferComposerCardsSection({
                 onImageClick={() => {
                   setSelectedPreviewCard(card)
                 }}
+                nameAdornment={
+                  <TradeRecipientDot
+                    owned={recipientOwnershipByCard.get(card.id)}
+                    recipientName={recipientName}
+                  />
+                }
               >
-                <TradeRecipientBadge
-                  owned={recipientOwnershipByCard.get(card.id)}
-                  recipientName={recipientName}
-                  recipientAvatarUrl={recipientAvatarUrl}
-                  className="absolute top-1.5 left-1.5 z-10"
-                />
                 <label className="mt-2 block text-xs text-muted-foreground">
                   {m.trade_offer_quantity()}
                 </label>

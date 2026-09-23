@@ -5,7 +5,7 @@ import { toast } from '@/features/toast/toast-store'
 import { useTradeOfferComposer } from '../hooks/useTradeOfferComposer'
 import { TradeOfferComposerCardsSection } from './TradeOfferComposerCardsSection'
 import { TradeOfferComposerPreviewSection } from './TradeOfferComposerPreviewSection'
-import { TradeRecipientBadge } from './TradeRecipientBadge'
+import { TradeRecipientDot } from './TradeRecipientBadge'
 
 interface TradeOfferComposerProps {
   auction: TradeAuctionResponse
@@ -133,11 +133,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         {[false, true].map((owned) => (
           <span key={String(owned)} className="inline-flex items-center gap-1.5">
             <span aria-hidden="true">
-              <TradeRecipientBadge
-                owned={owned}
-                recipientName={recipientName}
-                recipientAvatarUrl={auction.creatorAvatarUrl}
-              />
+              <TradeRecipientDot owned={owned} recipientName={recipientName} />
             </span>
             <span className="sr-only">
               {owned ? m.trade_recipient_owned_short() : m.trade_recipient_new_short()} :
@@ -192,7 +188,6 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           getCardQuantity={selectedCardQuantity}
           updateSelection={updateSelection}
           recipientName={recipientName}
-          recipientAvatarUrl={auction.creatorAvatarUrl}
           recipientOwnershipByCard={recipientOwnershipByCard}
           onlyNewForRecipient={onlyNewForRecipient}
           onOnlyNewForRecipientChange={handleOnlyNewForRecipientChange}
