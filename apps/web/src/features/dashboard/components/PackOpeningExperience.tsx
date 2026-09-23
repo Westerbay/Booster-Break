@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import type { OpenPackResponse, OpenedPackCard } from '@tcg-collection/shared'
-import { MoveHorizontalIcon, ScissorsIcon, SparklesIcon } from 'lucide-react'
+import { MoveHorizontalIcon, ScissorsIcon, SparklesIcon, XIcon } from 'lucide-react'
 import {
   AnimatePresence,
   animate,
@@ -1696,7 +1696,8 @@ function PackRecap({
                 className={cn(
                   'aspect-63/88 rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950/70',
                   isSelected
-                    ? 'pointer-events-auto fixed inset-0 z-50 m-auto w-[min(32rem,94vw,68dvh)]'
+                    ? // Collection preview size, scaled by 11/12 because the recap camera sits at 6.6 instead of 7.2.
+                      'pointer-events-auto fixed inset-0 z-50 m-auto w-[calc(min(100vw,(100dvh-24px)*63/88)*11/12)]'
                     : 'absolute inset-0 w-full',
                   selectedCard && !isSelected && 'pointer-events-none',
                 )}
@@ -1848,7 +1849,7 @@ function PackRecap({
         {selectedCard ? (
           <motion.div
             key="recap-card-backdrop"
-            className="fixed inset-0 z-10 touch-none bg-slate-950/62 backdrop-blur-sm"
+            className="fixed inset-0 z-10 touch-none bg-[var(--game-card-scrim)] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1856,6 +1857,30 @@ function PackRecap({
             onClick={closeSelectedCard}
             aria-hidden="true"
           />
+        ) : null}
+        {selectedCard ? (
+          <motion.div
+            key="recap-card-controls"
+            className="pointer-events-none fixed inset-0 z-60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: shouldReduceMotion ? 0.1 : 0.28 }}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="pointer-events-auto absolute top-[max(12px,env(safe-area-inset-top))] right-[max(12px,env(safe-area-inset-right))] size-11 rounded-full bg-[var(--game-viewer-control)] text-[var(--game-viewer-text)]"
+              onClick={closeSelectedCard}
+            >
+              <XIcon />
+              <span className="sr-only">{m.pvp_close()}</span>
+            </Button>
+            <p className="absolute inset-x-3 bottom-[max(16px,env(safe-area-inset-bottom))] text-center text-[0.7rem] text-[var(--game-viewer-muted)]">
+              {m.card_preview_hint()}
+            </p>
+          </motion.div>
         ) : null}
       </AnimatePresence>
     </motion.div>
