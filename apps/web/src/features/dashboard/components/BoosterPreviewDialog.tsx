@@ -44,6 +44,12 @@ export function BoosterPreviewDialog({
       ? m.packs_owned_summary_one({ owned: ownedCount, total: cards.length })
       : m.packs_owned_summary({ owned: ownedCount, total: cards.length })
 
+  function getOwnedDescription() {
+    if (!highlightOwned || !canHighlightOwned) return m.packs_sorted_by_rarity()
+    if (ownedCount === cards.length) return ownedSummary
+
+    return `${ownedSummary} · ${m.packs_new_card_chance({ chance: newCardChance.toFixed(1) })}`
+  }
   function closePreview() {
     setSelectedPreviewCard(undefined)
     onClose()
@@ -64,9 +70,7 @@ export function BoosterPreviewDialog({
               {m.packs_preview_title({ set: set.name })}
             </DialogTitle>
             <DialogDescription className="text-sm font-semibold text-muted-foreground">
-              {highlightOwned && canHighlightOwned
-                ? `${ownedSummary} · ${m.packs_new_card_chance({ chance: newCardChance.toFixed(1) })}`
-                : m.packs_sorted_by_rarity()}
+              {getOwnedDescription()}
             </DialogDescription>
           </div>
           <div className="flex shrink-0 items-center gap-2">
