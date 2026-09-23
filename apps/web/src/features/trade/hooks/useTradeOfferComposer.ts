@@ -27,6 +27,15 @@ interface SelectedOfferCard {
 
 const PAGE_SIZE = 16
 
+const pageCountOf = (cards: UserCollectionCard[]) =>
+  Math.max(1, Math.ceil(cards.length / PAGE_SIZE))
+const clampPage = (page: number, cards: UserCollectionCard[]) =>
+  Math.max(1, Math.min(page, pageCountOf(cards)))
+const pageOf = (cards: UserCollectionCard[], page: number) => {
+  const start = (clampPage(page, cards) - 1) * PAGE_SIZE
+  return cards.slice(start, start + PAGE_SIZE)
+}
+
 interface UseTradeOfferComposerProps {
   auction: TradeAuctionResponse
   userId?: string
@@ -55,10 +64,13 @@ export interface UseTradeOfferComposerResult {
   setMinimumQuantity: (quantity: number) => void
   minimumRarity?: string
   setMinimumRarity: (rarity: string | undefined) => void
+  onlyNewForRecipient: boolean
+  setOnlyNewForRecipient: (value: boolean) => void
   collectionRarityOptions: string[]
   collectionPageCount: number
   collectionPage: number
   isCollectionPending: boolean
+  hasEligibleCards: boolean
   filteredCards: UserCollectionCard[]
   selectedEntries: SelectedOfferCard[]
   selectedCardsCount: number
@@ -86,6 +98,7 @@ export function useTradeOfferComposer({
   const [minimumQuantity, setMinimumQuantity] = useState(1)
   const [minimumRarity, setMinimumRarity] = useState<string>()
   const [selection, setSelection] = useState<Record<string, SelectedOfferCard>>({})
+  const [onlyNewForRecipient, setOnlyNewForRecipient] = useState(false)
 
   const collection = useQuery(
     usePokemonCollectionAllQueryOption(
@@ -152,26 +165,21 @@ export function useTradeOfferComposer({
       cardMatchesAuctionFilters(card, auction.requirements, auction.filters),
     )
   }, [collection.data?.cards, auction.requirements, auction.filters])
-  const filteredCards = useMemo(() => {
+  const searchedCards = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
 
     return eligibleCards.filter((card) => matchesCardNameSearch(card, query))
   }, [eligibleCards, searchQuery])
-
-  const collectionPageCount = Math.max(1, Math.ceil(filteredCards.length / PAGE_SIZE))
-  const collectionPage = Math.max(1, Math.min(page, collectionPageCount))
-  const pagedCards = useMemo(() => {
-    const start = (collectionPage - 1) * PAGE_SIZE
-
-    return filteredCards.slice(start, start + PAGE_SIZE)
-  }, [collectionPage, filteredCards])
 
   const selectedEntries = Object.values(selection)
   const recipientOwnership = useQuery(
     useTradeRecipientOwnershipQueryOption(
       userId,
       auction.id,
-      [...pagedCards, ...selectedEntries.map((entry) => entry.card)].map((card) => card.id),
+      [
+        ...(onlyNewForRecipient ? eligibleCards : pageOf(searchedCards, page)),
+        ...selectedEntries.map((entry) => entry.card),
+      ].map((card) => card.id),
       canOffer,
     ),
   )
@@ -181,6 +189,13 @@ export function useTradeOfferComposer({
       recipientOwnershipByCard.set(card.cardId, card.owned)
     }
   }
+
+  const filteredCards = onlyNewForRecipient
+    ? searchedCards.filter((card) => recipientOwnershipByCard.get(card.id) === false)
+    : searchedCards
+  const collectionPageCount = pageCountOf(filteredCards)
+  const collectionPage = clampPage(page, filteredCards)
+  const pagedCards = pageOf(filteredCards, page)
   const selectedCardsCount = selectedEntries.length
   const selectedCardsTotal = selectedEntries.reduce((acc, item) => acc + item.quantity, 0)
 
@@ -274,10 +289,13 @@ export function useTradeOfferComposer({
     setMinimumQuantity,
     minimumRarity,
     setMinimumRarity,
+    onlyNewForRecipient,
+    setOnlyNewForRecipient,
     collectionRarityOptions: collection.data?.rarities ?? [],
     collectionPageCount,
     collectionPage,
     isCollectionPending: collection.isPending,
+    hasEligibleCards: eligibleCards.length > 0,
     filteredCards: pagedCards,
     selectedEntries,
     selectedCardsCount,

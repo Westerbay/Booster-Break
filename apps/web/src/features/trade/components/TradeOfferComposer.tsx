@@ -5,6 +5,7 @@ import { toast } from '@/features/toast/toast-store'
 import { useTradeOfferComposer } from '../hooks/useTradeOfferComposer'
 import { TradeOfferComposerCardsSection } from './TradeOfferComposerCardsSection'
 import { TradeOfferComposerPreviewSection } from './TradeOfferComposerPreviewSection'
+import { TradeRecipientDotMark } from './TradeRecipientBadge'
 
 interface TradeOfferComposerProps {
   auction: TradeAuctionResponse
@@ -29,10 +30,13 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
     setMinimumQuantity,
     minimumRarity,
     setMinimumRarity,
+    onlyNewForRecipient,
+    setOnlyNewForRecipient,
     collectionRarityOptions,
     collectionPage,
     collectionPageCount,
     isCollectionPending,
+    hasEligibleCards,
     filteredCards,
     selectedEntries,
     selectedCardsCount,
@@ -80,6 +84,11 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
     setPage(1)
   }
 
+  const handleOnlyNewForRecipientChange = (value: boolean) => {
+    setOnlyNewForRecipient(value)
+    setPage(1)
+  }
+
   if (!userId) {
     return (
       <p className="text-sm font-semibold text-muted-foreground">
@@ -118,9 +127,17 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
       <h3 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
         {m.trade_offer_cards_title()}
       </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {m.trade_recipient_hint({ name: recipientName })}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+        <span className="font-bold text-foreground">
+          {m.trade_recipient_legend({ name: recipientName })}
+        </span>
+        {[false, true].map((owned) => (
+          <span key={String(owned)} className="inline-flex items-center gap-1.5">
+            <TradeRecipientDotMark owned={owned} />
+            {owned ? m.trade_recipient_legend_owned() : m.trade_recipient_legend_new()}
+          </span>
+        ))}
+      </div>
       {isRecipientOwnershipLoading && (
         <p className="mt-2 text-xs text-muted-foreground" role="status">
           {m.trade_recipient_loading()}
@@ -146,7 +163,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         <TradeOfferComposerCardsSection
           collectionPage={collectionPage}
           collectionPageCount={collectionPageCount}
-          isLoading={isCollectionPending}
+          isLoading={isCollectionPending || (onlyNewForRecipient && isRecipientOwnershipLoading)}
           preference={preference}
           onPreferenceChange={handlePreferenceChange}
           searchQuery={searchQuery}
@@ -157,6 +174,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           onMinimumQuantityChange={handleMinimumQuantityChange}
           onMinimumRarityChange={handleMinimumRarityChange}
           tradePreferenceOptions={tradePreferenceOptions}
+          hasEligibleCards={hasEligibleCards}
           filteredCards={filteredCards}
           selectedCardsCount={selectedCardsCount}
           selectedCardsTotal={selectedCardsTotal}
@@ -168,6 +186,9 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           updateSelection={updateSelection}
           recipientName={recipientName}
           recipientOwnershipByCard={recipientOwnershipByCard}
+          onlyNewForRecipient={onlyNewForRecipient}
+          onOnlyNewForRecipientChange={handleOnlyNewForRecipientChange}
+          isRecipientOwnershipUnavailable={Boolean(recipientOwnershipError)}
         />
 
         <div className="flex flex-wrap gap-2">
@@ -197,6 +218,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
       <TradeOfferComposerPreviewSection
         selectedEntries={selectedEntries}
         recipientName={recipientName}
+        recipientAvatarUrl={auction.creatorAvatarUrl}
         recipientOwnershipByCard={recipientOwnershipByCard}
       />
     </section>

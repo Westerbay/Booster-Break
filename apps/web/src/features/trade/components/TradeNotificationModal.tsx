@@ -16,6 +16,7 @@ import {
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
 import { m } from '@/paraglide/messages'
 import { TradeNotOwnedBadge } from './TradeNotOwnedBadge'
+import { TradeCardRaritySet } from './TradeCardRaritySet'
 
 interface TradeNotificationModalProps {
   notification: TradeNotificationResponse
@@ -68,6 +69,7 @@ const NotificationCardList = ({ title, cards, ownedCardIds }: NotificationCardLi
               <p className="w-full min-w-0 break-words text-xs font-black leading-tight">
                 {card.name}
               </p>
+              <TradeCardRaritySet rarity={card.rarity} setId={card.setId} />
               <p className="text-xs text-muted-foreground">x{card.quantity}</p>
             </article>
           )

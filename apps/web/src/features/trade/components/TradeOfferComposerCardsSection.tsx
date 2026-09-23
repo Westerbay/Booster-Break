@@ -1,13 +1,14 @@
 import { m } from '@/paraglide/messages'
 import type { CollectionSort, UserCollectionCard } from '@tcg-collection/shared'
-import { MinusIcon, PlusIcon } from 'lucide-react'
+import { BookPlusIcon, MinusIcon, PlusIcon, SearchIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { CardImageDialog } from '@/features/dashboard/components/CardImageDialog'
 import { TradeCollectionCardItem } from './TradeCollectionCardItem'
 import { TradeSortPreferenceMenu } from './TradeSortPreferenceMenu'
 import { CardListFiltersMenu } from '@/features/dashboard/components/CardListFiltersMenu'
 import { MAX_PENDING_OFFERS_PER_AUCTION_BY_USER, offerCardKey } from '../lib/trade-utils'
-import { TradeRecipientBadge } from './TradeRecipientBadge'
+import { TradeRecipientDot } from './TradeRecipientBadge'
 
 interface TradeOfferComposerCardsSectionProps {
   collectionPage: number
@@ -23,6 +24,7 @@ interface TradeOfferComposerCardsSectionProps {
   onMinimumQuantityChange: (quantity: number) => void
   onMinimumRarityChange: (rarity: string | undefined) => void
   tradePreferenceOptions: readonly { value: CollectionSort; label: string }[]
+  hasEligibleCards: boolean
   filteredCards: UserCollectionCard[]
   selectedCardsCount: number
   selectedCardsTotal: number
@@ -34,6 +36,9 @@ interface TradeOfferComposerCardsSectionProps {
   updateSelection: (card: UserCollectionCard, rawValue: string) => void
   recipientName: string
   recipientOwnershipByCard: ReadonlyMap<string, boolean>
+  onlyNewForRecipient: boolean
+  onOnlyNewForRecipientChange: (value: boolean) => void
+  isRecipientOwnershipUnavailable: boolean
 }
 
 export function TradeOfferComposerCardsSection({
@@ -50,6 +55,7 @@ export function TradeOfferComposerCardsSection({
   onMinimumQuantityChange,
   onMinimumRarityChange,
   tradePreferenceOptions,
+  hasEligibleCards,
   filteredCards,
   selectedCardsCount,
   selectedCardsTotal,
@@ -61,27 +67,65 @@ export function TradeOfferComposerCardsSection({
   updateSelection,
   recipientName,
   recipientOwnershipByCard,
+  onlyNewForRecipient,
+  onOnlyNewForRecipientChange,
+  isRecipientOwnershipUnavailable,
 }: TradeOfferComposerCardsSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
 
+  const getEmptyMessage = () => {
+    if (isLoading && (searchQuery.length === 0 || onlyNewForRecipient)) {
+      return m.trade_loading_cards_for_offer()
+    }
+    if (onlyNewForRecipient && isRecipientOwnershipUnavailable) {
+      return m.trade_recipient_unavailable()
+    }
+    if (onlyNewForRecipient && hasEligibleCards && searchQuery.length === 0) {
+      return m.trade_offer_no_new_for_recipient({ name: recipientName })
+    }
+    return m.trade_search_no_match()
+  }
+
   return (
     <>
-      <div className="flex flex-col gap-2 rounded-md bg-background px-3 py-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span>{m.trade_card_preference_label()}</span>
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-          <CardListFiltersMenu
-            minimumQuantity={minimumQuantity}
-            minimumRarity={minimumRarity}
-            rarityOptions={rarityOptions}
-            onMinimumQuantityChange={onMinimumQuantityChange}
-            onMinimumRarityChange={onMinimumRarityChange}
-          />
-          <TradeSortPreferenceMenu
-            value={preference}
-            options={tradePreferenceOptions}
-            onValueChange={onPreferenceChange}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex h-9 min-w-40 flex-1 items-center gap-2 rounded-md border bg-background px-2.5 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/15 max-sm:h-11 max-sm:basis-full">
+          <SearchIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          <input
+            value={searchQuery}
+            onChange={(event) => {
+              onSearchChange(event.target.value)
+            }}
+            className="min-w-0 flex-1 bg-transparent text-sm placeholder:text-xs focus:outline-none"
+            placeholder={m.trade_search_by_pokemon_label()}
+            aria-label={m.trade_search_by_pokemon_aria()}
           />
         </div>
+        <Button
+          type="button"
+          variant={onlyNewForRecipient ? 'default' : 'outline'}
+          className="h-9"
+          title={m.trade_filter_only_new_for_recipient({ name: recipientName })}
+          aria-pressed={onlyNewForRecipient}
+          onClick={() => {
+            onOnlyNewForRecipientChange(!onlyNewForRecipient)
+          }}
+        >
+          <BookPlusIcon className="size-4" aria-hidden="true" />
+          {m.trade_filter_only_new()}
+        </Button>
+        <CardListFiltersMenu
+          minimumQuantity={minimumQuantity}
+          minimumRarity={minimumRarity}
+          rarityOptions={rarityOptions}
+          onMinimumQuantityChange={onMinimumQuantityChange}
+          onMinimumRarityChange={onMinimumRarityChange}
+        />
+        <TradeSortPreferenceMenu
+          value={preference}
+          options={tradePreferenceOptions}
+          onValueChange={onPreferenceChange}
+        />
       </div>
 
       <div className="rounded-md bg-background px-3 py-2 text-xs text-muted-foreground">
@@ -100,27 +144,10 @@ export function TradeOfferComposerCardsSection({
         </p>
       </div>
 
-      <label className="mt-2 flex w-full items-center gap-2">
-        <span className="shrink-0 text-xs font-black uppercase tracking-wide text-muted-foreground">
-          {m.trade_search_by_pokemon_label()}
-        </span>
-        <input
-          value={searchQuery}
-          onChange={(event) => {
-            onSearchChange(event.target.value)
-          }}
-          className="h-9 flex-1 min-w-0 rounded-md border bg-background px-2 text-sm placeholder:text-xs max-sm:min-h-11"
-          placeholder={m.trade_search_by_pokemon_placeholder()}
-          aria-label={m.trade_search_by_pokemon_aria()}
-        />
-      </label>
-
       <div className="flex min-h-[14rem] min-w-0 flex-wrap content-start justify-center gap-3">
         {filteredCards.length === 0 ? (
           <p className="rounded-md bg-background p-3 text-sm text-muted-foreground">
-            {isLoading && searchQuery.length === 0
-              ? m.trade_loading_cards_for_offer()
-              : m.trade_search_no_match()}
+            {getEmptyMessage()}
           </p>
         ) : (
           filteredCards.map((card) => {
@@ -132,17 +159,19 @@ export function TradeOfferComposerCardsSection({
               <TradeCollectionCardItem
                 key={key}
                 card={card}
-                className={`rounded-lg ${
+                className={`w-36 sm:w-40 rounded-lg ${
                   hasSelection ? 'border-orange-500/90 ring-2 ring-orange-500/80' : ''
                 }`}
                 onImageClick={() => {
                   setSelectedPreviewCard(card)
                 }}
+                nameAdornment={
+                  <TradeRecipientDot
+                    owned={recipientOwnershipByCard.get(card.id)}
+                    recipientName={recipientName}
+                  />
+                }
               >
-                <TradeRecipientBadge
-                  owned={recipientOwnershipByCard.get(card.id)}
-                  recipientName={recipientName}
-                />
                 <label className="mt-2 block text-xs text-muted-foreground">
                   {m.trade_offer_quantity()}
                 </label>

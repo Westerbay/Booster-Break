@@ -24,24 +24,29 @@ export const useTradeRecipientOwnershipQueryOption = (
     refetchInterval: 30_000,
     meta: { suppressToast: true },
     queryFn: async (): Promise<TradeRecipientCardOwnership[]> => {
-      const cards: TradeRecipientCardOwnership[] = []
+      const batches: string[][] = []
       for (let offset = 0; offset < cardIds.length; offset += MAX_TRADE_OWNERSHIP_CARD_IDS) {
-        const result = await api.trade.auctions({ auctionId })['recipient-ownership'].post({
-          cardIds: cardIds.slice(offset, offset + MAX_TRADE_OWNERSHIP_CARD_IDS),
-        })
-        if (result.error) {
-          throw new Error(
-            readTradeError(
-              result.error,
-              result.response,
-              result.status,
-              m.trade_recipient_unavailable(),
-            ),
-          )
-        }
-        cards.push(...result.data.cards)
+        batches.push(cardIds.slice(offset, offset + MAX_TRADE_OWNERSHIP_CARD_IDS))
       }
-      return cards
+      const results = await Promise.all(
+        batches.map(async (batch) => {
+          const result = await api.trade.auctions({ auctionId })['recipient-ownership'].post({
+            cardIds: batch,
+          })
+          if (result.error) {
+            throw new Error(
+              readTradeError(
+                result.error,
+                result.response,
+                result.status,
+                m.trade_recipient_unavailable(),
+              ),
+            )
+          }
+          return result.data.cards
+        }),
+      )
+      return results.flat()
     },
   })
 }
