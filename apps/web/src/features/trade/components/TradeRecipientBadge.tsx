@@ -2,6 +2,11 @@ import { cn } from '@/lib/utils'
 import { m } from '@/paraglide/messages'
 import { Avatar } from '@base-ui/react/avatar'
 
+const describeOwnership = (owned: boolean, recipientName: string) =>
+  owned
+    ? m.trade_recipient_owned_by({ name: recipientName })
+    : m.trade_recipient_new({ name: recipientName })
+
 interface TradeRecipientBadgeProps {
   owned: boolean | undefined
   recipientName: string
@@ -18,9 +23,7 @@ export function TradeRecipientBadge({
   if (owned === undefined) return null
 
   const label = owned ? m.trade_recipient_owned_short() : m.trade_recipient_new_short()
-  const description = owned
-    ? m.trade_recipient_owned_by({ name: recipientName })
-    : m.trade_recipient_new({ name: recipientName })
+  const description = describeOwnership(owned, recipientName)
 
   return (
     <span
@@ -55,25 +58,31 @@ export function TradeRecipientBadge({
   )
 }
 
+export function TradeRecipientDotMark({ owned }: { owned: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'size-2 shrink-0 rounded-full',
+        owned ? 'bg-muted-foreground/50' : 'bg-primary',
+      )}
+    />
+  )
+}
+
 interface TradeRecipientDotProps {
   owned: boolean | undefined
   recipientName: string
-  className?: string
 }
 
-export function TradeRecipientDot({ owned, recipientName, className }: TradeRecipientDotProps) {
+export function TradeRecipientDot({ owned, recipientName }: TradeRecipientDotProps) {
   if (owned === undefined) return null
 
-  const description = owned
-    ? m.trade_recipient_owned_by({ name: recipientName })
-    : m.trade_recipient_new({ name: recipientName })
+  const description = describeOwnership(owned, recipientName)
 
   return (
-    <span title={description} className={cn('inline-flex shrink-0 items-center', className)}>
-      <span
-        aria-hidden="true"
-        className={cn('size-2 rounded-full', owned ? 'bg-muted-foreground/50' : 'bg-primary')}
-      />
+    <span title={description} className="inline-flex shrink-0 items-center">
+      <TradeRecipientDotMark owned={owned} />
       <span className="sr-only">{description}</span>
     </span>
   )

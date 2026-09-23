@@ -70,6 +70,7 @@ export interface UseTradeOfferComposerResult {
   collectionPageCount: number
   collectionPage: number
   isCollectionPending: boolean
+  hasEligibleCards: boolean
   filteredCards: UserCollectionCard[]
   selectedEntries: SelectedOfferCard[]
   selectedCardsCount: number
@@ -294,6 +295,7 @@ export function useTradeOfferComposer({
     collectionPageCount,
     collectionPage,
     isCollectionPending: collection.isPending,
+    hasEligibleCards: eligibleCards.length > 0,
     filteredCards: pagedCards,
     selectedEntries,
     selectedCardsCount,

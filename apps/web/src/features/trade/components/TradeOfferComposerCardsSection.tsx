@@ -24,6 +24,7 @@ interface TradeOfferComposerCardsSectionProps {
   onMinimumQuantityChange: (quantity: number) => void
   onMinimumRarityChange: (rarity: string | undefined) => void
   tradePreferenceOptions: readonly { value: CollectionSort; label: string }[]
+  hasEligibleCards: boolean
   filteredCards: UserCollectionCard[]
   selectedCardsCount: number
   selectedCardsTotal: number
@@ -54,6 +55,7 @@ export function TradeOfferComposerCardsSection({
   onMinimumQuantityChange,
   onMinimumRarityChange,
   tradePreferenceOptions,
+  hasEligibleCards,
   filteredCards,
   selectedCardsCount,
   selectedCardsTotal,
@@ -72,11 +74,13 @@ export function TradeOfferComposerCardsSection({
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
 
   const getEmptyMessage = () => {
-    if (isLoading && searchQuery.length === 0) return m.trade_loading_cards_for_offer()
+    if (isLoading && (searchQuery.length === 0 || onlyNewForRecipient)) {
+      return m.trade_loading_cards_for_offer()
+    }
     if (onlyNewForRecipient && isRecipientOwnershipUnavailable) {
       return m.trade_recipient_unavailable()
     }
-    if (onlyNewForRecipient && searchQuery.length === 0) {
+    if (onlyNewForRecipient && hasEligibleCards && searchQuery.length === 0) {
       return m.trade_offer_no_new_for_recipient({ name: recipientName })
     }
     return m.trade_search_no_match()

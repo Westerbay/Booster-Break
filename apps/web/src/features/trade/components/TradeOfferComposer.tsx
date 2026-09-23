@@ -5,7 +5,7 @@ import { toast } from '@/features/toast/toast-store'
 import { useTradeOfferComposer } from '../hooks/useTradeOfferComposer'
 import { TradeOfferComposerCardsSection } from './TradeOfferComposerCardsSection'
 import { TradeOfferComposerPreviewSection } from './TradeOfferComposerPreviewSection'
-import { TradeRecipientDot } from './TradeRecipientBadge'
+import { TradeRecipientDotMark } from './TradeRecipientBadge'
 
 interface TradeOfferComposerProps {
   auction: TradeAuctionResponse
@@ -36,6 +36,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
     collectionPage,
     collectionPageCount,
     isCollectionPending,
+    hasEligibleCards,
     filteredCards,
     selectedEntries,
     selectedCardsCount,
@@ -132,12 +133,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         </span>
         {[false, true].map((owned) => (
           <span key={String(owned)} className="inline-flex items-center gap-1.5">
-            <span aria-hidden="true">
-              <TradeRecipientDot owned={owned} recipientName={recipientName} />
-            </span>
-            <span className="sr-only">
-              {owned ? m.trade_recipient_owned_short() : m.trade_recipient_new_short()} :
-            </span>
+            <TradeRecipientDotMark owned={owned} />
             {owned ? m.trade_recipient_legend_owned() : m.trade_recipient_legend_new()}
           </span>
         ))}
@@ -178,6 +174,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           onMinimumQuantityChange={handleMinimumQuantityChange}
           onMinimumRarityChange={handleMinimumRarityChange}
           tradePreferenceOptions={tradePreferenceOptions}
+          hasEligibleCards={hasEligibleCards}
           filteredCards={filteredCards}
           selectedCardsCount={selectedCardsCount}
           selectedCardsTotal={selectedCardsTotal}
