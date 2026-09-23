@@ -212,7 +212,6 @@ const renderTradeOfferAcceptedNotification = (
             : m.trade_notification_given_cards()
         }
         cards={givenCards}
-        ownedCardIds={ownedCardIds}
       />
     </ModalShell>
   )
@@ -245,7 +244,6 @@ const renderTradeOfferReceivedNotification = (
       <NotificationCardList
         title={m.trade_notification_given_card()}
         cards={[notification.payload.offeredCard]}
-        ownedCardIds={ownedCardIds}
       />
     </ModalShell>
   )
