@@ -1692,6 +1692,7 @@ function PackRecap({
             <div key={`${card.id}-${index}-recap-slot`} className="relative aspect-63/88 w-full">
               <motion.button
                 type="button"
+                layout
                 className={cn(
                   'aspect-63/88 rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950/70',
                   isSelected
@@ -1729,7 +1730,11 @@ function PackRecap({
                 }
                 transition={
                   isSelected
-                    ? { duration: 0 }
+                    ? {
+                        layout: shouldReduceMotion
+                          ? { duration: 0.1 }
+                          : { type: 'spring', stiffness: 235, damping: 25, mass: 0.92 },
+                      }
                     : shouldReduceMotion
                       ? { delay: index * 0.025, duration: 0.12 }
                       : hasInspectedCard || recapEntranceComplete
