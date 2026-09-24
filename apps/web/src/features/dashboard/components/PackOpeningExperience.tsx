@@ -1614,7 +1614,9 @@ function PackRecap({
   onComplete,
 }: PackRecapProps) {
   const headingRef = useRef<HTMLElement>(null)
+  const cardButtonRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [selectedCardIndex, setSelectedCardIndex] = useState<number>()
+  const [closingCardIndex, setClosingCardIndex] = useState<number>()
   const [hasInspectedCard, setHasInspectedCard] = useState(false)
   const [recapEntranceComplete, setRecapEntranceComplete] = useState(false)
   const selectedCard = selectedCardIndex === undefined ? undefined : cards[selectedCardIndex]
@@ -1631,8 +1633,11 @@ function PackRecap({
   }, [])
 
   const closeSelectedCard = useCallback(() => {
+    if (selectedCardIndex === undefined) return
+    cardButtonRefs.current[selectedCardIndex]?.focus({ preventScroll: true })
+    setClosingCardIndex(selectedCardIndex)
     setSelectedCardIndex(undefined)
-  }, [])
+  }, [selectedCardIndex])
 
   return (
     <motion.div
@@ -1640,6 +1645,9 @@ function PackRecap({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') closeSelectedCard()
+      }}
     >
       <motion.header
         ref={headingRef}
@@ -1691,13 +1699,17 @@ function PackRecap({
           return (
             <div key={`${card.id}-${index}-recap-slot`} className="relative aspect-63/88 w-full">
               <motion.button
+                ref={(button) => {
+                  cardButtonRefs.current[index] = button
+                }}
                 type="button"
                 layout
                 className={cn(
                   'aspect-63/88 rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950/70',
                   isSelected
-                    ? 'pointer-events-auto fixed inset-0 z-50 m-auto w-[calc(min(100vw,(100dvh-24px)*63/88)*11/12)]'
+                    ? 'pointer-events-auto fixed inset-0 z-50 m-auto w-[calc(min(100vw,(100dvh-24px)*63/88)*6.6/7.2)]'
                     : 'absolute inset-0 w-full',
+                  closingCardIndex === index && 'z-40',
                   selectedCard && !isSelected && 'pointer-events-none',
                 )}
                 tabIndex={selectedCard && !isSelected ? -1 : 0}
@@ -1769,8 +1781,8 @@ function PackRecap({
                   setHasInspectedCard(true)
                   setSelectedCardIndex(index)
                 }}
-                onKeyDown={(event) => {
-                  if (isSelected && event.key === 'Escape') closeSelectedCard()
+                onLayoutAnimationComplete={() => {
+                  if (closingCardIndex === index) setClosingCardIndex(undefined)
                 }}
                 onAnimationComplete={() => {
                   if (
@@ -1870,7 +1882,7 @@ function PackRecap({
               type="button"
               variant="ghost"
               size="icon"
-              className="pointer-events-auto absolute top-[max(12px,env(safe-area-inset-top))] right-[max(12px,env(safe-area-inset-right))] size-11 rounded-full bg-[var(--game-viewer-control)] text-[var(--game-viewer-text)]"
+              className="pointer-events-auto absolute top-[max(12px,env(safe-area-inset-top))] right-[max(12px,env(safe-area-inset-right))] size-11 rounded-full bg-[var(--game-viewer-control)] text-[var(--game-viewer-text)] hover:bg-[var(--game-viewer-control)] hover:text-[var(--game-viewer-text)]"
               onClick={closeSelectedCard}
             >
               <XIcon />
