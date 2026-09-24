@@ -1696,8 +1696,7 @@ function PackRecap({
                 className={cn(
                   'aspect-63/88 rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950/70',
                   isSelected
-                    ? // Collection preview size, scaled by 11/12 because the recap camera sits at 6.6 instead of 7.2.
-                      'pointer-events-auto fixed inset-0 z-50 m-auto w-[calc(min(100vw,(100dvh-24px)*63/88)*11/12)]'
+                    ? 'pointer-events-auto fixed inset-0 z-50 m-auto w-[calc(min(100vw,(100dvh-24px)*63/88)*11/12)]'
                     : 'absolute inset-0 w-full',
                   selectedCard && !isSelected && 'pointer-events-none',
                 )}
