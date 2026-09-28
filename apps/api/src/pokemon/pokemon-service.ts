@@ -17,6 +17,7 @@ import type { AuthUser } from '../auth/types'
 import { PokemonRepository } from './pokemon-repository'
 import {
   FEATURED_HISTORICAL_BOOSTER_SET_IDS,
+  getReleasedScheduledBoosterSetIds,
   isBoosterOpeningEnabled,
   PACK_OPEN_COOLDOWN_SECONDS,
   PINNED_MODERN_BOOSTER_SET_IDS,
@@ -252,8 +253,9 @@ export class PokemonService {
     }
 
     const packOpenStatus = await this.getPackOpenStatusForUser(user.id)
+    const firstOpeningIsFree = packOpenStatus.freeBoosterSetIds?.includes(set.id) === true
 
-    if (!packOpenStatus.canOpen) {
+    if (!packOpenStatus.canOpen && !firstOpeningIsFree) {
       return {
         error: 'pack_cooldown',
         message: `Next booster available in ${packOpenStatus.cooldownSeconds}s.`,
@@ -277,6 +279,7 @@ export class PokemonService {
         user.id,
         set.id,
         cards,
+        { firstOpeningIsFree },
       ))
     } catch (error) {
       if (error instanceof PackCooldownError) {
@@ -295,16 +298,24 @@ export class PokemonService {
     }
   }
 
-  private async getPackOpenStatusForUser(userId: string): Promise<PackOpenStatusResponse> {
-    const anchor = await this.options.pokemonRepository.getBoosterCooldownAnchor(userId)
+  private async getPackOpenStatusForUser(
+    userId: string,
+  ): Promise<Extract<PackOpenStatusResponse, { authenticated: true }>> {
+    const releasedSetIds = getReleasedScheduledBoosterSetIds()
+    const [anchor, bonusBoosters, openedSetIds] = await Promise.all([
+      this.options.pokemonRepository.getBoosterCooldownAnchor(userId),
+      this.options.pokemonRepository.getBonusBoosters(userId),
+      this.options.pokemonRepository.listOpenedSetIds(userId, releasedSetIds),
+    ])
     const status = getBoosterChargeStatus(anchor, new Date())
 
     return {
       authenticated: true,
-      canOpen: status.canOpen,
+      canOpen: status.canOpen || bonusBoosters > 0,
       cooldownSeconds: status.cooldownSeconds,
       cooldownDurationSeconds: status.cooldownDurationSeconds,
-      availableBoosters: status.availableBoosters,
+      availableBoosters: status.availableBoosters + bonusBoosters,
+      freeBoosterSetIds: releasedSetIds.filter((setId) => !openedSetIds.includes(setId)),
       ...(status.nextOpenAt ? { nextOpenAt: status.nextOpenAt.toISOString() } : {}),
     }
   }

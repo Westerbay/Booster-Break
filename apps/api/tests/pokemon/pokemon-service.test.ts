@@ -59,3 +59,60 @@ describe('PokemonService booster availability', () => {
     expect(getSetCalled).toBe(true)
   })
 })
+
+describe('PokemonService release booster', () => {
+  afterEach(() => {
+    setSystemTime()
+  })
+
+  const openWithoutChargesAt = async (now: number, openedSetIds: string[], bonusBoosters = 0) => {
+    setSystemTime(new Date(now))
+    const recordCalls: unknown[] = []
+    const pokemonRepository = {
+      getSet: async () => ({ id: 'me05', name: 'Me05', series: 'Mega', total: 1, releaseDate: '' }),
+      getBoosterCooldownAnchor: async () => new Date(now),
+      getBonusBoosters: async () => bonusBoosters,
+      listOpenedSetIds: async () => openedSetIds,
+      listCards: async () => [{ id: 'me05-001', setId: 'me05', name: 'Probe', number: '001' }],
+      recordPackOpening: async (...args: unknown[]) => {
+        recordCalls.push(args[3])
+        return { openingId: 'opening-1', newCardIds: [] }
+      },
+    } as unknown as PokemonRepository
+    const pokemonClient = {} as TcgDexClient
+    const service = new PokemonService({
+      authService: {} as AuthService,
+      localizedPokemonClients: { en: pokemonClient, fr: pokemonClient },
+      pokemonClient,
+      pokemonRepository,
+      sealedClient: {} as ScrydexSealedClient,
+    })
+    const result = await service.openPack(
+      { id: 'user-1', pseudo: 'Player' },
+      { setId: 'me05', locale: 'en' },
+    )
+
+    return { result, recordCalls }
+  }
+
+  test('opens a released booster for free when the player has not opened it yet', async () => {
+    const { result, recordCalls } = await openWithoutChargesAt(releaseAt, [])
+
+    expect(result).toHaveProperty('openingId', 'opening-1')
+    expect(recordCalls).toEqual([{ firstOpeningIsFree: true }])
+  })
+
+  test('keeps the cooldown once the free release booster was opened', async () => {
+    const { result, recordCalls } = await openWithoutChargesAt(releaseAt, ['me05'])
+
+    expect(result).toHaveProperty('error', 'pack_cooldown')
+    expect(recordCalls).toEqual([])
+  })
+
+  test('lets a gifted booster through the cooldown', async () => {
+    const { result, recordCalls } = await openWithoutChargesAt(releaseAt, ['me05'], 1)
+
+    expect(result).toHaveProperty('openingId', 'opening-1')
+    expect(recordCalls).toEqual([{ firstOpeningIsFree: false }])
+  })
+})

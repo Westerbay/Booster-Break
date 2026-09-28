@@ -102,6 +102,7 @@
   "sandbox_sign_in_timer": "Open is limited by the local timer.",
   "packs_selected_ready": "{name} selected. One booster can be opened now.",
   "packs_selected_ready_plural": "{name} selected. {count} boosters can be opened now.",
+  "packs_free_booster": "{name} selected. This first booster is on the house!",
   "packs_next_stack_in": "+1 booster in {time}",
   "sandbox_selected_ready": "{name} selected. One sandbox draw can be opened now.",
   "packs_open_aria": "Open {name} booster",

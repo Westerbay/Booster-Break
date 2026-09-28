@@ -386,26 +386,43 @@ export class PokemonRepository {
     userId: string,
     setId: string,
     cards: PokemonCardSummary[],
+    { firstOpeningIsFree = false }: { firstOpeningIsFree?: boolean } = {},
   ): Promise<{ openingId: string; newCardIds: string[] }> {
     const openingId = crypto.randomUUID()
     const openedAt = new Date()
     const newCardIds = new Set<string>()
 
     await this.db.$transaction(async (tx) => {
-      const lockedRows = await tx.$queryRaw<{ booster_cooldown_anchor: Date | null }[]>`
-        SELECT "booster_cooldown_anchor" FROM "users" WHERE "id" = ${userId} FOR UPDATE
+      const lockedRows = await tx.$queryRaw<
+        { booster_cooldown_anchor: Date | null; bonus_boosters: number }[]
+      >`
+        SELECT "booster_cooldown_anchor", "bonus_boosters" FROM "users" WHERE "id" = ${userId} FOR UPDATE
       `
-      const anchor = lockedRows[0]?.booster_cooldown_anchor ?? null
-      const status = getBoosterChargeStatus(anchor, openedAt)
+      // Checked after the user row lock so two concurrent openings cannot both claim the free one.
+      const isFree =
+        firstOpeningIsFree &&
+        !(await tx.packOpening.findFirst({ where: { userId, setId }, select: { id: true } }))
 
-      if (!status.canOpen) {
-        throw new PackCooldownError(status.cooldownSeconds)
+      if (!isFree) {
+        const anchor = lockedRows[0]?.booster_cooldown_anchor ?? null
+        const status = getBoosterChargeStatus(anchor, openedAt)
+
+        // Regular charges go first: they stop regenerating once full, gifted boosters never expire.
+        if (status.canOpen) {
+          await tx.user.update({
+            where: { id: userId },
+            data: { boosterCooldownAnchor: consumeBoosterCharge(anchor, openedAt) },
+          })
+        } else if ((lockedRows[0]?.bonus_boosters ?? 0) > 0) {
+          await tx.user.update({
+            where: { id: userId },
+            data: { bonusBoosters: { decrement: 1 } },
+          })
+        } else {
+          throw new PackCooldownError(status.cooldownSeconds)
+        }
       }
 
-      await tx.user.update({
-        where: { id: userId },
-        data: { boosterCooldownAnchor: consumeBoosterCharge(anchor, openedAt) },
-      })
       await tx.packOpening.create({
         data: {
           id: openingId,
@@ -472,6 +489,25 @@ export class PokemonRepository {
     })
 
     return user?.boosterCooldownAnchor ?? null
+  }
+
+  async getBonusBoosters(userId: string): Promise<number> {
+    const user = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { bonusBoosters: true },
+    })
+
+    return user?.bonusBoosters ?? 0
+  }
+
+  async listOpenedSetIds(userId: string, setIds: string[]): Promise<string[]> {
+    const openings = await this.db.packOpening.findMany({
+      where: { userId, setId: { in: setIds } },
+      distinct: ['setId'],
+      select: { setId: true },
+    })
+
+    return openings.map((opening) => opening.setId)
   }
 
   async recordCardGift(

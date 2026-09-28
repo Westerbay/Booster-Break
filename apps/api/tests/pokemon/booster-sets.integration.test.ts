@@ -1,4 +1,5 @@
 import { afterAll, expect, test } from 'bun:test'
+import { PackCooldownError } from '../../src/pokemon/pack-cooldown'
 import { PokemonRepository } from '../../src/pokemon/pokemon-repository'
 import { PokedexRepository } from '../../src/pokemon/pokedex-repository'
 
@@ -52,8 +53,8 @@ async function fixture() {
     giftSetId,
     userId,
     cleanup: async () => {
-      await prisma.pokemonSet.deleteMany({ where: { id: { in: setIds } } })
       await prisma.user.delete({ where: { id: userId } })
+      await prisma.pokemonSet.deleteMany({ where: { id: { in: setIds } } })
     },
   }
 }
@@ -82,6 +83,56 @@ databaseTest('a set without booster artwork stays out of the Pokédex', async ()
   expect(await f.pokedex.getSet(f.userId, f.boosterSetId, 1, 12, 'en')).toBeDefined()
   expect(await f.pokedex.getSet(f.userId, f.blankArtworkSetId, 1, 12, 'en')).toBeUndefined()
   expect(await f.pokedex.getSet(f.userId, f.giftSetId, 1, 12, 'en')).toBeUndefined()
+
+  await f.cleanup()
+})
+
+databaseTest('the first opening of a released booster is free exactly once', async () => {
+  const f = await fixture()
+  const anchor = new Date()
+  await f.prisma.user.update({ where: { id: f.userId }, data: { boosterCooldownAnchor: anchor } })
+  const cards = [
+    { id: `${f.boosterSetId}-001`, setId: f.boosterSetId, name: 'Probe ex', number: '001' },
+  ]
+  const open = () =>
+    f.repository.recordPackOpening(f.userId, f.boosterSetId, cards, { firstOpeningIsFree: true })
+
+  const results = await Promise.allSettled([open(), open()])
+
+  expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+  expect(results.find((result) => result.status === 'rejected')?.reason).toBeInstanceOf(
+    PackCooldownError,
+  )
+  expect(await f.repository.getBoosterCooldownAnchor(f.userId)).toEqual(anchor)
+  expect(await f.repository.listOpenedSetIds(f.userId, [f.boosterSetId])).toEqual([f.boosterSetId])
+
+  await f.cleanup()
+})
+
+databaseTest('a gifted booster is spent only once the regular charges are gone', async () => {
+  const f = await fixture()
+  const fullChargesAnchor = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
+  await f.prisma.user.update({
+    where: { id: f.userId },
+    data: { boosterCooldownAnchor: fullChargesAnchor, bonusBoosters: 1 },
+  })
+  const cards = [
+    { id: `${f.boosterSetId}-001`, setId: f.boosterSetId, name: 'Probe ex', number: '001' },
+  ]
+  const open = () => f.repository.recordPackOpening(f.userId, f.boosterSetId, cards)
+  const bonusBoosters = () => f.repository.getBonusBoosters(f.userId)
+
+  await open()
+  await open()
+  expect(await bonusBoosters()).toBe(1)
+
+  const results = await Promise.allSettled([open(), open()])
+
+  expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+  expect(results.find((result) => result.status === 'rejected')?.reason).toBeInstanceOf(
+    PackCooldownError,
+  )
+  expect(await bonusBoosters()).toBe(0)
 
   await f.cleanup()
 })

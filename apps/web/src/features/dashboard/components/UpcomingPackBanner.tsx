@@ -35,6 +35,7 @@ export function UpcomingPackBanner({ sets, queryUpdatedAt }: UpcomingPackBannerP
     const timerId = window.setTimeout(
       () => {
         queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.setsAll })
+        queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.packStatus() })
         queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
       },
       Math.min(Math.max(nextReleaseAt - Date.now() + 1_000, RELEASE_RECHECK_MS), MAX_TIMEOUT_MS),
