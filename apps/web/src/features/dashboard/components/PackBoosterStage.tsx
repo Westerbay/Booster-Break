@@ -43,7 +43,12 @@ export function PackBoosterStage({
   const nextSet =
     activeIndex >= 0 && activeIndex < sets.length - 1 ? sets[activeIndex + 1] : undefined
 
+  const hasFreeBooster =
+    packOpenStatus?.authenticated === true &&
+    activeSet !== undefined &&
+    packOpenStatus.freeBoosterSetIds?.includes(activeSet.id) === true
   const isCooldownActive =
+    !hasFreeBooster &&
     packOpenStatus?.authenticated === true &&
     !packOpenStatus.canOpen &&
     packOpenStatus.cooldownSeconds > 0
@@ -51,6 +56,7 @@ export function PackBoosterStage({
   const availableBoosters =
     packOpenStatus?.authenticated === true ? (packOpenStatus.availableBoosters ?? 0) : 0
   const showMultipleReady =
+    !hasFreeBooster &&
     !packOpenStatusIsPending &&
     packOpenStatus?.authenticated === true &&
     packOpenStatus.canOpen &&
@@ -189,6 +195,7 @@ export function PackBoosterStage({
                 })
               : getPackStatusText({
                   activeSet,
+                  hasFreeBooster,
                   isCooldownActive,
                   isUnauthenticated,
                   packOpenStatus,

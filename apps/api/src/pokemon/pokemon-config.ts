@@ -21,6 +21,8 @@ export const getTeasedBoosterSetIds = (now = Date.now()): string[] =>
   )
 export const isBoosterOpeningEnabled = (setId: string, now = Date.now()): boolean =>
   !getUnreleasedBoosterSetIds(now).includes(setId)
+export const getReleasedScheduledBoosterSetIds = (now = Date.now()): string[] =>
+  Object.keys(SCHEDULED_BOOSTER_RELEASES).filter((setId) => now >= getBoosterReleaseAt(setId))
 export const PACK_OPEN_COOLDOWN_SECONDS = 2 * 60 * 60
 export const MAX_OVERLOAD_BOOSTERS = 1
 export const SANDBOX_PACK_OPEN_MIN_YEAR = 2003

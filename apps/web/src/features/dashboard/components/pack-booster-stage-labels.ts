@@ -24,6 +24,7 @@ export interface PackBoosterStageLabelOverrides {
   signInLabel?: () => string
   nextInSecondsLabel?: ({ cooldownSeconds }: WaitLabelContext) => string
   selectedReadyLabel?: ({ name }: SelectedReadyContext) => string
+  freeBoosterLabel?: ({ name }: SelectedReadyContext) => string
 }
 
 export interface ResolvedPackBoosterStageLabels {
@@ -35,6 +36,7 @@ export interface ResolvedPackBoosterStageLabels {
   signInLabel: () => string
   nextInSecondsLabel: ({ cooldownSeconds }: WaitLabelContext) => string
   selectedReadyLabel: ({ name }: SelectedReadyContext) => string
+  freeBoosterLabel: ({ name }: SelectedReadyContext) => string
 }
 
 interface OpenButtonLabelArgs {
@@ -47,6 +49,7 @@ interface OpenButtonLabelArgs {
 
 interface PackStatusTextArgs {
   activeSet?: PokemonSetSummary
+  hasFreeBooster: boolean
   isCooldownActive: boolean
   isUnauthenticated: boolean
   packOpenStatus?: PackOpenStatusResponse
@@ -69,6 +72,7 @@ const defaultPackBoosterStageLabels: ResolvedPackBoosterStageLabels = {
       time: formatRemaining(cooldownSeconds * 1000),
     }),
   selectedReadyLabel: ({ name }) => m.packs_selected_ready({ name }),
+  freeBoosterLabel: ({ name }) => m.packs_free_booster({ name }),
 }
 
 export const resolvePackBoosterStageLabels = (
@@ -104,6 +108,7 @@ export const getOpenButtonLabel = ({
 
 export const getPackStatusText = ({
   activeSet,
+  hasFreeBooster,
   isCooldownActive,
   isUnauthenticated,
   packOpenStatus,
@@ -116,6 +121,10 @@ export const getPackStatusText = ({
 
   if (isUnauthenticated) {
     return labels.signInLabel()
+  }
+
+  if (hasFreeBooster) {
+    return labels.freeBoosterLabel({ name: activeSet?.name ?? m.packs_pokemon_fallback() })
   }
 
   if (isCooldownActive && packOpenStatus?.authenticated) {

@@ -117,6 +117,7 @@ export type PackOpenStatusResponse =
       cooldownSeconds: number
       cooldownDurationSeconds: number
       availableBoosters?: number
+      freeBoosterSetIds?: string[]
       nextOpenAt?: string
       lastOpenedAt?: string
     }
