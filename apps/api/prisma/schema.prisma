@@ -246,6 +246,7 @@ model PackOpening {
   set               PokemonSet        @relation(fields: [setId], references: [id])
   cards             PackOpeningCard[]
 
+  @@index([userId, setId])
   @@map("pack_openings")
 }
 

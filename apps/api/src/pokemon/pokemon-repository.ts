@@ -407,7 +407,6 @@ export class PokemonRepository {
         const anchor = lockedRows[0]?.booster_cooldown_anchor ?? null
         const status = getBoosterChargeStatus(anchor, openedAt)
 
-        // Regular charges go first: they stop regenerating once full, gifted boosters never expire.
         if (status.canOpen) {
           await tx.user.update({
             where: { id: userId },
