@@ -162,11 +162,14 @@ export function WebGlCardViewer({
   }, [fallbackRotationX, fallbackRotationY])
 
   useEffect(() => {
+    onReadyRef.current = onReady
+  }, [onReady])
+
+  useEffect(() => {
     rotationXRef.current = rotationX
     rotationYRef.current = rotationY
-    onReadyRef.current = onReady
     syncExternalRotation()
-  }, [onReady, rotationX, rotationY, syncExternalRotation])
+  }, [rotationX, rotationY, syncExternalRotation])
 
   useEffect(() => {
     interactiveRef.current = interactive
