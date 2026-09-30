@@ -162,11 +162,16 @@ export function WebGlCardViewer({
   }, [fallbackRotationX, fallbackRotationY])
 
   useEffect(() => {
+    onReadyRef.current = onReady
+  }, [onReady])
+
+  // Kept apart from onReady: parents re-render (trade clock) with a fresh callback,
+  // and re-syncing here would snap a dragged card back to the external rotation.
+  useEffect(() => {
     rotationXRef.current = rotationX
     rotationYRef.current = rotationY
-    onReadyRef.current = onReady
     syncExternalRotation()
-  }, [onReady, rotationX, rotationY, syncExternalRotation])
+  }, [rotationX, rotationY, syncExternalRotation])
 
   useEffect(() => {
     interactiveRef.current = interactive
