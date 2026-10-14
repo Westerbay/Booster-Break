@@ -2,7 +2,9 @@ import { m } from '@/paraglide/messages'
 import type { CollectionSort, UserCollectionCard } from '@tcg-collection/shared'
 import { BookPlusIcon, MinusIcon, PlusIcon, SearchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { usePokemonSetsQueryOption } from '@/lib/queries/pokemon'
 import { CardImageDialog } from '@/features/dashboard/components/CardImageDialog'
 import { TradeCollectionCardItem } from './TradeCollectionCardItem'
 import { TradeSortPreferenceMenu } from './TradeSortPreferenceMenu'
@@ -39,6 +41,7 @@ interface TradeOfferComposerCardsSectionProps {
   onlyNewForRecipient: boolean
   onOnlyNewForRecipientChange: (value: boolean) => void
   isRecipientOwnershipUnavailable: boolean
+  isRequest: boolean
 }
 
 export function TradeOfferComposerCardsSection({
@@ -70,8 +73,14 @@ export function TradeOfferComposerCardsSection({
   onlyNewForRecipient,
   onOnlyNewForRecipientChange,
   isRecipientOwnershipUnavailable,
+  isRequest,
 }: TradeOfferComposerCardsSectionProps) {
   const [selectedPreviewCard, setSelectedPreviewCard] = useState<UserCollectionCard | null>(null)
+  const setsQuery = useQuery(usePokemonSetsQueryOption())
+  const setNameById = useMemo(
+    () => new Map((setsQuery.data ?? []).map((set) => [set.id, set.name])),
+    [setsQuery.data],
+  )
 
   const getEmptyMessage = () => {
     if (isLoading && (searchQuery.length === 0 || onlyNewForRecipient)) {
@@ -81,7 +90,9 @@ export function TradeOfferComposerCardsSection({
       return m.trade_recipient_unavailable()
     }
     if (onlyNewForRecipient && hasEligibleCards && searchQuery.length === 0) {
-      return m.trade_offer_no_new_for_recipient({ name: recipientName })
+      return isRequest
+        ? m.trade_request_no_new_for_you()
+        : m.trade_offer_no_new_for_recipient({ name: recipientName })
     }
     return m.trade_search_no_match()
   }
@@ -159,6 +170,7 @@ export function TradeOfferComposerCardsSection({
               <TradeCollectionCardItem
                 key={key}
                 card={card}
+                setName={setNameById.get(card.setId)}
                 className={`w-36 sm:w-40 rounded-lg ${
                   hasSelection ? 'border-orange-500/90 ring-2 ring-orange-500/80' : ''
                 }`}
@@ -173,7 +185,7 @@ export function TradeOfferComposerCardsSection({
                 }
               >
                 <label className="mt-2 block text-xs text-muted-foreground">
-                  {m.trade_offer_quantity()}
+                  {isRequest ? m.trade_request_quantity() : m.trade_offer_quantity()}
                 </label>
                 <div className="mt-1 grid grid-cols-2 items-center justify-items-center gap-1 sm:flex sm:justify-center sm:gap-2">
                   <button

@@ -7,8 +7,12 @@ import type {
   AuctionRequirements,
   AuctionFilters,
   TradeOfferStatus,
+  TradeAuctionKind,
   TradeAuctionStatus,
   TradeRecipientOwnershipResponse,
+  CollectionSort,
+  SupportedLocale,
+  UserCollectionResponse,
 } from '@tcg-collection/shared'
 import type { AuthService } from '../auth/auth-service'
 
@@ -30,6 +34,13 @@ export type TradeServiceError = TradeApiError & {
 }
 
 export type TradeServiceResult<T> = T | TradeServiceError
+
+export type TradeCollectionOptions = {
+  sort: CollectionSort
+  locale: SupportedLocale
+  minimumQuantity?: number
+  minimumRarity?: string
+}
 
 export type TradeRepositoryError =
   | 'auction_not_found'
@@ -83,6 +94,7 @@ export interface TradeOfferCardRow {
 export interface TradeAuctionRow {
   id: string
   creatorId: string
+  kind: TradeAuctionKind
   offeredCardId: string
   offeredCardFinish: CardFinish
   requirements: AuctionRequirements
@@ -119,6 +131,7 @@ export interface TradeOfferRow {
   auction?: {
     id: string
     creatorId: string
+    kind: TradeAuctionKind
     status: TradeAuctionStatus
     offeredCardId: string
     offeredCardFinish: CardFinish
@@ -177,6 +190,7 @@ export interface TradeCardFilterCandidate {
 
 export interface CreateTradeAuctionCommand {
   creatorId: string
+  kind: TradeAuctionKind
   offeredCardId: string
   offeredCardFinish: CardFinish
   requirements?: AuctionRequirements
@@ -243,6 +257,10 @@ export interface TradeCardRepository {
     cardId: string,
     finish: CardFinish,
   ): Promise<number | undefined>
+  listUserCollection(
+    userId: string,
+    options: TradeCollectionOptions,
+  ): Promise<UserCollectionResponse>
 }
 
 export interface TradeNotificationRepository {

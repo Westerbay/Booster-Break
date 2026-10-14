@@ -180,10 +180,13 @@ const renderTradeOfferAcceptedNotification = (
   const actorLabel = isAuctionCreatorNotification
     ? m.trade_notification_offer_accepted_sender()
     : m.trade_notification_offer_accepted_by()
-  const receivedCards = isAuctionCreatorNotification
+  // In a request the auction card travels to the creator, so both sides are flipped.
+  const receivesExchangedCards =
+    isAuctionCreatorNotification !== (notification.payload.auctionKind === 'request')
+  const receivedCards = receivesExchangedCards
     ? notification.payload.exchangedCards
     : [notification.payload.offeredCard]
-  const givenCards = isAuctionCreatorNotification
+  const givenCards = receivesExchangedCards
     ? [notification.payload.offeredCard]
     : notification.payload.exchangedCards
 
@@ -226,11 +229,20 @@ const renderTradeOfferReceivedNotification = (
 ) => {
   const proposerName =
     notification.payload.proposerDisplayName?.trim() ?? notification.payload.proposerPseudo
+  const isRequest = notification.payload.auctionKind === 'request'
+  const auctionCards = [notification.payload.offeredCard]
+  const [receivedCards, givenCards] = isRequest
+    ? [auctionCards, notification.payload.offeredCards]
+    : [notification.payload.offeredCards, auctionCards]
 
   return (
     <ModalShell
       title={m.trade_notification_offer_received_title()}
-      message={m.trade_notification_offer_received_message({ proposer: proposerName })}
+      message={
+        isRequest
+          ? m.trade_notification_request_received_message({ proposer: proposerName })
+          : m.trade_notification_offer_received_message({ proposer: proposerName })
+      }
       onClose={onClose}
     >
       <NotificationAvatar
@@ -240,12 +252,12 @@ const renderTradeOfferReceivedNotification = (
       />
       <NotificationCardList
         title={m.trade_notification_offer_cards()}
-        cards={notification.payload.offeredCards}
+        cards={receivedCards}
         ownedCardIds={ownedCardIds}
       />
       <NotificationCardList
-        title={m.trade_notification_given_card()}
-        cards={[notification.payload.offeredCard]}
+        title={isRequest ? m.trade_notification_request_cards() : m.trade_notification_given_card()}
+        cards={givenCards}
       />
     </ModalShell>
   )

@@ -8,8 +8,12 @@ import type {
   UserCollectionCard,
 } from '@tcg-collection/shared'
 import { useCreateTradeOfferMutationOption } from '@/lib/mutations/trade'
-import { usePokemonCollectionAllQueryOption } from '@/lib/queries/pokemon'
+import {
+  useOwnedCardIdsQueryOption,
+  usePokemonCollectionAllQueryOption,
+} from '@/lib/queries/pokemon'
 import { useTradeRecipientOwnershipQueryOption } from '@/lib/queries/trade-recipient'
+import { useTradeRequestCreatorCollectionQueryOption } from '@/lib/queries/trade'
 import { toast } from '@/features/toast/toast-store'
 import {
   MAX_PENDING_OFFERS_PER_AUCTION_BY_USER,
@@ -50,6 +54,9 @@ export interface UseTradeOfferComposerResult {
     | 'auction_owner'
     | 'offer_limit_reached'
     | 'auction_inactive'
+    | 'checking_requested_card'
+    | 'requested_card_check_failed'
+    | 'missing_requested_card'
     | null
   offerLimitReached: boolean
   activeOfferCount: number
@@ -84,6 +91,7 @@ export interface UseTradeOfferComposerResult {
   isRecipientOwnershipLoading: boolean
   recipientOwnershipError: string | null
   retryRecipientOwnership: () => void
+  retryRequestedCardCheck: () => void
 }
 
 export function useTradeOfferComposer({
@@ -100,7 +108,9 @@ export function useTradeOfferComposer({
   const [selection, setSelection] = useState<Record<string, SelectedOfferCard>>({})
   const [onlyNewForRecipient, setOnlyNewForRecipient] = useState(false)
 
-  const collection = useQuery(
+  const isRequest = auction.kind === 'request'
+  const isAuctionOwner = auction.creatorId === userId
+  const ownCollection = useQuery(
     usePokemonCollectionAllQueryOption(
       {
         sort: preference,
@@ -109,10 +119,28 @@ export function useTradeOfferComposer({
         minimumRarity,
       },
       {
-        enabled: Boolean(userId),
+        enabled: Boolean(userId) && !isRequest,
       },
     ),
   )
+  const requesterCollection = useQuery(
+    useTradeRequestCreatorCollectionQueryOption(
+      auction.id,
+      { sort: preference, minimumQuantity, minimumRarity },
+      Boolean(userId) && isRequest && !isAuctionOwner && auction.status === 'active',
+    ),
+  )
+  const collection = isRequest ? requesterCollection : ownCollection
+  const ownCollectionForRequest = useQuery(
+    usePokemonCollectionAllQueryOption(
+      { sort: 'recent', source: 'owned' },
+      { enabled: Boolean(userId) && isRequest && !isAuctionOwner },
+    ),
+  )
+  const ownsRequestedCard = ownCollectionForRequest.data?.cards.some(
+    (card) => card.id === auction.offeredCard.id && card.finish === auction.offeredCardFinish,
+  )
+  const ownedCardIdsQuery = useQuery(useOwnedCardIdsQueryOption(Boolean(userId) && isRequest))
 
   const createOffer = useMutation(
     useCreateTradeOfferMutationOption(queryClient, {
@@ -126,7 +154,6 @@ export function useTradeOfferComposer({
     }),
   )
 
-  const isAuctionOwner = auction.creatorId === userId
   const activeOfferCount = userId
     ? auction.offers.filter((offer) => offer.proposerId === userId && offer.status === 'pending')
         .length
@@ -136,7 +163,11 @@ export function useTradeOfferComposer({
   const offerLimitReached = remainingOffers <= 0
 
   const canOffer =
-    Boolean(userId) && !isAuctionOwner && auction.status === 'active' && !offerLimitReached
+    Boolean(userId) &&
+    !isAuctionOwner &&
+    auction.status === 'active' &&
+    !offerLimitReached &&
+    (!isRequest || ownsRequestedCard === true)
 
   const canOfferReason = (() => {
     if (!userId) {
@@ -153,6 +184,16 @@ export function useTradeOfferComposer({
 
     if (offerLimitReached) {
       return 'offer_limit_reached' as const
+    }
+
+    if (isRequest && ownsRequestedCard === undefined) {
+      return ownCollectionForRequest.isError
+        ? ('requested_card_check_failed' as const)
+        : ('checking_requested_card' as const)
+    }
+
+    if (isRequest && !ownsRequestedCard) {
+      return 'missing_requested_card' as const
     }
 
     return null
@@ -180,15 +221,24 @@ export function useTradeOfferComposer({
         ...(onlyNewForRecipient ? eligibleCards : pageOf(searchedCards, page)),
         ...selectedEntries.map((entry) => entry.card),
       ].map((card) => card.id),
-      canOffer,
+      canOffer && !isRequest,
     ),
   )
   const recipientOwnershipByCard = new Map<string, boolean>()
-  if (!recipientOwnership.isError) {
+  if (isRequest) {
+    const ownedCardIds = new Set(ownedCardIdsQuery.data ?? [])
+    if (ownedCardIdsQuery.data) {
+      for (const card of searchedCards) {
+        if (!ownedCardIds.has(card.id)) recipientOwnershipByCard.set(card.id, false)
+      }
+    }
+  } else if (!recipientOwnership.isError) {
     for (const card of recipientOwnership.data ?? []) {
       recipientOwnershipByCard.set(card.cardId, card.owned)
     }
   }
+
+  const ownershipQuery = isRequest ? ownedCardIdsQuery : recipientOwnership
 
   const filteredCards = onlyNewForRecipient
     ? searchedCards.filter((card) => recipientOwnershipByCard.get(card.id) === false)
@@ -306,8 +356,9 @@ export function useTradeOfferComposer({
     updateSelection,
     isSubmitting: createOffer.isPending,
     recipientOwnershipByCard,
-    isRecipientOwnershipLoading: recipientOwnership.isLoading,
-    recipientOwnershipError: recipientOwnership.error?.message ?? null,
-    retryRecipientOwnership: () => void recipientOwnership.refetch(),
+    isRecipientOwnershipLoading: ownershipQuery.isLoading,
+    recipientOwnershipError: ownershipQuery.error?.message ?? null,
+    retryRecipientOwnership: () => void ownershipQuery.refetch(),
+    retryRequestedCardCheck: () => void ownCollectionForRequest.refetch(),
   }
 }

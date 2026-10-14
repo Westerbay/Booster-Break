@@ -7,13 +7,14 @@ import type {
   TradeNotificationListResponse,
   TradeOfferResponse,
   TradeRecipientOwnershipResponse,
+  UserCollectionResponse,
 } from '@tcg-collection/shared'
 import { DEFAULT_LOCALE } from '@tcg-collection/shared'
 import type { AuthUser } from '../auth/types'
 import { TradeAuctionService } from './trade-auction-service'
 import { TradeNotificationService } from './trade-notification-service'
 import { TradeOfferService } from './trade-offer-service'
-import type { TradeServiceOptions, TradeServiceResult } from './trade-types'
+import type { TradeCollectionOptions, TradeServiceOptions, TradeServiceResult } from './trade-types'
 
 export class TradeService {
   private readonly auctionService: TradeAuctionService
@@ -75,6 +76,14 @@ export class TradeService {
     cardIds: string[],
   ): Promise<TradeServiceResult<TradeRecipientOwnershipResponse>> {
     return this.offerService.getRecipientCardOwnership(user, auctionId, cardIds)
+  }
+
+  getRequestCreatorCollection(
+    user: AuthUser,
+    auctionId: string,
+    options: TradeCollectionOptions,
+  ): Promise<TradeServiceResult<UserCollectionResponse>> {
+    return this.offerService.getRequestCreatorCollection(user, auctionId, options)
   }
 
   cancelOffer(user: AuthUser, offerId: string): Promise<TradeServiceResult<void>> {

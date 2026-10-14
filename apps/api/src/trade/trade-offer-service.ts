@@ -3,6 +3,7 @@ import type {
   SupportedLocale,
   TradeOfferResponse,
   TradeRecipientOwnershipResponse,
+  UserCollectionResponse,
 } from '@tcg-collection/shared'
 import { DEFAULT_LOCALE } from '@tcg-collection/shared'
 import type { AuthUser } from '../auth/types'
@@ -14,6 +15,7 @@ import { toTradeServiceError } from './trade-error-mapper'
 import { toTradeOfferResponse } from './trade-mappers'
 import {
   TradeRepositoryErrorException,
+  type TradeCollectionOptions,
   type TradeServiceOptions,
   type TradeServiceResult,
 } from './trade-types'
@@ -47,6 +49,36 @@ export class TradeOfferService {
       }
       throw error
     }
+  }
+
+  async getRequestCreatorCollection(
+    user: AuthUser,
+    auctionId: string,
+    options: TradeCollectionOptions,
+  ): Promise<TradeServiceResult<UserCollectionResponse>> {
+    await this.expireAuctions(now())
+
+    const userOrError = await resolveAuthenticatedTradeUser(
+      user,
+      'Sign in to answer a card request.',
+    )
+    if ('error' in userOrError) return userOrError
+
+    const auction = await this.options.tradeRepository.getAuctionById(auctionId)
+
+    if (!auction || auction.kind !== 'request') {
+      return toTradeServiceError('auction_not_found')
+    }
+
+    if (auction.creatorId === userOrError.id) {
+      return toTradeServiceError('cannot_trade_self')
+    }
+
+    if (auction.status !== 'active') {
+      return toTradeServiceError('auction_closed')
+    }
+
+    return this.options.tradeRepository.listUserCollection(auction.creatorId, options)
   }
 
   async createOffer(
@@ -118,6 +150,25 @@ export class TradeOfferService {
       return toTradeServiceError('duplicate_offer')
     }
 
+    const isRequest = auction.kind === 'request'
+    // In a request, offer cards are what the proposer asks for, so they come from the creator.
+    const offerCardsOwnerId = isRequest ? auction.creatorId : userOrError.id
+
+    if (isRequest) {
+      const requestedCardQuantity = await this.options.tradeRepository.getUserCardQuantity(
+        userOrError.id,
+        auction.offeredCardId,
+        auction.offeredCardFinish,
+      )
+
+      if (!requestedCardQuantity || requestedCardQuantity < 1) {
+        return {
+          error: 'card_not_owned',
+          message: 'You need the requested card to answer this request.',
+        }
+      }
+    }
+
     const cardIds = offerCards.map((offerCard) => offerCard.cardId)
     const cards = await this.options.tradeRepository.findCards(cardIds)
     const cardById = new Map(cards.map((card) => [card.id, card]))
@@ -135,7 +186,7 @@ export class TradeOfferService {
       }
 
       const ownedQuantity = await this.options.tradeRepository.getUserCardQuantity(
-        userOrError.id,
+        offerCardsOwnerId,
         offerCard.cardId,
         offerCard.finish,
       )
@@ -143,7 +194,9 @@ export class TradeOfferService {
       if (!ownedQuantity || ownedQuantity < offerCard.quantity) {
         return {
           error: 'card_not_owned',
-          message: 'You do not own one or more cards in this offer.',
+          message: isRequest
+            ? 'The requester does not own one or more cards you asked for.'
+            : 'You do not own one or more cards in this offer.',
         }
       }
 

@@ -10,6 +10,7 @@ import {
   createAuctionSchema,
   createOfferSchema,
   recipientOwnershipSchema,
+  requestCreatorCollectionQuerySchema,
   offerIdSchema,
   offerPathSchema,
   notificationIdSchema,
@@ -129,6 +130,24 @@ const createAuthenticatedTradeRoutes = (
         return result
       },
       { params: tradeIdSchema, body: recipientOwnershipSchema },
+    )
+    .get(
+      '/auctions/:auctionId/creator-collection',
+      async (context) => {
+        const { currentUser, params, query, status } = getAuthenticatedContext(context)
+        const result = await service.getRequestCreatorCollection(currentUser, params.auctionId, {
+          sort: query.sort ?? 'quantity',
+          minimumQuantity: query.minimumQuantity,
+          minimumRarity: query.minimumRarity,
+          locale: resolveLocaleOverride(query.locale, context.locale),
+        })
+
+        if (isTradeServiceError(result)) {
+          return status(toTradeErrorStatus(result.error), result)
+        }
+        return result
+      },
+      { params: tradeIdSchema, query: requestCreatorCollectionQuerySchema },
     )
     .delete(
       '/offers/:offerId',

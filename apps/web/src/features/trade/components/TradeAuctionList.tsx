@@ -1,20 +1,26 @@
 import { Trash2Icon, UserRoundIcon } from 'lucide-react'
 import { useState } from 'react'
-import type { SupportedLocale, TradeAuctionResponse } from '@tcg-collection/shared'
+import type {
+  SupportedLocale,
+  TradeAuctionKind,
+  TradeAuctionResponse,
+} from '@tcg-collection/shared'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { m } from '@/paraglide/messages'
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
-import { describeAuctionRemaining } from '../lib/trade-utils'
-import { TradeNotOwnedBadge } from './TradeNotOwnedBadge'
+import { describeAuctionRemaining, offerCardKey } from '../lib/trade-utils'
+import { TradeNotOwnedBadge, TradeOwnedBadge } from './TradeNotOwnedBadge'
 
 interface TradeAuctionListProps {
+  kind: TradeAuctionKind
   auctions: TradeAuctionResponse[]
   selectedAuctionId?: string
   locale: SupportedLocale
   currentUserId?: string
   ownedCardIds?: ReadonlySet<string>
+  ownedCardKeys?: ReadonlySet<string>
   onSelectAuction: (auctionId: string) => void
   getRemainingMs: (expiresAt: string) => number
   onCancelAuction: (auctionId: string) => void
@@ -25,11 +31,13 @@ interface TradeAuctionListProps {
 }
 
 export function TradeAuctionList({
+  kind,
   auctions,
   selectedAuctionId,
   locale,
   currentUserId,
   ownedCardIds,
+  ownedCardKeys,
   onSelectAuction,
   getRemainingMs,
   onCancelAuction,
@@ -40,15 +48,17 @@ export function TradeAuctionList({
 }: TradeAuctionListProps) {
   const [auctionIdToCancel, setAuctionIdToCancel] = useState<string | null>(null)
   const selectedAuctionToCancel = auctions.find((auction) => auction.id === auctionIdToCancel)
+  const isRequest = kind === 'request'
+  const cancelCardName = selectedAuctionToCancel?.offeredCard.name ?? ''
 
   if (auctions.length === 0) {
     return (
       <section className="game-panel rounded-lg border bg-card p-4">
         <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-          {m.trade_active_auctions()}
+          {isRequest ? m.trade_active_requests() : m.trade_active_auctions()}
         </h2>
         <p className="mt-3 text-sm font-semibold text-muted-foreground">
-          {m.trade_no_active_auctions()}
+          {isRequest ? m.trade_no_active_requests() : m.trade_no_active_auctions()}
         </p>
       </section>
     )
@@ -57,7 +67,7 @@ export function TradeAuctionList({
   return (
     <section className="game-panel rounded-lg border bg-card p-4">
       <h2 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-        {m.trade_active_auctions()}
+        {isRequest ? m.trade_active_requests() : m.trade_active_auctions()}
       </h2>
       <div className="mt-3 flex flex-wrap justify-center gap-3">
         {auctions.map((auction) => {
@@ -65,6 +75,9 @@ export function TradeAuctionList({
           const isOwnAuction = currentUserId !== undefined && auction.creatorId === currentUserId
           const remainingMs = getRemainingMs(auction.expiresAt)
           const isNotOwned = ownedCardIds ? !ownedCardIds.has(auction.offeredCard.id) : false
+          const isOwned =
+            ownedCardKeys?.has(offerCardKey(auction.offeredCard.id, auction.offeredCardFinish)) ??
+            false
 
           return (
             <article
@@ -78,10 +91,13 @@ export function TradeAuctionList({
               onClick={() => onSelectAuction(auction.id)}
               role="button"
               tabIndex={0}
-              aria-label={m.trade_open_auction_aria({ cardName: auction.offeredCard.name })}
+              aria-label={(isRequest ? m.trade_open_request_aria : m.trade_open_auction_aria)({
+                cardName: auction.offeredCard.name,
+              })}
             >
               <div className="relative w-full rounded-md bg-card/40 p-2">
                 {isNotOwned ? <TradeNotOwnedBadge className="absolute left-1 top-1 z-10" /> : null}
+                {isOwned ? <TradeOwnedBadge className="absolute left-1 top-1 z-10" /> : null}
                 <button
                   type="button"
                   className="w-full cursor-pointer text-left"
@@ -166,13 +182,15 @@ export function TradeAuctionList({
 
       <ConfirmationDialog
         open={auctionIdToCancel !== null}
-        title={m.trade_cancel_auction_title()}
+        title={isRequest ? m.trade_cancel_request_title() : m.trade_cancel_auction_title()}
         description={
-          selectedAuctionToCancel
-            ? m.trade_cancel_auction_message({ cardName: selectedAuctionToCancel.offeredCard.name })
-            : m.trade_cancel_auction_message({ cardName: '' })
+          isRequest
+            ? m.trade_cancel_request_message({ cardName: cancelCardName })
+            : m.trade_cancel_auction_message({ cardName: cancelCardName })
         }
-        confirmLabel={m.trade_cancel_auction_confirm()}
+        confirmLabel={
+          isRequest ? m.trade_cancel_request_confirm() : m.trade_cancel_auction_confirm()
+        }
         cancelLabel={m.trade_cancel()}
         isBusy={isCancelling}
         onCancel={() => setAuctionIdToCancel(null)}

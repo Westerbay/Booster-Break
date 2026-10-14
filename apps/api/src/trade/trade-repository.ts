@@ -1,9 +1,12 @@
 import { Prisma } from '@prisma/client'
 import { recordCardDiscovery } from '../pokemon/card-discovery'
+import { getAvailableFinishes } from '../pokemon/pokemon-mappers'
+import { PokemonRepository } from '../pokemon/pokemon-repository'
 import type {
   AuctionFilters,
   AuctionRequirements,
   CardFinish,
+  UserCollectionResponse,
   TradeOfferStatus,
   TradeNotificationType,
   TradeRecipientOwnershipResponse,
@@ -31,6 +34,7 @@ import type {
   TradeAuctionCardSummary,
   TradeAuctionRow,
   TradeAuctionWithOffers,
+  TradeCollectionOptions,
   CreateTradeAuctionCommand,
   CreateTradeOfferCommand,
   TradeOfferRow,
@@ -96,6 +100,7 @@ export class PrismaTradeRepository implements TradeRepository {
         const activeAuctionsCount = await tx.tradeAuction.count({
           where: {
             creatorId: input.creatorId,
+            kind: input.kind,
             status: 'active',
           },
         })
@@ -107,6 +112,7 @@ export class PrismaTradeRepository implements TradeRepository {
         const activeCardAuction = await tx.tradeAuction.findFirst({
           where: {
             creatorId: input.creatorId,
+            kind: input.kind,
             offeredCardId: input.offeredCardId,
             offeredCardFinish: input.offeredCardFinish,
             status: 'active',
@@ -118,25 +124,40 @@ export class PrismaTradeRepository implements TradeRepository {
           throw new TradeRepositoryErrorException('card_in_auction')
         }
 
-        const offeredCardQuantity = await tx.userCard.findUnique({
-          where: {
-            userId_cardId_finish: {
-              userId: input.creatorId,
-              cardId: input.offeredCardId,
-              finish: input.offeredCardFinish,
-            },
-          },
-          select: tradeUserCardQuantitySelect,
-        })
+        if (input.kind === 'request') {
+          const requestedCard = await tx.pokemonCard.findUnique({
+            where: { id: input.offeredCardId },
+            select: { rawJson: true },
+          })
 
-        if (!offeredCardQuantity || offeredCardQuantity.quantity < 1) {
-          throw new TradeRepositoryErrorException('card_not_owned')
+          if (
+            !requestedCard ||
+            !getAvailableFinishes(requestedCard.rawJson).includes(input.offeredCardFinish)
+          ) {
+            throw new TradeRepositoryErrorException('offer_invalid')
+          }
+        } else {
+          const offeredCardQuantity = await tx.userCard.findUnique({
+            where: {
+              userId_cardId_finish: {
+                userId: input.creatorId,
+                cardId: input.offeredCardId,
+                finish: input.offeredCardFinish,
+              },
+            },
+            select: tradeUserCardQuantitySelect,
+          })
+
+          if (!offeredCardQuantity || offeredCardQuantity.quantity < 1) {
+            throw new TradeRepositoryErrorException('card_not_owned')
+          }
         }
 
         const created: TradeAuctionWithCardPayload = await tx.tradeAuction.create({
           data: {
             id: crypto.randomUUID(),
             creatorId: input.creatorId,
+            kind: input.kind,
             offeredCardId: input.offeredCardId,
             offeredCardFinish: input.offeredCardFinish,
             requirements: normalizeTradeJsonInput(input.requirements),
@@ -496,8 +517,12 @@ export class PrismaTradeRepository implements TradeRepository {
           throw new TradeRepositoryErrorException('auction_closed')
         }
 
+        const isRequest = offer.auction.kind === 'request'
+        const auctionCardGiverId = isRequest ? offer.proposerId : offer.auction.creatorId
+        const offerCardsGiverId = isRequest ? offer.auction.creatorId : offer.proposerId
+
         const sellerHasCard = await this.decrementUserCardQuantity(tx, {
-          userId: offer.auction.creatorId,
+          userId: auctionCardGiverId,
           cardId: offer.auction.offeredCardId,
           finish: normalizeTradeCardFinish(offer.auction.offeredCardFinish),
           quantity: 1,
@@ -508,7 +533,7 @@ export class PrismaTradeRepository implements TradeRepository {
         }
 
         await this.incrementUserCardQuantity(tx, {
-          userId: offer.proposerId,
+          userId: offerCardsGiverId,
           cardId: offer.auction.offeredCardId,
           finish: normalizeTradeCardFinish(offer.auction.offeredCardFinish),
           quantity: 1,
@@ -517,7 +542,7 @@ export class PrismaTradeRepository implements TradeRepository {
         for (const item of offer.cards) {
           const normalizedFinish = normalizeTradeCardFinish(item.finish)
           const sellerGives = await this.decrementUserCardQuantity(tx, {
-            userId: offer.proposerId,
+            userId: offerCardsGiverId,
             cardId: item.cardId,
             finish: normalizedFinish,
             quantity: item.quantity,
@@ -528,7 +553,7 @@ export class PrismaTradeRepository implements TradeRepository {
           }
 
           await this.incrementUserCardQuantity(tx, {
-            userId: offer.auction.creatorId,
+            userId: auctionCardGiverId,
             cardId: item.cardId,
             finish: normalizedFinish,
             quantity: item.quantity,
@@ -677,6 +702,18 @@ export class PrismaTradeRepository implements TradeRepository {
     })
 
     return userCard?.quantity
+  }
+
+  listUserCollection(
+    userId: string,
+    options: TradeCollectionOptions,
+  ): Promise<UserCollectionResponse> {
+    return new PokemonRepository(this.db).listUserCollection(userId, {
+      ...options,
+      page: 1,
+      pageSize: Number.MAX_SAFE_INTEGER,
+      source: 'owned',
+    })
   }
 
   async listTradeNotifications(userId: string): Promise<TradeNotificationRow[]> {

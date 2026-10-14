@@ -1,8 +1,12 @@
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { BookOpenIcon, Clock3Icon, EyeIcon, UserRoundIcon } from 'lucide-react'
+import { BookOpenIcon, CheckIcon, Clock3Icon, EyeIcon, UserRoundIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { TradeAuctionResponse, TradeOfferResponse } from '@tcg-collection/shared'
+import type {
+  TradeAuctionKind,
+  TradeAuctionResponse,
+  TradeOfferResponse,
+} from '@tcg-collection/shared'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useLocale } from '@/features/i18n/useLocale'
@@ -12,15 +16,17 @@ import {
   describeAuctionRemaining,
   getAuctionRemainingMs,
   MAX_ACTIVE_AUCTIONS_PER_USER,
+  offerCardKey,
 } from '../lib/trade-utils'
 import { tradeClock } from '../lib/trade-clock'
 import { TradeAuctionList } from '../components/TradeAuctionList'
 import { TradeOfferComposer } from '../components/TradeOfferComposer'
 import { TradeOffersPanel } from '../components/TradeOffersPanel'
 import { TradeBadge } from '../components/TradeBadge'
-import { TradeNotOwnedBadge } from '../components/TradeNotOwnedBadge'
+import { TradeNotOwnedBadge, TradeOwnedBadge } from '../components/TradeNotOwnedBadge'
 import { TradeNotificationModal } from '../components/TradeNotificationModal'
 import { TradeCreateAuctionDialog } from '../components/TradeCreateAuctionDialog'
+import { TradeCreateRequestDialog } from '../components/TradeCreateRequestDialog'
 import { TradeOfferSuccessDialog } from '../components/TradeOfferSuccessDialog'
 import { toast } from '@/features/toast/toast-store'
 import { FoilCardImage } from '@/features/dashboard/components/FoilCardImage'
@@ -34,6 +40,7 @@ import {
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import {
   useOwnedCardIdsQueryOption,
+  usePokemonCollectionAllQueryOption,
   usePokemonPreviewCardsQueryOption,
   usePokemonSetsQueryOption,
 } from '@/lib/queries/pokemon'
@@ -69,6 +76,7 @@ export function TradeView() {
     tradeClock.getSnapshot,
   )
 
+  const [kind, setKind] = useState<TradeAuctionKind>('offer')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [selectedAuctionId, setSelectedAuctionId] = useState<string | undefined>()
@@ -76,6 +84,7 @@ export function TradeView() {
   const [isAuctionSetPreviewOpen, setIsAuctionSetPreviewOpen] = useState(false)
   const [auctionPage, setAuctionPage] = useState(1)
   const [showOnlyNotOwned, setShowOnlyNotOwned] = useState(false)
+  const [showOnlyOwned, setShowOnlyOwned] = useState(false)
   const [isOfferSuccessDialogOpen, setIsOfferSuccessDialogOpen] = useState(false)
   const [acceptedOffer, setAcceptedOffer] = useState<TradeOfferForModal | null>(null)
   const [acceptedAuction, setAcceptedAuction] = useState<TradeAuctionResponse | null>(null)
@@ -87,8 +96,10 @@ export function TradeView() {
   const currentUserId = auth.data?.authenticated ? auth.data.user.id : undefined
 
   const auctionsFromList = auctions.data?.auctions ?? []
+  const kindAuctions = auctionsFromList.filter((auction) => auction.kind === kind)
+  const isRequestTab = kind === 'request'
   const userActiveAuctions = currentUserId
-    ? auctionsFromList.filter(
+    ? kindAuctions.filter(
         (auction) => auction.creatorId === currentUserId && auction.status === 'active',
       ).length
     : 0
@@ -117,13 +128,34 @@ export function TradeView() {
     [ownedCardIdsQuery.data],
   )
 
-  const canFilterOnlyNotOwned = Boolean(currentUserId)
-  const isOnlyNotOwnedActive = showOnlyNotOwned && Boolean(ownedCardIds)
+  const ownCollectionQuery = useQuery(
+    usePokemonCollectionAllQueryOption(
+      { sort: 'recent', source: 'owned' },
+      { enabled: Boolean(currentUserId) && isRequestTab },
+    ),
+  )
+  // Answering a request needs the exact finish, unlike the finish-agnostic ownedCardIds.
+  const ownedCardKeys = useMemo(
+    () =>
+      ownCollectionQuery.data
+        ? new Set(ownCollectionQuery.data.cards.map((card) => offerCardKey(card.id, card.finish)))
+        : undefined,
+    [ownCollectionQuery.data],
+  )
+
+  const canFilterOnlyNotOwned = Boolean(currentUserId) && !isRequestTab
+  const isOnlyNotOwnedActive = canFilterOnlyNotOwned && showOnlyNotOwned && Boolean(ownedCardIds)
+  const canFilterOnlyOwned = Boolean(currentUserId) && isRequestTab
+  const isOnlyOwnedActive = canFilterOnlyOwned && showOnlyOwned && Boolean(ownedCardKeys)
   // Hide an auction as soon as the user owns any finish of the offered card.
   const visibleAuctions =
     isOnlyNotOwnedActive && ownedCardIds
-      ? auctionsFromList.filter((auction) => !ownedCardIds.has(auction.offeredCard.id))
-      : auctionsFromList
+      ? kindAuctions.filter((auction) => !ownedCardIds.has(auction.offeredCard.id))
+      : isOnlyOwnedActive && ownedCardKeys
+        ? kindAuctions.filter((auction) =>
+            ownedCardKeys.has(offerCardKey(auction.offeredCard.id, auction.offeredCardFinish)),
+          )
+        : kindAuctions
   const auctionPageCount = Math.max(1, Math.ceil(visibleAuctions.length / AUCTIONS_PER_PAGE))
 
   const cancelAuctionMutation = useMutation(
@@ -202,6 +234,7 @@ export function TradeView() {
     : undefined
 
   const setCardsToDisplay = selectedAuctionSetCardsQuery.data ?? []
+  const isSelectedRequest = selectedAuction?.kind === 'request'
   const selectedAuctionFilterBadges = selectedAuction
     ? getTradeFilterBadges(selectedAuction.filters, getAuctionSetName)
     : []
@@ -221,10 +254,12 @@ export function TradeView() {
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
               {m.trade_view_title()}
             </h1>
-            <p className="text-sm text-muted-foreground">{m.trade_view_subtitle()}</p>
+            <p className="text-sm text-muted-foreground">
+              {isRequestTab ? m.trade_request_subtitle() : m.trade_view_subtitle()}
+            </p>
             {currentUserId ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                {m.trade_auction_creation_quota({
+                {(isRequestTab ? m.trade_request_creation_quota : m.trade_auction_creation_quota)({
                   used: userActiveAuctions,
                   max: MAX_ACTIVE_AUCTIONS_PER_USER,
                 })}
@@ -240,14 +275,31 @@ export function TradeView() {
               }
             }}
           >
-            {m.trade_create_auction()}
+            {isRequestTab ? m.trade_create_request() : m.trade_create_auction()}
           </Button>
         </div>
       </header>
 
       <div className="space-y-4">
-        {canFilterOnlyNotOwned ? (
-          <div className="flex items-center justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex gap-2">
+            {(['offer', 'request'] as const).map((tab) => (
+              <Button
+                key={tab}
+                type="button"
+                variant={kind === tab ? 'default' : 'outline'}
+                size="sm"
+                aria-pressed={kind === tab}
+                onClick={() => {
+                  setKind(tab)
+                  setAuctionPage(1)
+                }}
+              >
+                {tab === 'request' ? m.trade_tab_requests() : m.trade_tab_auctions()}
+              </Button>
+            ))}
+          </div>
+          {canFilterOnlyNotOwned ? (
             <Button
               type="button"
               variant={showOnlyNotOwned ? 'default' : 'outline'}
@@ -261,14 +313,31 @@ export function TradeView() {
               <BookOpenIcon className="size-4" aria-hidden="true" />
               {m.trade_filter_only_not_owned()}
             </Button>
-          </div>
-        ) : null}
+          ) : null}
+          {canFilterOnlyOwned ? (
+            <Button
+              type="button"
+              variant={showOnlyOwned ? 'default' : 'outline'}
+              size="sm"
+              aria-pressed={showOnlyOwned}
+              onClick={() => {
+                setShowOnlyOwned((value) => !value)
+                setAuctionPage(1)
+              }}
+            >
+              <CheckIcon className="size-4" aria-hidden="true" />
+              {m.trade_filter_only_owned()}
+            </Button>
+          ) : null}
+        </div>
         <TradeAuctionList
+          kind={kind}
           auctions={auctionsPage}
           selectedAuctionId={selectedAuctionId}
           locale={locale}
           currentUserId={currentUserId}
-          ownedCardIds={ownedCardIds}
+          ownedCardIds={isRequestTab ? undefined : ownedCardIds}
+          ownedCardKeys={isRequestTab ? ownedCardKeys : undefined}
           getRemainingMs={remainingMs}
           onSelectAuction={openAuction}
           isCancelling={cancelAuctionMutation.isPending}
@@ -281,8 +350,17 @@ export function TradeView() {
         />
       </div>
 
+      {isCreateDialogOpen && isRequestTab ? (
+        <TradeCreateRequestDialog
+          open
+          activeRequests={userActiveAuctions}
+          ownedCardKeys={ownedCardKeys}
+          onClose={() => setIsCreateDialogOpen(false)}
+        />
+      ) : null}
+
       <TradeCreateAuctionDialog
-        open={isCreateDialogOpen}
+        open={isCreateDialogOpen && !isRequestTab}
         locale={locale}
         auth={auth.data ?? { authenticated: false }}
         activeAuctions={userActiveAuctions}
@@ -296,7 +374,9 @@ export function TradeView() {
             className="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto overflow-x-hidden sm:max-w-4xl"
             closeLabel={m.pvp_close()}
           >
-            <DialogTitle className="pr-12">{m.trade_auction_details()}</DialogTitle>
+            <DialogTitle className="pr-12">
+              {isSelectedRequest ? m.trade_request_details() : m.trade_auction_details()}
+            </DialogTitle>
 
             {selectedAuction ? (
               <div className="space-y-4">
@@ -319,7 +399,9 @@ export function TradeView() {
                     <div>
                       <p className="text-sm font-black">
                         {selectedAuction.creatorDisplayName ?? selectedAuction.creatorPseudo}{' '}
-                        {m.trade_offers_cards_from()}
+                        {isSelectedRequest
+                          ? m.trade_requests_card_from()
+                          : m.trade_offers_cards_from()}
                       </p>
                       <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
                         <Clock3Icon className="size-4" aria-hidden="true" />
@@ -328,14 +410,27 @@ export function TradeView() {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-2 grid gap-3 md:grid-cols-[1fr_18rem] md:items-center">
+                  <div
+                    className={`mt-2 grid gap-3 md:grid-cols-[1fr_18rem] ${isSelectedRequest ? 'md:items-start' : 'md:items-center'}`}
+                  >
                     <div className="space-y-3">
                       <div className="rounded-sm border border-border bg-card/40 p-2">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-xs uppercase tracking-wider text-muted-foreground">
                             {m.trade_card_details_title()}
                           </p>
-                          {ownedCardIds && !ownedCardIds.has(selectedAuction.offeredCard.id) ? (
+                          {isSelectedRequest ? (
+                            ownedCardKeys?.has(
+                              offerCardKey(
+                                selectedAuction.offeredCard.id,
+                                selectedAuction.offeredCardFinish,
+                              ),
+                            ) ? (
+                              <TradeOwnedBadge />
+                            ) : ownedCardKeys ? (
+                              <TradeNotOwnedBadge />
+                            ) : null
+                          ) : ownedCardIds && !ownedCardIds.has(selectedAuction.offeredCard.id) ? (
                             <TradeNotOwnedBadge />
                           ) : null}
                         </div>
@@ -393,7 +488,10 @@ export function TradeView() {
                           </p>
                         </div>
                       </div>
-                      <div className="rounded-sm border border-border bg-card/40 p-2">
+                      <div
+                        className="rounded-sm border border-border bg-card/40 p-2"
+                        hidden={isSelectedRequest}
+                      >
                         <p className="text-xs uppercase tracking-wider text-muted-foreground">
                           {m.trade_requirements_label()}
                         </p>

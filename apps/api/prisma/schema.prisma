@@ -109,6 +109,11 @@ model PokemonCard {
   @@map("pokemon_cards")
 }
 
+enum TradeAuctionKind {
+  offer
+  request
+}
+
 enum TradeAuctionStatus {
   active
   accepted
@@ -146,6 +151,7 @@ enum TradeOfferStatus {
 model TradeAuction {
   id                String             @id
   creatorId         String             @map("creator_id")
+  kind              TradeAuctionKind   @default(offer)
   offeredCardId     String             @map("offered_card_id")
   offeredCardFinish String             @default("normal") @map("offered_card_finish")
   requirements      Json

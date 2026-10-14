@@ -24,6 +24,7 @@ export const buildTradeOfferAcceptedNotificationInput = (
   const payload: TradeOfferAcceptedNotificationPayload = {
     offerId: offer.id,
     auctionId: offer.auctionId,
+    auctionKind: offer.auction.kind,
     recipientRole: 'offer_proposer',
     creatorId: offer.auction.creatorId,
     creatorPseudo: offer.auction.creator?.pseudo ?? 'Unknown player',
@@ -86,6 +87,7 @@ export const buildTradeOfferReceivedNotificationInput = (
   const payload: TradeOfferReceivedNotificationPayload = {
     offerId: offer.id,
     auctionId: offer.auctionId,
+    auctionKind: auction.kind,
     proposerId: offer.proposerId,
     proposerPseudo: offer.proposer.pseudo,
     proposerDisplayName,
@@ -121,7 +123,10 @@ export const buildTradeOfferReceivedNotificationInput = (
   return {
     userId: auction.creatorId,
     type: 'trade_offer_received',
-    message: `${proposerName} submitted an offer for your auction.`,
+    message:
+      auction.kind === 'request'
+        ? `${proposerName} can give you the card you requested.`
+        : `${proposerName} submitted an offer for your auction.`,
     payload,
   }
 }

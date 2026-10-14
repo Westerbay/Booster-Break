@@ -102,14 +102,17 @@ export class TradeAuctionService {
       }
     }
 
+    const kind = input.kind ?? 'offer'
+
     let auction: TradeAuctionRow
     try {
       auction = await this.options.tradeRepository.createAuction({
         creatorId: userOrError.id,
+        kind,
         offeredCardId: input.offeredCardId,
         offeredCardFinish: input.offeredCardFinish,
-        requirements: normalizeTradeRequirements(input.requirements),
-        filters: normalizeTradeFilters(input.filters),
+        requirements: kind === 'request' ? {} : normalizeTradeRequirements(input.requirements),
+        filters: kind === 'request' ? {} : normalizeTradeFilters(input.filters),
         expiresAt: new Date(now().getTime() + TRADE_AUCTION_DURATION_MS),
       })
     } catch (error: unknown) {

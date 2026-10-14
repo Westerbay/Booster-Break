@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import type {
+  TradeAuctionKind,
   TradeOfferAcceptedNotificationRecipientRole,
   TradeNotificationCardPayload,
   TradeNotificationPayload,
@@ -49,6 +50,12 @@ const readAcceptedRecipientRole = (
   const value = source.recipientRole
 
   return value === 'auction_creator' || value === 'offer_proposer' ? value : undefined
+}
+
+const readAuctionKind = (source: Prisma.JsonObject): TradeAuctionKind | undefined => {
+  const value = source.auctionKind
+
+  return value === 'offer' || value === 'request' ? value : undefined
 }
 
 const readJsonObject = (source: Prisma.JsonObject, key: string): Prisma.JsonObject => {
@@ -139,6 +146,7 @@ export const toTradeNotificationPayload = (
     const proposerAvatarUrl = readOptionalString(payloadObject, 'proposerAvatarUrl')
     const offeredTo = readOptionalString(payloadObject, 'offeredTo')
     const recipientRole = readAcceptedRecipientRole(payloadObject)
+    const auctionKind = readAuctionKind(payloadObject)
     const creatorId = readOptionalString(payloadObject, 'creatorId')
     const creatorPseudo = readOptionalString(payloadObject, 'creatorPseudo')
     const creatorDisplayName = readOptionalString(payloadObject, 'creatorDisplayName')
@@ -146,6 +154,10 @@ export const toTradeNotificationPayload = (
 
     if (recipientRole) {
       acceptedPayload.recipientRole = recipientRole
+    }
+
+    if (auctionKind) {
+      acceptedPayload.auctionKind = auctionKind
     }
 
     if (creatorId) {
@@ -191,9 +203,14 @@ export const toTradeNotificationPayload = (
   }
   const proposerDisplayName = readOptionalString(payloadObject, 'proposerDisplayName')
   const proposerAvatarUrl = readOptionalString(payloadObject, 'proposerAvatarUrl')
+  const auctionKind = readAuctionKind(payloadObject)
 
   if (proposerDisplayName) {
     receivedPayload.proposerDisplayName = proposerDisplayName
+  }
+
+  if (auctionKind) {
+    receivedPayload.auctionKind = auctionKind
   }
 
   if (proposerAvatarUrl) {
@@ -228,6 +245,7 @@ export const toPrismaNotificationPayload = (
     proposerId: payload.proposerId,
     proposerPseudo: payload.proposerPseudo,
     offeredCard: toPrismaNotificationCardPayload(payload.offeredCard),
+    ...(payload.auctionKind !== undefined ? { auctionKind: payload.auctionKind } : {}),
     ...(payload.proposerDisplayName !== undefined
       ? { proposerDisplayName: payload.proposerDisplayName }
       : {}),
