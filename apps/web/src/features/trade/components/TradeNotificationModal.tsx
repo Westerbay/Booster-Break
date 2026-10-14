@@ -180,7 +180,6 @@ const renderTradeOfferAcceptedNotification = (
   const actorLabel = isAuctionCreatorNotification
     ? m.trade_notification_offer_accepted_sender()
     : m.trade_notification_offer_accepted_by()
-  // In a request the auction card travels to the creator, so both sides are flipped.
   const receivesExchangedCards =
     isAuctionCreatorNotification !== (notification.payload.auctionKind === 'request')
   const receivedCards = receivesExchangedCards

@@ -141,7 +141,6 @@ export interface OpenPackResponse {
 
 export type TradeAuctionStatus = 'active' | 'accepted' | 'cancelled' | 'expired'
 
-// 'request': the creator wants offeredCard and proposers ask for cards from the creator in return.
 export type TradeAuctionKind = 'offer' | 'request'
 
 export type TradeOfferStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled'

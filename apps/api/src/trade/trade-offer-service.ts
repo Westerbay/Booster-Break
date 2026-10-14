@@ -151,7 +151,6 @@ export class TradeOfferService {
     }
 
     const isRequest = auction.kind === 'request'
-    // In a request, offer cards are what the proposer asks for, so they come from the creator.
     const offerCardsOwnerId = isRequest ? auction.creatorId : userOrError.id
 
     if (isRequest) {

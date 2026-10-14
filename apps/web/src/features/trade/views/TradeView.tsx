@@ -134,7 +134,6 @@ export function TradeView() {
       { enabled: Boolean(currentUserId) && isRequestTab },
     ),
   )
-  // Answering a request needs the exact finish, unlike the finish-agnostic ownedCardIds.
   const ownedCardKeys = useMemo(
     () =>
       ownCollectionQuery.data
