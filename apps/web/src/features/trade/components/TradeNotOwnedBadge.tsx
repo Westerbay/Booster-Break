@@ -1,4 +1,4 @@
-import { BookOpenIcon } from 'lucide-react'
+import { BookOpenIcon, CheckIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { m } from '@/paraglide/messages'
@@ -24,6 +24,21 @@ export function TradeNotOwnedBadge({ className, size = 'default' }: TradeNotOwne
     >
       <BookOpenIcon className="size-3" aria-hidden="true" />
       {m.trade_card_not_owned()}
+    </span>
+  )
+}
+
+export function TradeOwnedBadge({ className, size = 'default' }: TradeNotOwnedBadgeProps) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center whitespace-nowrap rounded-full bg-emerald-400 font-black uppercase text-emerald-950',
+        badgeSizeClassNames[size],
+        className,
+      )}
+    >
+      <CheckIcon className="size-3" aria-hidden="true" />
+      {m.trade_recipient_owned_short()}
     </span>
   )
 }

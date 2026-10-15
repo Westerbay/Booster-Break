@@ -141,6 +141,8 @@ export interface OpenPackResponse {
 
 export type TradeAuctionStatus = 'active' | 'accepted' | 'cancelled' | 'expired'
 
+export type TradeAuctionKind = 'offer' | 'request'
+
 export type TradeOfferStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled'
 
 export interface AuctionRequirements {
@@ -260,6 +262,7 @@ export interface TradeOfferItem {
 }
 
 export interface CreateAuctionRequest {
+  kind?: TradeAuctionKind
   offeredCardId: string
   offeredCardFinish: CardFinish
   requirements?: AuctionRequirements
@@ -294,6 +297,7 @@ export interface TradeAuctionResponse {
   creatorPseudo: string
   creatorDisplayName?: string
   creatorAvatarUrl?: string
+  kind: TradeAuctionKind
   offeredCard: PokemonCardSummary
   offeredCardFinish: CardFinish
   requirements: AuctionRequirements
@@ -335,6 +339,7 @@ export type TradeOfferAcceptedNotificationRecipientRole = 'auction_creator' | 'o
 export interface TradeOfferAcceptedNotificationPayload {
   offerId: string
   auctionId: string
+  auctionKind?: TradeAuctionKind
   recipientRole?: TradeOfferAcceptedNotificationRecipientRole
   creatorId?: string
   creatorPseudo?: string
@@ -352,6 +357,7 @@ export interface TradeOfferAcceptedNotificationPayload {
 export interface TradeOfferReceivedNotificationPayload {
   offerId: string
   auctionId: string
+  auctionKind?: TradeAuctionKind
   proposerId: string
   proposerPseudo: string
   proposerDisplayName?: string

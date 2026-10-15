@@ -113,6 +113,7 @@ export const mapTradeOfferWithAuction = (offer: TradeOfferWithAuctionPayload): T
     ? {
         id: offer.auction.id,
         creatorId: offer.auction.creatorId,
+        kind: offer.auction.kind,
         status: offer.auction.status,
         offeredCardId: offer.auction.offeredCardId,
         offeredCardFinish: normalizeCardFinish(offer.auction.offeredCardFinish) ?? 'normal',
@@ -269,6 +270,7 @@ export const toTradeAuctionResponse = (
   creatorPseudo: resolveUserSummary(auction.creator).pseudo,
   creatorDisplayName: resolveUserSummary(auction.creator).displayName ?? undefined,
   creatorAvatarUrl: resolveUserSummary(auction.creator).avatarUrl ?? undefined,
+  kind: auction.kind,
   offeredCard: toCardSummary(
     {
       ...resolveCardSummary(auction.offeredCard),

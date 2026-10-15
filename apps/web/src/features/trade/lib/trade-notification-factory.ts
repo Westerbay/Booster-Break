@@ -35,6 +35,7 @@ export const buildAcceptedOfferNotification = (
     payload: {
       offerId: offer.id,
       auctionId: auction.id,
+      auctionKind: auction.kind,
       recipientRole: 'auction_creator',
       creatorId: auction.creatorId,
       creatorPseudo: auction.creatorPseudo,

@@ -452,6 +452,166 @@ databaseTest('rejects an unauthorized accept without changing trade state', asyn
   }
 })
 
+databaseTest('executes a card request in the reverse direction', async () => {
+  const fixture = await createTradeFixture()
+
+  try {
+    const request = await fixture.service.createAuction(fixture.creator, {
+      kind: 'request',
+      offeredCardId: fixture.offerCardId,
+      offeredCardFinish: 'normal',
+      requirements: { rarities: ['Rare'] },
+    })
+    expect(request).toMatchObject({ kind: 'request', requirements: {} })
+    if ('error' in request) {
+      return
+    }
+
+    expect(
+      await fixture.service.createOffer(fixture.creator, request.id, {
+        cards: [{ cardId: fixture.auctionCardId, finish: 'normal', quantity: 1 }],
+      }),
+    ).toMatchObject({ error: 'cannot_trade_self' })
+    expect(
+      await fixture.service.createOffer(fixture.proposer, request.id, {
+        cards: [{ cardId: fixture.offerCardId, finish: 'normal', quantity: 1 }],
+      }),
+    ).toMatchObject({ error: 'card_not_owned' })
+
+    const offer = await fixture.service.createOffer(fixture.proposer, request.id, {
+      cards: [{ cardId: fixture.auctionCardId, finish: 'normal', quantity: 1 }],
+    })
+    expect(offer).not.toHaveProperty('error')
+    if ('error' in offer) {
+      return
+    }
+
+    const received = await fixture.service.listTradeNotifications(fixture.creator)
+    expect(received).toMatchObject({
+      notifications: [{ type: 'trade_offer_received', payload: { auctionKind: 'request' } }],
+    })
+
+    expect(await fixture.service.acceptOffer(fixture.creator, request.id, offer.id)).toBeUndefined()
+
+    const inventory = await fixture.prisma.userCard.findMany({
+      where: { userId: { in: [fixture.creator.id, fixture.proposer.id] } },
+      select: { userId: true, cardId: true, quantity: true },
+      orderBy: { userId: 'asc' },
+    })
+    expect(inventory).toEqual([
+      { userId: fixture.creator.id, cardId: fixture.offerCardId, quantity: 1 },
+      { userId: fixture.proposer.id, cardId: fixture.auctionCardId, quantity: 1 },
+    ])
+    expect(await fixture.service.listTradeNotifications(fixture.proposer)).toMatchObject({
+      notifications: [{ type: 'trade_offer_accepted', payload: { auctionKind: 'request' } }],
+    })
+  } finally {
+    await fixture.cleanup()
+  }
+})
+
+databaseTest('a request does not need the card and counts apart from offers', async () => {
+  const fixture = await createTradeFixture()
+
+  try {
+    expect(
+      await fixture.service.createAuction(fixture.creator, {
+        offeredCardId: fixture.offerCardId,
+        offeredCardFinish: 'normal',
+      }),
+    ).toMatchObject({ error: 'card_not_owned' })
+    expect(
+      await fixture.service.createAuction(fixture.creator, {
+        kind: 'request',
+        offeredCardId: `missing-${fixture.suffix}`,
+        offeredCardFinish: 'normal',
+      }),
+    ).toMatchObject({ error: 'offer_invalid' })
+    expect(
+      await fixture.service.createAuction(fixture.creator, {
+        kind: 'request',
+        offeredCardId: fixture.auctionCardId,
+        offeredCardFinish: 'holo',
+      }),
+    ).toMatchObject({ error: 'offer_invalid' })
+
+    const create = (kind: 'offer' | 'request') =>
+      fixture.service.createAuction(fixture.creator, {
+        kind,
+        offeredCardId: fixture.auctionCardId,
+        offeredCardFinish: 'normal',
+      })
+    expect(await create('request')).toMatchObject({ kind: 'request' })
+    expect(await create('request')).toMatchObject({ error: 'card_in_auction' })
+    expect(await create('offer')).toMatchObject({ error: 'card_in_auction' })
+
+    for (const finish of ['holo', 'reverse_holo'] as const) {
+      expect(
+        await fixture.service.createAuction(fixture.creator, {
+          kind: 'request',
+          offeredCardId: fixture.offerCardId,
+          offeredCardFinish: finish,
+        }),
+      ).toMatchObject({ kind: 'request' })
+    }
+    expect(
+      await fixture.service.createAuction(fixture.creator, {
+        kind: 'request',
+        offeredCardId: fixture.offerCardId,
+        offeredCardFinish: 'normal',
+      }),
+    ).toMatchObject({ error: 'max_auctions_reached' })
+  } finally {
+    await fixture.cleanup()
+  }
+})
+
+databaseTest(
+  'shows the requester collection only to other players on an active request',
+  async () => {
+    const fixture = await createTradeFixture()
+
+    try {
+      const options = { sort: 'quantity', locale: 'en' } as const
+      expect(
+        await fixture.service.getRequestCreatorCollection(
+          fixture.proposer,
+          fixture.auctionId,
+          options,
+        ),
+      ).toMatchObject({ error: 'auction_not_found' })
+
+      const request = await fixture.service.createAuction(fixture.creator, {
+        kind: 'request',
+        offeredCardId: fixture.offerCardId,
+        offeredCardFinish: 'normal',
+      })
+      if ('error' in request) {
+        throw new Error(request.message)
+      }
+
+      const collection = await fixture.service.getRequestCreatorCollection(
+        fixture.proposer,
+        request.id,
+        options,
+      )
+      expect(collection).toMatchObject({
+        cards: [{ id: fixture.auctionCardId, finish: 'normal', quantity: 1 }],
+      })
+      expect(
+        await fixture.service.getRequestCreatorCollection(fixture.creator, request.id, options),
+      ).toMatchObject({ error: 'cannot_trade_self' })
+
+      await fixture.service.cancelAuction(fixture.creator, request.id)
+      expect(
+        await fixture.service.getRequestCreatorCollection(fixture.proposer, request.id, options),
+      ).toMatchObject({ error: 'auction_closed' })
+    } finally {
+      await fixture.cleanup()
+    }
+  },
+)
+
 const createTradeFixture = async () => {
   assertDisposableTestDatabase()
   const { prisma } = await import('../../src/db/prisma')
@@ -486,7 +646,7 @@ const createTradeFixture = async () => {
             id: offerCardId,
             localId: '2',
             name: 'Offer card',
-            rawJson: '{}',
+            rawJson: JSON.stringify({ variants: { normal: true, holo: true, reverse: true } }),
             syncedAt: new Date().toISOString(),
           },
         ],

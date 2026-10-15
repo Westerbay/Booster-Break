@@ -165,7 +165,7 @@ const localizeTcgDexAssetUrl = (
   return url.replace('://assets.tcgdex.net/en/', `://assets.tcgdex.net/${locale}/`)
 }
 
-const getAvailableFinishes = (rawJson: string): CardFinish[] => {
+export const getAvailableFinishes = (rawJson: string): CardFinish[] => {
   const variants = parseCardVariants(rawJson)
   const finishes: CardFinish[] = []
 

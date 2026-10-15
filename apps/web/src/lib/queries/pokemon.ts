@@ -199,6 +199,20 @@ export const usePokemonPreviewCardsQueryOption = (setId: string | undefined) => 
   })
 }
 
+export const usePokemonCardsOfSetsQueryOptions = (setIds: readonly string[]) => {
+  const locale = getLocale()
+
+  return setIds.map((setId) =>
+    edenQueryOption({
+      edenQuery: api.pokemon.cards.get,
+      edenOptions: { query: { setId } },
+      queryKey: pokemonQueryKeys.cards(setId, locale),
+      mapData: (data) => data.cards,
+      toError: () => new Error(m.api_unable_load_cards()),
+    }),
+  )
+}
+
 export const useSandboxPokemonPreviewCardsQueryOption = (setId: string | undefined) => {
   const locale = getLocale()
 

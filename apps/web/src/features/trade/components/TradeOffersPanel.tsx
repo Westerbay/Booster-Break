@@ -217,6 +217,11 @@ export function TradeOffersPanel({
               ) : null}
             </div>
 
+            {auction.kind === 'request' && isPending && offer.cards.length > 0 ? (
+              <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                {m.trade_request_offer_asks()}
+              </p>
+            ) : null}
             {renderOfferCards(offer, isPending)}
           </article>
         )

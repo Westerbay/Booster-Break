@@ -2,6 +2,7 @@ import { type FormEvent } from 'react'
 import type { CollectionSort, TradeAuctionResponse } from '@tcg-collection/shared'
 import { m } from '@/paraglide/messages'
 import { toast } from '@/features/toast/toast-store'
+import { formatCardFinish } from '@/features/dashboard/lib/card-format'
 import { useTradeOfferComposer } from '../hooks/useTradeOfferComposer'
 import { TradeOfferComposerCardsSection } from './TradeOfferComposerCardsSection'
 import { TradeOfferComposerPreviewSection } from './TradeOfferComposerPreviewSection'
@@ -50,12 +51,15 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
     isRecipientOwnershipLoading,
     recipientOwnershipError,
     retryRecipientOwnership,
+    retryRequestedCardCheck,
   } = useTradeOfferComposer({
     auction,
     userId,
     onOfferCreated,
   })
-  const recipientName = auction.creatorDisplayName ?? auction.creatorPseudo
+  const isRequest = auction.kind === 'request'
+  const creatorName = auction.creatorDisplayName ?? auction.creatorPseudo
+  const recipientName = isRequest ? m.trade_request_you() : creatorName
 
   const tradePreferenceOptions: readonly { value: CollectionSort; label: string }[] = [
     { value: 'quantity', label: m.sort_quantity() },
@@ -98,6 +102,10 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
   }
 
   if (!canOffer) {
+    if (isRequest && canOfferReason === 'auction_owner') {
+      return <p className="text-sm font-semibold text-muted-foreground">{m.trade_request_own()}</p>
+    }
+
     if (offerLimitReached || canOfferReason === 'offer_limit_reached') {
       return (
         <p className="text-sm font-semibold text-muted-foreground">
@@ -106,8 +114,59 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
       )
     }
 
+    if (canOfferReason === 'checking_requested_card') {
+      return (
+        <p className="text-sm font-semibold text-muted-foreground" role="status">
+          {m.trade_request_checking_card()}
+        </p>
+      )
+    }
+
+    if (canOfferReason === 'requested_card_check_failed') {
+      return (
+        <div
+          className="flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground"
+          role="status"
+        >
+          <span>{m.api_unable_load_collection()}</span>
+          <button
+            type="button"
+            className="min-h-11 underline underline-offset-4"
+            onClick={retryRequestedCardCheck}
+          >
+            {m.trade_recipient_retry()}
+          </button>
+        </div>
+      )
+    }
+
+    if (canOfferReason === 'missing_requested_card') {
+      return (
+        <p className="text-sm font-semibold text-muted-foreground">
+          {m.trade_request_missing_card({
+            cardName: auction.offeredCard.name,
+            finish: formatCardFinish(auction.offeredCardFinish),
+          })}
+        </p>
+      )
+    }
+
     return (
       <p className="text-sm font-semibold text-muted-foreground">{m.trade_cannot_make_offer()}</p>
+    )
+  }
+
+  if (
+    isRequest &&
+    !isCollectionPending &&
+    !hasEligibleCards &&
+    minimumQuantity === 1 &&
+    !minimumRarity
+  ) {
+    return (
+      <p className="text-sm font-semibold text-muted-foreground">
+        {m.trade_request_requester_empty({ name: creatorName })}
+      </p>
     )
   }
 
@@ -125,19 +184,29 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
   return (
     <section className="rounded-lg border bg-card p-4">
       <h3 className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-        {m.trade_offer_cards_title()}
+        {isRequest ? m.trade_request_ask_cards_title() : m.trade_offer_cards_title()}
       </h3>
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
-        <span className="font-bold text-foreground">
-          {m.trade_recipient_legend({ name: recipientName })}
-        </span>
-        {[false, true].map((owned) => (
-          <span key={String(owned)} className="inline-flex items-center gap-1.5">
-            <TradeRecipientDotMark owned={owned} />
-            {owned ? m.trade_recipient_legend_owned() : m.trade_recipient_legend_new()}
+      {isRequest ? (
+        <div className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          <p>{m.trade_request_ask_cards_hint({ name: creatorName })}</p>
+          <span className="inline-flex items-center gap-1.5">
+            <TradeRecipientDotMark owned={false} />
+            {m.trade_request_legend_new()}
           </span>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+          <span className="font-bold text-foreground">
+            {m.trade_recipient_legend({ name: recipientName })}
+          </span>
+          {[false, true].map((owned) => (
+            <span key={String(owned)} className="inline-flex items-center gap-1.5">
+              <TradeRecipientDotMark owned={owned} />
+              {owned ? m.trade_recipient_legend_owned() : m.trade_recipient_legend_new()}
+            </span>
+          ))}
+        </div>
+      )}
       {isRecipientOwnershipLoading && (
         <p className="mt-2 text-xs text-muted-foreground" role="status">
           {m.trade_recipient_loading()}
@@ -189,6 +258,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
           onlyNewForRecipient={onlyNewForRecipient}
           onOnlyNewForRecipientChange={handleOnlyNewForRecipientChange}
           isRecipientOwnershipUnavailable={Boolean(recipientOwnershipError)}
+          isRequest={isRequest}
         />
 
         <div className="flex flex-wrap gap-2">
@@ -219,7 +289,7 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         selectedEntries={selectedEntries}
         recipientName={recipientName}
         recipientAvatarUrl={auction.creatorAvatarUrl}
-        recipientOwnershipByCard={recipientOwnershipByCard}
+        recipientOwnershipByCard={isRequest ? new Map() : recipientOwnershipByCard}
       />
     </section>
   )

@@ -1,3 +1,5 @@
+import { keepPreviousData } from '@tanstack/react-query'
+import type { CollectionSort } from '@tcg-collection/shared'
 import { api } from '@/lib/api-client'
 import { tradeQueryKeys } from '@/features/trade/lib/query-keys'
 import { edenQueryOption, type EdenError } from './eden-query-option'
@@ -29,6 +31,25 @@ export const useTradeAuctionQueryOption = (auctionId: string | undefined, enable
     retry: false,
     toError: (error, response, status) =>
       new Error(readTradeError(error, response, status, m.trade_fetch_auction_error())),
+  })
+}
+
+export const useTradeRequestCreatorCollectionQueryOption = (
+  auctionId: string,
+  params: { sort: CollectionSort; minimumQuantity: number; minimumRarity?: string },
+  enabled: boolean,
+) => {
+  const locale = getLocale()
+
+  return edenQueryOption({
+    edenQuery: api.trade.auctions({ auctionId })['creator-collection'].get,
+    edenOptions: { query: params },
+    queryKey: tradeQueryKeys.requestCreatorCollection(auctionId, locale, params),
+    mapData: (data) => data,
+    enabled,
+    placeholderData: keepPreviousData,
+    toError: (error, response, status) =>
+      new Error(readTradeError(error, response, status, m.api_unable_load_collection())),
   })
 }
 

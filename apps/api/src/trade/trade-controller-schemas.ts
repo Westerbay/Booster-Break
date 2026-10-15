@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { collectionQuerySchema } from '../pokemon/pokemon-controller-schemas'
 import { MAX_TRADE_OWNERSHIP_CARD_IDS, supportedLocaleValues } from '@tcg-collection/shared'
 import {
   MAX_FILTER_LIST_LENGTH,
@@ -32,6 +33,7 @@ export const auctionFiltersSchema = z.object({
 })
 
 export const createAuctionSchema = z.object({
+  kind: z.enum(['offer', 'request']).optional(),
   offeredCardId: tradeIdentifierSchema,
   offeredCardFinish: cardFinishSchema,
   requirements: auctionRequirementsSchema.optional(),
@@ -50,6 +52,13 @@ export const createOfferSchema = z.object({
 
 export const recipientOwnershipSchema = z.object({
   cardIds: z.array(tradeIdentifierSchema).min(1).max(MAX_TRADE_OWNERSHIP_CARD_IDS),
+})
+
+export const requestCreatorCollectionQuerySchema = collectionQuerySchema.pick({
+  sort: true,
+  minimumQuantity: true,
+  minimumRarity: true,
+  locale: true,
 })
 
 export const tradeIdSchema = z.object({

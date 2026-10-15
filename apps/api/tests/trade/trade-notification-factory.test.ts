@@ -5,6 +5,10 @@ import {
   buildTradeOfferReceivedNotificationInput,
 } from '../../src/trade/trade-notification-factory'
 import { toTradeNotificationResponse } from '../../src/trade/trade-mappers'
+import {
+  toPrismaNotificationPayload,
+  toTradeNotificationPayload,
+} from '../../src/trade/trade-notification-payload-mapper'
 import type {
   TradeAuctionCardSummary,
   TradeNotificationRow,
@@ -52,6 +56,7 @@ const offer: TradeOfferRow = {
   auction: {
     id: 'auction-1',
     creatorId: 'creator-1',
+    kind: 'offer',
     status: 'active',
     offeredCardId: offeredCard.id,
     offeredCardFinish: 'holo',
@@ -130,5 +135,23 @@ describe('trade notification foil metadata', () => {
       supertype: 'Pokémon',
       isEvolved: true,
     })
+  })
+
+  test('keeps the request kind through storage', () => {
+    const requestOffer: TradeOfferRow = {
+      ...offer,
+      auction: { ...offer.auction!, kind: 'request' },
+    }
+
+    for (const input of [
+      buildTradeOfferReceivedNotificationInput(requestOffer),
+      buildTradeOfferAcceptedNotificationInput(requestOffer),
+    ]) {
+      const stored = toTradeNotificationPayload(
+        input.type,
+        JSON.parse(JSON.stringify(toPrismaNotificationPayload(input.payload))),
+      )
+      expect(stored.auctionKind).toBe('request')
+    }
   })
 })
