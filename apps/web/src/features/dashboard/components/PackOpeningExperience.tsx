@@ -26,13 +26,14 @@ import {
 } from '../lib/card-art-color'
 import {
   createRevealParticles,
+  getParticleClassName,
   resolveCardRevealTier,
   type CardRevealTier,
   type ParticleRevealTier,
-  type RevealParticleKind,
 } from '../lib/card-reveal'
 import { getCardDismissalTransition, getSwipeDismissDirection } from '../lib/pack-opening-gesture'
 import { FoilCardImage } from './FoilCardImage'
+import { NewCardBadge } from './NewCardBadge'
 import { InteractiveBooster } from './InteractiveBooster'
 import { WebGlCardViewer } from './WebGlCardViewer'
 
@@ -1538,17 +1539,6 @@ function RevealParticleBurst({
   )
 }
 
-const getParticleClassName = (kind: RevealParticleKind): string => {
-  switch (kind) {
-    case 'glint':
-      return 'card-reveal-glint'
-    case 'streak':
-      return 'card-reveal-streak'
-    case 'mote':
-      return 'card-reveal-mote'
-  }
-}
-
 const ACE_SPEC_PARTICLE_COLORS = [
   '255 255 255',
   '255 186 225',
@@ -1895,35 +1885,5 @@ function PackRecap({
         ) : null}
       </AnimatePresence>
     </motion.div>
-  )
-}
-
-interface NewCardBadgeProps {
-  className?: string
-  compact?: boolean
-  shouldReduceMotion: boolean
-}
-
-function NewCardBadge({ className, compact = false, shouldReduceMotion }: NewCardBadgeProps) {
-  return (
-    <motion.span
-      className={cn(
-        'pointer-events-none absolute left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-amber-400 font-black uppercase tracking-wide text-amber-950 shadow-[0_8px_24px_-7px_rgb(245_158_11/0.75)]',
-        compact
-          ? 'px-2 py-0.5 text-[0.58rem] sm:px-2.5 sm:text-[0.65rem]'
-          : 'px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm',
-        className,
-      )}
-      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.55, y: 8 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={
-        shouldReduceMotion
-          ? { duration: 0.1 }
-          : { delay: 0.16, type: 'spring', stiffness: 410, damping: 20 }
-      }
-    >
-      <SparklesIcon className={compact ? 'size-2.5' : 'size-3.5'} aria-hidden="true" />
-      {m.packs_card_new()}
-    </motion.span>
   )
 }

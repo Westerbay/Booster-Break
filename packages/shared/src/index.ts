@@ -63,11 +63,13 @@ export interface PokemonCardSummary {
 
 export interface UserCollectionCard extends PokemonCardSummary {
   quantity: number
+  reservedQuantity: number
   firstCollectedAt: string
   updatedAt: string
 }
 
 export type CollectionSort = 'recent' | 'quantity' | 'name' | 'rarity'
+
 export type CollectionSource = 'all' | 'owned'
 
 export interface CollectionPagination {
@@ -137,6 +139,29 @@ export interface OpenPackResponse {
   set: PokemonSetSummary
   cards: OpenedPackCard[]
   isGodPack: boolean
+}
+
+export const RECYCLE_COST = 5
+
+export interface RecycleCardItem {
+  cardId: string
+  finish: CardFinish
+  quantity: number
+}
+
+export interface RecycleCardsRequest {
+  items: RecycleCardItem[]
+  locale?: SupportedLocale
+}
+
+export interface AwardedCard extends PokemonCardSummary {
+  isNew: boolean
+}
+
+export interface RecycleCardsResponse {
+  recycledCount: number
+  rewardCount: number
+  awardedCards: AwardedCard[]
 }
 
 export type TradeAuctionStatus = 'active' | 'accepted' | 'cancelled' | 'expired'
@@ -421,12 +446,14 @@ export {
   getFinishRank,
   getPackRarityChance,
   getSetPackRarityChance,
+  getRaritiesAtOrAboveRank,
   getRarityRank,
   getRarityWeight,
   normalizeRarity,
   canonicalizeRarity,
   isRareOrBetter,
   pokemonRarityOrder,
+  UNKNOWN_RARITY_RANK,
 } from './pokemon-rarity'
 
 export * from './trade-ownership'

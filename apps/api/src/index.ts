@@ -15,6 +15,8 @@ import { createPokemonController } from './pokemon/pokemon-controller'
 import { PokemonRepository } from './pokemon/pokemon-repository'
 import { PokedexRepository } from './pokemon/pokedex-repository'
 import { PokemonService } from './pokemon/pokemon-service'
+import { RecycleRepository } from './pokemon/recycle-repository'
+import { RecycleService } from './pokemon/recycle-service'
 import { ScrydexSealedClient } from './pokemon/scrydex-sealed-client'
 import { TcgDexClient } from './pokemon/tcgdex-client'
 import { createRequestSecurityPlugin } from './security/request-security'
@@ -65,6 +67,8 @@ const pokemonService = new PokemonService({
   pokemonRepository,
   sealedClient,
 })
+const recycleRepository = new RecycleRepository(prisma)
+const recycleService = new RecycleService({ recycleRepository })
 const leaderboardRepository = new LeaderboardRepository(prisma)
 const leaderboardService = new LeaderboardService({
   leaderboardRepository,
@@ -100,6 +104,7 @@ export const app = new Elysia()
       pokedexRepository: new PokedexRepository(prisma),
       sealedClient,
       service: pokemonService,
+      recycleService,
     }),
   )
   .use(

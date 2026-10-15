@@ -50,6 +50,8 @@ const rarityRank: Record<string, number> = {
   'Galarian Gallery Secret Rare': 80,
 }
 
+export const UNKNOWN_RARITY_RANK = 999
+
 const normalizeRarityValue = (value: string): string => {
   return value
     .normalize('NFD')
@@ -95,7 +97,13 @@ const finishRank: Record<CardFinish, number> = {
 }
 
 export const getRarityRank = (rarity: string | null | undefined): number => {
-  return rarity ? (rarityRank[rarity] ?? 999) : 999
+  return rarity ? (rarityRank[rarity] ?? UNKNOWN_RARITY_RANK) : UNKNOWN_RARITY_RANK
+}
+
+export const getRaritiesAtOrAboveRank = (minRank: number): string[] => {
+  return Object.entries(rarityRank)
+    .filter(([, rank]) => rank >= minRank)
+    .map(([rarity]) => rarity)
 }
 
 export const getFinishRank = (finish: string | null | undefined): number => {

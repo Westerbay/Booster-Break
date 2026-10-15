@@ -27,7 +27,9 @@ export function DashboardPage() {
   const logoutMutation = useMutation(useLogoutMutationOption(queryClient))
   const contentClassName = cn(
     'game-content mx-auto flex min-h-[calc(100dvh-4rem)] w-full items-start justify-center md:min-h-dvh',
-    shownTab === 'pokedex' ? 'game-content-pokedex' : 'max-w-7xl px-3 py-5 sm:px-6 lg:px-8',
+    shownTab === 'pokedex'
+      ? 'game-content-pokedex'
+      : cn('px-3 py-5 sm:px-6 lg:px-8', shownTab !== 'collection' && 'max-w-7xl'),
     shownTab === 'packs' && 'game-content-packs',
   )
 
