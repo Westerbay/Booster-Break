@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 import type {
   CollectionSetOption,
@@ -22,7 +23,6 @@ import { CardListFiltersMenu } from './CardListFiltersMenu'
 interface CollectionPanelProps {
   cards: UserCollectionCard[]
   isPending: boolean
-  fitContent?: boolean
   page: number
   pageCount: number
   total: number
@@ -40,6 +40,10 @@ interface CollectionPanelProps {
   onMinimumQuantityChange: (quantity: number) => void
   onMinimumRarityChange: (rarity: string | undefined) => void
   onPageChange: (page: number) => void
+  renderCard?: (card: UserCollectionCard, setName: string | undefined) => ReactNode
+  title?: ReactNode
+  subtitle?: ReactNode
+  headerAction?: ReactNode
 }
 
 const getSortActions = (): Array<{ label: string; value: CollectionSort }> => [
@@ -64,7 +68,6 @@ const getSortActions = (): Array<{ label: string; value: CollectionSort }> => [
 export function CollectionPanel({
   cards,
   isPending,
-  fitContent = false,
   page,
   pageCount,
   total,
@@ -82,6 +85,10 @@ export function CollectionPanel({
   onMinimumQuantityChange,
   onMinimumRarityChange,
   onPageChange,
+  renderCard,
+  title,
+  subtitle,
+  headerAction,
 }: CollectionPanelProps) {
   const [selectedCard, setSelectedCard] = useState<UserCollectionCard>()
   const sortActions = getSortActions()
@@ -93,20 +100,15 @@ export function CollectionPanel({
 
   return (
     <>
-      <section
-        className={
-          fitContent
-            ? 'game-panel game-collection w-full max-w-6xl rounded-lg border bg-card p-4'
-            : 'game-panel game-collection min-w-0 rounded-lg border bg-card p-4'
-        }
-      >
+      <section className="game-panel game-collection w-full max-w-6xl rounded-lg border bg-card p-4">
         <div className="space-y-4">
           <div className="flex flex-wrap items-start gap-x-8 gap-y-4 sm:justify-between">
             <div>
-              <h2 className="text-lg font-black">{m.collection_title()}</h2>
+              <h2 className="text-lg font-black">{title ?? m.collection_title()}</h2>
               <p className="text-sm text-muted-foreground">
-                {m.collection_summary({ totalCards, total })}
+                {subtitle ?? m.collection_summary({ totalCards, total })}
               </p>
+              {headerAction ? <div className="mt-3">{headerAction}</div> : null}
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-4">
               <div className="flex w-full flex-col gap-2 sm:h-9 sm:w-auto sm:flex-row sm:items-center sm:overflow-hidden sm:rounded-md sm:border sm:bg-background sm:transition-colors sm:focus-within:border-foreground sm:focus-within:ring-2 sm:focus-within:ring-foreground/15">
@@ -198,15 +200,19 @@ export function CollectionPanel({
           </div>
         ) : cards.length > 0 ? (
           <div className="game-collection-grid mt-6 grid min-w-0 grid-cols-2 gap-3">
-            {cards.map((card) => (
-              <CollectionCardItem
-                key={`${card.id}-${card.finish ?? 'normal'}`}
-                card={card}
-                setName={setNameById.get(card.setId)}
-                onSelect={() => setSelectedCard(card)}
-                className="w-full transition-transform hover:-translate-y-1 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-            ))}
+            {cards.map((card) =>
+              renderCard ? (
+                renderCard(card, setNameById.get(card.setId))
+              ) : (
+                <CollectionCardItem
+                  key={`${card.id}-${card.finish ?? 'normal'}`}
+                  card={card}
+                  setName={setNameById.get(card.setId)}
+                  onSelect={() => setSelectedCard(card)}
+                  className="w-full transition-transform hover:-translate-y-1 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              ),
+            )}
           </div>
         ) : searchQuery.trim() !== '' ? (
           <div className="mt-4 rounded-lg border bg-background p-4 text-sm font-semibold text-muted-foreground">

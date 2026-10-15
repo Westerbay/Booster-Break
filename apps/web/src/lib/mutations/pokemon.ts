@@ -1,9 +1,11 @@
 import { mutationOptions, type QueryClient } from '@tanstack/react-query'
+import type { RecycleCardsRequest, RecycleCardsResponse } from '@tcg-collection/shared'
 
 import { openPokemonPack, openPokemonPackSandbox } from '@/features/dashboard/lib/api'
 import { preloadPackImages } from '@/features/dashboard/lib/preload-pack-images'
 import { pokemonQueryKeys } from '@/features/dashboard/lib/query-keys'
 import { pokedexQueryKeys } from '@/lib/queries/pokedex'
+import { recycleCards } from '@/features/recycle/lib/api'
 
 interface OpenPackMutationOptionParams {
   onPreparingChange: (isPreparing: boolean) => void
@@ -28,6 +30,25 @@ export const useOpenPokemonPackMutationOption = (
     onError: () => {
       onPreparingChange(false)
     },
+  })
+
+interface RecycleCardsMutationOptionParams {
+  onSuccess: (result: RecycleCardsResponse) => void
+  onError: (error: Error) => void
+}
+
+export const useRecyclePokemonCardsMutationOption = (
+  queryClient: QueryClient,
+  { onSuccess, onError }: RecycleCardsMutationOptionParams,
+) =>
+  mutationOptions({
+    mutationFn: (input: RecycleCardsRequest) => recycleCards(input),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: pokemonQueryKeys.collection.all })
+      queryClient.invalidateQueries({ queryKey: pokedexQueryKeys.all })
+      onSuccess(result)
+    },
+    onError,
   })
 
 export const useOpenPokemonPackSandboxMutationOption = ({

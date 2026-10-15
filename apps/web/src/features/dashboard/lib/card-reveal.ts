@@ -91,6 +91,20 @@ export const resolveCardRevealTier = (card: RevealCardMetadata): CardRevealTier 
   return isFoilFinish(card.finish) ? 'holo' : 'standard'
 }
 
+export const isParticleRevealTier = (tier: CardRevealTier): tier is ParticleRevealTier =>
+  tier !== 'standard' && tier !== 'holo'
+
+export const getParticleClassName = (kind: RevealParticleKind): string => {
+  switch (kind) {
+    case 'glint':
+      return 'card-reveal-glint'
+    case 'streak':
+      return 'card-reveal-streak'
+    case 'mote':
+      return 'card-reveal-mote'
+  }
+}
+
 export const createRevealParticles = (
   cardId: string,
   tier: ParticleRevealTier,
