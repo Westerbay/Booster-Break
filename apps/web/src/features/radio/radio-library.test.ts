@@ -1,18 +1,27 @@
 import { expect, test } from 'bun:test'
 import { parseRadioLibrary } from './radio-library'
 
-test('accepts encoded filenames but rejects remote sources and path traversal', () => {
-  expect(parseRadioLibrary([{ title: 'Bourg Palette', file: 'Bourg%20Palette.mp3' }])).toEqual([
-    { title: 'Bourg Palette', file: 'Bourg%20Palette.mp3' },
+test('turns nginx directory entries into naturally sorted MP3 tracks', () => {
+  expect(
+    parseRadioLibrary([
+      { type: 'file', name: '10 - Combat.MP3', size: 120 },
+      { type: 'file', name: '2 - Bourg #1.mp3', size: 120 },
+      { type: 'directory', name: 'folder.mp3' },
+      { type: 'file', name: 'notes.txt', size: 20 },
+      { type: 'file', name: 'upload.mp3.part', size: 20 },
+    ]),
+  ).toEqual([
+    { title: '2 - Bourg #1', file: '2%20-%20Bourg%20%231.mp3' },
+    { title: '10 - Combat', file: '10%20-%20Combat.MP3' },
   ])
-  for (const file of [
-    '../secret.mp3',
-    '%2E%2E%2Fsecret.mp3',
-    'https://other.test/a.mp3',
-    '%ZZ.mp3',
-    'folder/a.mp3',
-  ]) {
-    expect(() => parseRadioLibrary([{ title: 'Track', file }])).toThrow()
+})
+
+test('encodes literal percent signs without interpreting filenames as URLs', () => {
+  expect(parseRadioLibrary([{ type: 'file', name: 'Route%20One.mp3' }])[0]?.file).toBe(
+    'Route%2520One.mp3',
+  )
+  for (const name of ['../secret.mp3', 'https://other.test/a.mp3', 'folder\\track.mp3']) {
+    expect(() => parseRadioLibrary([{ type: 'file', name }])).toThrow()
   }
   expect(() => parseRadioLibrary({ tracks: [] })).toThrow()
 })

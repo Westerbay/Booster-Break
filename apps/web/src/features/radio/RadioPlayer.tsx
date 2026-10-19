@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useLocale } from '@/features/i18n/useLocale'
 import { m } from '@/paraglide/messages'
-import { fetchRadioLibrary, type RadioTrack } from './radio-library'
+import { fetchRadioLibrary, radioRefreshIntervalMs, type RadioTrack } from './radio-library'
 import { useRadioPlayer } from './useRadioPlayer'
 import './radio.css'
 
@@ -24,8 +24,8 @@ export function RadioPlayer() {
   const library = useQuery({
     queryKey: ['radio-library'],
     queryFn: fetchRadioLibrary,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
+    staleTime: radioRefreshIntervalMs,
+    refetchInterval: radioRefreshIntervalMs,
     retry: false,
     meta: { suppressToast: true },
   })
@@ -51,7 +51,7 @@ export function RadioPlayer() {
   } = useRadioPlayer(tracks)
   const playLabel = playing || buffering ? m.radio_pause() : m.radio_play()
   let status = track?.title ?? m.radio_empty_short()
-  if (library.isFetching) status = m.radio_loading()
+  if (library.isLoading) status = m.radio_loading()
   if (buffering) status = m.radio_buffering()
   if (failed) status = m.radio_playback_error()
   if (library.isError) status = m.radio_load_error()
@@ -92,7 +92,7 @@ export function RadioPlayer() {
           className="radio-play"
           type="button"
           onClick={togglePlayback}
-          disabled={!tracks.length}
+          disabled={!track}
           aria-label={playLabel}
           title={playLabel}
         >
@@ -135,9 +135,14 @@ export function RadioPlayer() {
         {tracks.length ? (
           <>
             <label htmlFor="radio-track">{m.radio_track()}</label>
-            <select id="radio-track" value={index} onChange={selectTrack}>
-              {tracks.map((track, index) => (
-                <option key={track.file} value={index}>
+            <select id="radio-track" value={track?.file ?? ''} onChange={selectTrack}>
+              {index < 0 && track ? (
+                <option value={track.file} disabled>
+                  {track.title} ({m.radio_unavailable()})
+                </option>
+              ) : null}
+              {tracks.map((track) => (
+                <option key={track.file} value={track.file}>
                   {track.title}
                 </option>
               ))}

@@ -583,5 +583,6 @@
   "radio_empty": "The radio is waiting for its first tracks. Check back soon!",
   "radio_storage_error": "Volume applied, but this browser cannot remember it.",
   "radio_refresh": "Refresh track list",
-  "radio_close": "Close radio"
+  "radio_close": "Close radio",
+  "radio_unavailable": "unavailable"
 }

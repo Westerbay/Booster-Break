@@ -583,5 +583,6 @@
   "radio_empty": "La radio attend ses premières musiques. Reviens bientôt !",
   "radio_storage_error": "Le volume est appliqué, mais ne peut pas être mémorisé dans ce navigateur.",
   "radio_refresh": "Actualiser la liste",
-  "radio_close": "Fermer la radio"
+  "radio_close": "Fermer la radio",
+  "radio_unavailable": "indisponible"
 }

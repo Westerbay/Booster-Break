@@ -29,7 +29,8 @@ RUN apk upgrade --no-cache
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 
-RUN chown -R nginx:nginx /etc/nginx/conf.d /run /var/cache/nginx
+RUN mkdir -p /usr/share/nginx/html/radio \
+    && chown -R nginx:nginx /etc/nginx/conf.d /run /var/cache/nginx
 
 EXPOSE 80
 

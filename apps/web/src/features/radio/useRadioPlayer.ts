@@ -17,13 +17,14 @@ function readVolume() {
 export function useRadioPlayer(tracks: RadioTrack[]) {
   const audio = useRef<HTMLAudioElement | null>(null)
   const request = useRef(0)
-  const [index, setIndex] = useState(0)
+  const [selectedTrack, setSelectedTrack] = useState<RadioTrack>()
   const [playing, setPlaying] = useState(false)
   const [buffering, setBuffering] = useState(false)
   const [failed, setFailed] = useState(false)
   const [volume, setVolume] = useState(readVolume)
   const [storageFailed, setStorageFailed] = useState(false)
-  const track = tracks[index]
+  const track = selectedTrack ?? tracks[0]
+  const index = tracks.findIndex((candidate) => candidate.file === track?.file)
   const attachAudio = useCallback((element: HTMLAudioElement | null) => {
     if (!element) {
       request.current++
@@ -32,9 +33,8 @@ export function useRadioPlayer(tracks: RadioTrack[]) {
     audio.current = element
   }, [])
 
-  async function playTrack(nextIndex: number) {
+  async function playTrack(nextTrack: RadioTrack | undefined) {
     const element = audio.current
-    const nextTrack = tracks[nextIndex]
     if (!element || !nextTrack) return
     const currentRequest = ++request.current
     setFailed(false)
@@ -42,7 +42,7 @@ export function useRadioPlayer(tracks: RadioTrack[]) {
     const source = `${import.meta.env.BASE_URL}radio/${nextTrack.file}`
     if (element.getAttribute('src') !== source || element.error) element.src = source
     element.volume = volume
-    setIndex(nextIndex)
+    setSelectedTrack(nextTrack)
     try {
       await element.play()
     } catch {
@@ -55,32 +55,37 @@ export function useRadioPlayer(tracks: RadioTrack[]) {
 
   function togglePlayback() {
     const element = audio.current
-    if (!element || !tracks.length) return
+    if (!element || !track) return
     if (!element.paused || buffering) {
       request.current++
       element.pause()
       setBuffering(false)
       return
     }
-    void playTrack(index)
+    void playTrack(track)
   }
 
   function next() {
-    if (tracks.length) {
-      if (audio.current) audio.current.currentTime = 0
-      void playTrack((index + 1) % tracks.length)
+    if (!tracks.length) {
+      setPlaying(false)
+      setBuffering(false)
+      return
     }
+    if (audio.current) audio.current.currentTime = 0
+    void playTrack(tracks[(index + 1) % tracks.length])
   }
 
   function previous() {
     if (tracks.length) {
       if (audio.current) audio.current.currentTime = 0
-      void playTrack((index + tracks.length - 1) % tracks.length)
+      const previousIndex =
+        index < 0 ? tracks.length - 1 : (index + tracks.length - 1) % tracks.length
+      void playTrack(tracks[previousIndex])
     }
   }
 
   function selectTrack(event: ChangeEvent<HTMLSelectElement>) {
-    void playTrack(Number(event.target.value))
+    void playTrack(tracks.find((candidate) => candidate.file === event.target.value))
   }
 
   function changeVolume(event: ChangeEvent<HTMLInputElement>) {
