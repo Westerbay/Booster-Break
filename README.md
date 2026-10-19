@@ -292,3 +292,9 @@ services:
 ```
 
 The env file is private to that server/project and is never committed.
+
+## Pokémon radio
+
+A persistent audio player supports a local MP3 playlist. Audio stays outside Git and Docker
+images and can be mounted from a persistent server folder. See [radio setup](./docs/radio.md)
+for the indexing command and deployment mount.

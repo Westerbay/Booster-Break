@@ -12,3 +12,10 @@ dist
 .playwright-cli
 output/playwright
 deploy/booster-break.env
+
+# Radio audio and generated playlist stay outside Git.
+apps/web/public/radio/*
+!apps/web/public/radio/.gitkeep
+
+# Optional server radio library.
+deploy/radio/

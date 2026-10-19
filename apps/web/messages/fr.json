@@ -567,5 +567,21 @@
   "pokedex_cover_open": "Ouvrir le classeur",
   "pokedex_cover_hint": "Choisissez une extension pour personnaliser votre classeur.",
   "pokedex_picker_description": "Choisissez le classeur que vous souhaitez feuilleter.",
-  "pokedex_cover_selected_hint": "Ouvrez le classeur pour feuilleter vos découvertes."
+  "pokedex_cover_selected_hint": "Ouvrez le classeur pour feuilleter vos découvertes.",
+  "radio_title": "Radio Pokémon",
+  "radio_play": "Écouter la radio",
+  "radio_pause": "Mettre en pause",
+  "radio_empty_short": "Ouvrir la radio",
+  "radio_loading": "Chargement des morceaux…",
+  "radio_buffering": "Chargement audio…",
+  "radio_playback_error": "Lecture impossible. Réessaie ou choisis un autre morceau.",
+  "radio_load_error": "Impossible de charger la liste des morceaux.",
+  "radio_track": "Morceau",
+  "radio_previous": "Morceau précédent",
+  "radio_next": "Morceau suivant",
+  "radio_volume": "Volume",
+  "radio_empty": "La radio attend ses premières musiques. Reviens bientôt !",
+  "radio_storage_error": "Le volume est appliqué, mais ne peut pas être mémorisé dans ce navigateur.",
+  "radio_refresh": "Actualiser la liste",
+  "radio_close": "Fermer la radio"
 }

@@ -1,0 +1,160 @@
+.radio-player {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 25;
+  width: min(20rem, calc(100vw - 2rem));
+  color: var(--foreground);
+}
+.radio-strip {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--game-surface-base);
+  box-shadow: 0 3px 12px oklch(0.1 0.006 250 / 0.12);
+}
+.radio-player button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.radio-player button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+.radio-player button:focus-visible,
+.radio-player select:focus-visible,
+.radio-player input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.radio-player svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.radio-strip button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  color: var(--muted-foreground);
+  transition:
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+.radio-strip button:hover:not(:disabled),
+.radio-toggle[aria-expanded='true'] {
+  background: var(--game-surface-raised);
+  color: var(--foreground);
+}
+.radio-strip .radio-play {
+  color: var(--foreground);
+}
+.radio-strip[data-playing='true'] .radio-play {
+  color: var(--primary);
+}
+.radio-now {
+  min-width: 0;
+  flex: 1;
+  padding-inline: 6px 8px;
+  line-height: 1.25;
+}
+.radio-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+.radio-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--game-surface-base);
+  box-shadow: 0 3px 12px oklch(0.1 0.006 250 / 0.12);
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+}
+.radio-panel[hidden] {
+  display: none;
+}
+.radio-panel > label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.radio-panel select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--game-surface-panel);
+  color: var(--foreground);
+  font-size: 12px;
+}
+.radio-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.radio-controls button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 3px;
+  color: var(--muted-foreground);
+}
+.radio-controls button:hover {
+  background: var(--game-surface-raised);
+  color: var(--foreground);
+}
+.radio-controls label {
+  color: var(--muted-foreground);
+}
+.radio-controls input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  accent-color: var(--primary);
+}
+.radio-panel p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.radio-panel p[role='alert'] {
+  color: var(--destructive);
+  margin-top: 8px;
+}
+.radio-retry {
+  min-height: 44px;
+  font-size: 12px;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 767px) {
+  .radio-panel select {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .radio-strip button {
+    transition: none;
+  }
+}
