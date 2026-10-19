@@ -1,27 +1,30 @@
+import { z } from 'zod'
+
 export interface RadioTrack {
   title: string
   file: string
 }
 
+const radioDirectorySchema = z.array(
+  z.object({
+    type: z.enum(['file', 'directory', 'other']),
+    name: z.string(),
+  }),
+)
+
+const radioFilenameSchema = z
+  .string()
+  .min(1)
+  .regex(/^[^/\\\p{Cc}]+$/u, 'Invalid radio filename')
+
 export function parseRadioLibrary(value: unknown): RadioTrack[] {
-  if (!Array.isArray(value)) throw new Error('Invalid radio directory listing')
-  const tracks: RadioTrack[] = []
-  for (const entry of value) {
-    if (
-      typeof entry !== 'object' ||
-      entry === null ||
-      !('type' in entry) ||
-      !('name' in entry) ||
-      typeof entry.name !== 'string'
-    ) {
-      throw new Error('Invalid radio directory entry')
-    }
-    if (entry.type !== 'file' || !/\.mp3$/i.test(entry.name)) continue
-    const filename = entry.name
-    const hasControlCharacters = [...filename].some((character) => character.charCodeAt(0) < 32)
-    if (/[/\\]/.test(filename) || hasControlCharacters) throw new Error('Invalid radio filename')
-    tracks.push({ title: filename.replace(/\.mp3$/i, ''), file: encodeURIComponent(filename) })
-  }
+  const entries = radioDirectorySchema.parse(value)
+  const tracks = entries
+    .filter((entry) => entry.type === 'file' && /\.mp3$/i.test(entry.name))
+    .map((entry) => {
+      const filename = radioFilenameSchema.parse(entry.name)
+      return { title: filename.replace(/\.mp3$/i, ''), file: encodeURIComponent(filename) }
+    })
   return tracks.sort((left, right) =>
     left.title.localeCompare(right.title, 'en', { numeric: true }),
   )

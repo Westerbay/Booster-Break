@@ -25,3 +25,18 @@ test('encodes literal percent signs without interpreting filenames as URLs', () 
   }
   expect(() => parseRadioLibrary({ tracks: [] })).toThrow()
 })
+
+test('rejects malformed directory responses before building the playlist', () => {
+  for (const response of [
+    null,
+    {},
+    [null],
+    [{}],
+    [{ type: 'file' }],
+    [{ type: 'file', name: 123 }],
+    [{ type: 123, name: 'track.mp3' }],
+  ]) {
+    expect(() => parseRadioLibrary(response)).toThrow()
+  }
+  expect(() => parseRadioLibrary([{ type: 'file', name: 'bad\u0000.mp3' }])).toThrow()
+})

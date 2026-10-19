@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import path from 'node:path'
 import { readdir } from 'node:fs/promises'
+import { z } from 'zod'
+
+const missingDirectoryErrorSchema = z.object({ code: z.literal('ENOENT') })
 
 const devLabNames = new Set(['foils', 'opening'])
 
@@ -53,7 +56,7 @@ const radioDirectoryPlugin = (): Plugin => ({
         response.setHeader('Cache-Control', 'no-store')
         response.end(JSON.stringify(files))
       } catch (error) {
-        const missing = error instanceof Error && 'code' in error && error.code === 'ENOENT'
+        const missing = missingDirectoryErrorSchema.safeParse(error).success
         if (!missing) server.config.logger.error(`Unable to list radio directory: ${String(error)}`)
         response.statusCode = missing ? 200 : 500
         response.setHeader('Content-Type', 'application/json')

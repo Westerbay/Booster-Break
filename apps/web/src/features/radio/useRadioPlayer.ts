@@ -1,14 +1,16 @@
 import { useCallback, useRef, useState } from 'react'
+import { z } from 'zod'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { RadioTrack } from './radio-library'
 
 const volumeKey = 'booster-break-radio-volume'
+const volumeSchema = z.number().min(0).max(1)
 
 function readVolume() {
   try {
     const saved = localStorage.getItem(volumeKey)
-    const volume = saved === null ? 0.35 : Number(saved)
-    return Number.isFinite(volume) && volume >= 0 && volume <= 1 ? volume : 0.35
+    const volume = volumeSchema.safeParse(saved === null ? 0.35 : Number(saved))
+    return volume.success ? volume.data : 0.35
   } catch {
     return 0.35
   }
