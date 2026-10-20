@@ -1,0 +1,10 @@
+# Optional overlay: place beside the server Compose file and create ./radio first.
+services:
+  web:
+    volumes:
+      - type: bind
+        source: ./radio
+        target: /usr/share/nginx/html/radio
+        read_only: true
+        bind:
+          create_host_path: false

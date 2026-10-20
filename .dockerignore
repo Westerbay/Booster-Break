@@ -9,3 +9,6 @@ packages/*/dist
 apps/api/tcg-collection.sqlite
 apps/api/tcg-collection.sqlite-*
 apps/web/src/paraglide
+
+# Music is mounted separately at runtime.
+apps/web/public/radio

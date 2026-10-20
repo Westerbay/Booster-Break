@@ -567,5 +567,22 @@
   "pokedex_cover_open": "Open the binder",
   "pokedex_cover_hint": "Choose an expansion to personalise your binder.",
   "pokedex_picker_description": "Choose the binder you want to browse.",
-  "pokedex_cover_selected_hint": "Open the binder to browse your discoveries."
+  "pokedex_cover_selected_hint": "Open the binder to browse your discoveries.",
+  "radio_title": "Pokémon Radio",
+  "radio_play": "Play radio",
+  "radio_pause": "Pause radio",
+  "radio_empty_short": "Open radio",
+  "radio_loading": "Loading tracks…",
+  "radio_buffering": "Loading audio…",
+  "radio_playback_error": "Unable to play. Try again or choose another track.",
+  "radio_load_error": "Unable to load the track list.",
+  "radio_track": "Track",
+  "radio_previous": "Previous track",
+  "radio_next": "Next track",
+  "radio_volume": "Volume",
+  "radio_empty": "The radio is waiting for its first tracks. Check back soon!",
+  "radio_storage_error": "Volume applied, but this browser cannot remember it.",
+  "radio_refresh": "Refresh track list",
+  "radio_close": "Close radio",
+  "radio_unavailable": "unavailable"
 }
