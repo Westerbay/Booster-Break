@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.13-alpine@sha256:4de475389889577f346c636f956b42a5c31501b654664e9ae5726f94d7bb5349 AS deps
+FROM oven/bun:1.4.4-alpine@sha256:4cf82f5686b196504fe119db3fcd9185b191f82ece82c40680e597228ec6070a AS deps
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY packages/shared/package.json packages/shared/package.json
 
 RUN bun install --frozen-lockfile
 
-FROM oven/bun:1.3.13-alpine@sha256:4de475389889577f346c636f956b42a5c31501b654664e9ae5726f94d7bb5349 AS production-deps
+FROM oven/bun:1.4.4-alpine@sha256:4cf82f5686b196504fe119db3fcd9185b191f82ece82c40680e597228ec6070a AS production-deps
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ COPY apps/api apps/api
 
 RUN bun --cwd apps/api build
 
-FROM oven/bun:1.3.13-alpine@sha256:4de475389889577f346c636f956b42a5c31501b654664e9ae5726f94d7bb5349 AS runtime
+FROM oven/bun:1.4.4-alpine@sha256:4cf82f5686b196504fe119db3fcd9185b191f82ece82c40680e597228ec6070a AS runtime
 
 WORKDIR /app
 
