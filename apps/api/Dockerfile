@@ -3,6 +3,7 @@ FROM oven/bun:1.4.4-alpine@sha256:4cf82f5686b196504fe119db3fcd9185b191f82ece82c4
 WORKDIR /app
 
 COPY package.json bun.lock tsconfig.base.json ./
+COPY patches/ ./patches/
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
@@ -14,6 +15,7 @@ FROM oven/bun:1.4.4-alpine@sha256:4cf82f5686b196504fe119db3fcd9185b191f82ece82c4
 WORKDIR /app
 
 COPY package.json bun.lock tsconfig.base.json ./
+COPY patches/ ./patches/
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
