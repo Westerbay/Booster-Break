@@ -1,6 +1,8 @@
 services:
   postgres:
-    image: postgres:17.10-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    build: ./deploy/images/postgres
+    image: booster-break-postgres:17.11-security.1
+    pull_policy: build
     env_file:
       - ${BOOSTER_BREAK_ENV_FILE:-apps/api/.env.local}
     ports:

@@ -1,6 +1,8 @@
 services:
   caddy:
-    image: caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    build: ./images/caddy
+    image: booster-break-caddy:2.11.7-security.1
+    pull_policy: build
     restart: unless-stopped
     env_file:
       - ${BOOSTER_BREAK_ENV_FILE:-booster-break.env}
@@ -23,7 +25,9 @@ services:
       - '80'
 
   postgres:
-    image: postgres:17.10-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    build: ./images/postgres
+    image: booster-break-postgres:17.11-security.1
+    pull_policy: build
     restart: unless-stopped
     env_file:
       - ${BOOSTER_BREAK_ENV_FILE:-booster-break.env}
