@@ -277,6 +277,10 @@ docker compose up -d --force-recreate web api
 docker compose logs --tail=100 api
 ```
 
+The PostgreSQL and Caddy services use locally built security images. Copy `deploy/images/`
+alongside the server Compose file and follow [runtime image maintenance](./deploy/images/README.md)
+when updating them. The application-only commands above do not update these infrastructure services.
+
 Rollback by restoring the previous `IMAGE_TAG` in `.env` and running the same pull and up commands.
 
 Downloaded users run the image with their own runtime env file:

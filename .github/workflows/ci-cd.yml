@@ -30,21 +30,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://tcg:tcg_test@127.0.0.1:5432/tcg_test
       RUN_DATABASE_TESTS: 'true'
-    services:
-      postgres:
-        image: postgres:17.10-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
-        env:
-          POSTGRES_DB: tcg_test
-          POSTGRES_USER: tcg
-          POSTGRES_PASSWORD: tcg_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U tcg -d tcg_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -58,6 +43,19 @@ jobs:
             echo "::error::Release tag must point to a commit on main"
             exit 1
           fi
+
+      - name: Start disposable PostgreSQL from the security image
+        run: |
+          docker build --tag booster-break-postgres:ci deploy/images/postgres
+          docker run --detach --name booster-ci-postgres \
+            --publish 127.0.0.1:5432:5432 --tmpfs /var/lib/postgresql/data \
+            -e POSTGRES_DB=tcg_test -e POSTGRES_USER=tcg -e POSTGRES_PASSWORD=tcg_test \
+            booster-break-postgres:ci
+          for attempt in $(seq 1 60); do
+            if docker exec booster-ci-postgres pg_isready -U tcg -d tcg_test; then break; fi
+            sleep 1
+          done
+          docker exec booster-ci-postgres pg_isready -U tcg -d tcg_test
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
@@ -109,10 +107,25 @@ jobs:
         if: matrix.app == 'web'
         run: docker run --rm --network none --entrypoint nginx booster-web:ci -t
 
+  runtime-images:
+    name: Runtime images
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
+      - name: Build PostgreSQL and Caddy security images
+        run: |
+          docker build --tag booster-break-postgres:ci deploy/images/postgres
+          docker build --tag booster-break-caddy:ci deploy/images/caddy
+      - name: Verify SQL, TLS and reverse proxy routing with disposable fixtures
+        run: bash scripts/security/runtime-images.sh
+
   publish-api:
     name: Publish API Image
     if: github.event_name == 'release' && github.event.action == 'published'
-    needs: quality
+    needs: [quality, container-builds, runtime-images]
     runs-on: ubuntu-latest
 
     permissions:
@@ -161,7 +174,7 @@ jobs:
   publish-web-image:
     name: Publish Web Image
     if: github.event_name == 'release' && github.event.action == 'published'
-    needs: quality
+    needs: [quality, container-builds, runtime-images]
     runs-on: ubuntu-latest
 
     permissions:
