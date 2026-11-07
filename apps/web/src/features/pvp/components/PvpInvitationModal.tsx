@@ -62,17 +62,13 @@ export function PvpInvitationModal({
           </p>
         )}
         <div className="flex flex-col gap-3 sm:flex-row-reverse">
-          <Button
-            variant="arena"
-            className="sm:flex-1"
-            onClick={onPrepare}
-            disabled={command.isPending}
-          >
+          <Button size="lg" className="sm:flex-1" onClick={onPrepare} disabled={command.isPending}>
             <SwordsIcon data-icon="inline-start" />
             {m.pvp_accept()}
           </Button>
           <Button
-            variant="arena-outline"
+            variant="outline"
+            size="lg"
             className="sm:flex-1"
             onClick={decline}
             disabled={command.isPending}

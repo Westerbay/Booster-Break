@@ -318,13 +318,14 @@ export function TradeCreateRequestDialog({
               : m.trade_request_pick_one_card()}
           </p>
 
-          <button
+          <Button
             type="submit"
-            className="h-10 w-full cursor-pointer rounded-lg game-primary-button bg-primary px-3 text-sm font-black text-primary-foreground disabled:cursor-not-allowed disabled:opacity-55 max-sm:min-h-11"
+            size="lg"
+            className="w-full"
             disabled={!canSubmit || createRequest.isPending}
           >
             {createRequest.isPending ? m.trade_publishing() : m.trade_request_publish()}
-          </button>
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

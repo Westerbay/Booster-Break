@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { CrownIcon, SwordsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLocale } from '@/features/i18n/useLocale'
@@ -13,16 +14,17 @@ import { TrainerAvatar } from '@/features/trainers/components/TrainerAvatar'
 import { ArenaRules } from '../components/ArenaRules'
 import { ArenaBackdrop } from '@/components/game/ArenaBackdrop'
 
-export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void }) {
+export function BoardView() {
   const { locale } = useLocale()
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string | null>(null)
   const board = useQuery(pvpBoardOptions(page, true))
   const auth = useQuery(useCurrentUserQueryOption())
   const userId = auth.data?.authenticated ? auth.data.user.id : undefined
   const self = useQuery({ ...pvpTrainerOptions(userId ?? ''), enabled: Boolean(userId) })
-  function enter() {
-    onEnter()
+  function enter(opponent?: string) {
+    void navigate({ to: '/duels', search: { opponent } })
   }
   function back() {
     setSelected(null)
@@ -38,12 +40,7 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
   }
   if (selected)
     return (
-      <TrainerProfile
-        userId={selected}
-        currentUserId={userId}
-        onBack={back}
-        onChallenge={onEnter}
-      />
+      <TrainerProfile userId={selected} currentUserId={userId} onBack={back} onChallenge={enter} />
     )
   const trainers = board.data?.trainers ?? []
   const selfTrainer = self.data?.trainer
@@ -66,7 +63,7 @@ export function BoardView({ onEnter }: { onEnter: (opponentId?: string) => void 
         </div>
         <div className="flex items-center gap-2">
           <ArenaRules />
-          <Button size="lg" onClick={enter}>
+          <Button size="lg" onClick={() => enter()}>
             <SwordsIcon data-icon="inline-start" />
             {m.pvp_enter()}
           </Button>

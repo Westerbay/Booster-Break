@@ -71,7 +71,7 @@ export function TeamComposer({
                       <BattleCardImage key={`${card.id}-${card.finish}`} card={card} />
                     </CardPreview>
                     <Button
-                      variant="arena-outline"
+                      variant="outline"
                       size="icon-lg"
                       className="arena-team-remove"
                       onClick={remove}
@@ -108,10 +108,10 @@ export function TeamComposer({
         </p>
       )}
       <div className="arena-composer-actions">
-        <Button variant="arena-outline" onClick={onCancel} disabled={busy}>
+        <Button variant="outline" size="lg" onClick={onCancel} disabled={busy}>
           {m.pvp_back()}
         </Button>
-        <Button variant="arena" size="lg" onClick={submit} disabled={!valid || busy}>
+        <Button size="lg" onClick={submit} disabled={!valid || busy}>
           <SwordsIcon data-icon="inline-start" />
           {busy ? m.pvp_sending() : confirmLabel}
         </Button>

@@ -1,5 +1,6 @@
 import { type FormEvent } from 'react'
 import type { CollectionSort, TradeAuctionResponse } from '@tcg-collection/shared'
+import { Button } from '@/components/ui/button'
 import { m } from '@/paraglide/messages'
 import { toast } from '@/features/toast/toast-store'
 import { formatCardFinish } from '@/features/dashboard/lib/card-format'
@@ -262,13 +263,9 @@ export function TradeOfferComposer({ auction, userId, onOfferCreated }: TradeOff
         />
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="submit"
-            className="h-10 cursor-pointer rounded-lg game-primary-button bg-primary px-3 text-sm font-black text-primary-foreground disabled:cursor-not-allowed disabled:opacity-55 max-sm:min-h-11 max-sm:min-w-11"
-            disabled={selectedCardsCount === 0 || isSubmitting}
-          >
+          <Button type="submit" size="lg" disabled={selectedCardsCount === 0 || isSubmitting}>
             {isSubmitting ? m.trade_offer_sending() : m.trade_submit_offer()}
-          </button>
+          </Button>
           <button
             type="button"
             className="h-10 cursor-pointer rounded-lg border px-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-55 max-sm:min-h-11 max-sm:min-w-11"

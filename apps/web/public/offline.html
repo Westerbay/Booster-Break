@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241e38" />
+    <meta name="robots" content="noindex" />
+    <title>Hors connexion · Booster Break</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          1rem/1.5 system-ui,
+          sans-serif;
+        background: light-dark(#f2e8f2, #241e38);
+        color: light-dark(#34263e, #fff1df);
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      main {
+        box-sizing: border-box;
+        width: min(30rem, calc(100% - 2rem));
+        padding: clamp(1rem, 6vw, 2rem);
+        border: 1px solid light-dark(#cab7ce, #60516f);
+        border-radius: 3px;
+        background: light-dark(#fbf1f6, #302641);
+        box-shadow: 0 4px 0 light-dark(#e9ddec, #1b172b);
+      }
+      h1 {
+        line-height: 1.15;
+      }
+      a {
+        display: inline-block;
+        padding: 0.625rem 0.875rem;
+        border-radius: 2px;
+        background: light-dark(#90485c, #f7b8a4);
+        color: light-dark(#fff1df, #382437);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <strong>Booster Break</strong>
+      <h1>Hors connexion</h1>
+      <p>Retrouve ta collection dès que tu seras de nouveau en ligne.</p>
+      <p lang="en">You’re offline. Your collection will be available when you reconnect.</p>
+      <a href="">Réessayer <span lang="en">/ Try again</span></a>
+    </main>
+  </body>
+</html>

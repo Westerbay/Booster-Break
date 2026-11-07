@@ -15,7 +15,7 @@ export function ArenaRules() {
   return (
     <Dialog>
       <DialogTrigger
-        render={<Button variant="arena-outline" size="icon-lg" className="arena-book-trigger" />}
+        render={<Button variant="outline" size="icon-lg" className="arena-book-trigger" />}
         aria-label={m.pvp_rulebook()}
         title={m.pvp_rulebook()}
       >

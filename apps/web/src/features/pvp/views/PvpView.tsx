@@ -1,21 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
 import { m } from '@/paraglide/messages'
 import { ArenaRules } from '../components/ArenaRules'
 import { PvpLobby } from '../components/PvpLobby'
 
-export function PvpView({
-  opponentId,
-  invitationId,
-  onResetEntry,
-  onBoard,
-}: {
-  opponentId?: string
-  invitationId?: string
-  onResetEntry: () => void
-  onBoard: () => void
-}) {
+const duelsRoute = getRouteApi('/_dashboard/duels')
+
+export function PvpView() {
+  const { invitation: invitationId, opponent } = duelsRoute.useSearch()
+  const opponentId = invitationId ? undefined : opponent
+  const navigate = duelsRoute.useNavigate()
   const auth = useQuery(useCurrentUserQueryOption())
+
+  function resetEntry() {
+    if (invitationId || opponent) {
+      void navigate({ to: '/duels', search: {}, replace: true })
+    }
+  }
+
+  function openBoard() {
+    void navigate({ to: '/trainers' })
+  }
   if (!auth.data?.authenticated)
     return (
       <section className="pvp">
@@ -35,8 +41,8 @@ export function PvpView({
       userId={auth.data.user.id}
       initialOpponentId={opponentId}
       initialInvitationId={invitationId}
-      onResetEntry={onResetEntry}
-      onBoard={onBoard}
+      onResetEntry={resetEntry}
+      onBoard={openBoard}
     />
   )
 }

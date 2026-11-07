@@ -4,6 +4,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 
@@ -34,18 +35,25 @@ export function ConfirmationDialog({
 
   return (
     <Dialog open={open} onOpenChange={openChanged} disablePointerDismissal={isBusy}>
-      <DialogContent
-        role="alertdialog"
-        className="max-h-[calc(100dvh-2rem)] overflow-y-auto"
-        showCloseButton={false}
-      >
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+      <DialogContent role="alertdialog" showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
         <div className="flex flex-wrap justify-end gap-2">
-          <DialogClose render={<Button type="button" variant="outline" />} disabled={isBusy}>
+          <DialogClose
+            render={<Button type="button" variant="outline" size="lg" />}
+            disabled={isBusy}
+          >
             {cancelLabel}
           </DialogClose>
-          <Button type="button" variant="destructive" onClick={onConfirm} disabled={isBusy}>
+          <Button
+            type="button"
+            variant="destructive"
+            size="lg"
+            onClick={onConfirm}
+            disabled={isBusy}
+          >
             {confirmLabel}
           </Button>
         </div>

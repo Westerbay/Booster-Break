@@ -1,17 +1,11 @@
-import type { ComponentType, SVGProps } from 'react'
-import type { LeaderboardEntry } from '../lib/leaderboard-config'
-
-import type { LeaderboardKind } from '../lib/leaderboard-config'
+import { m } from '@/paraglide/messages'
+import type { LeaderboardEntry, LeaderboardKind } from '../lib/leaderboard-config'
 import { LeaderboardList } from './LeaderboardList'
 import { LeaderboardSelector } from './LeaderboardSelector'
 import { LeaderboardPodium } from './LeaderboardPodium'
 
 interface LeaderboardPanelProps {
-  title: string
-  description: string
   scoreLabel: string
-  emptyMessage: string
-  icon: ComponentType<SVGProps<SVGSVGElement>>
   players: LeaderboardEntry[]
   currentUserId?: string
   isPending: boolean
@@ -21,11 +15,7 @@ interface LeaderboardPanelProps {
 }
 
 export function LeaderboardPanel({
-  title,
-  description,
   scoreLabel,
-  emptyMessage,
-  icon: Icon,
   players,
   currentUserId,
   isPending,
@@ -33,22 +23,15 @@ export function LeaderboardPanel({
   activeLeaderboard,
   onLeaderboardChange,
 }: LeaderboardPanelProps) {
-  return (
-    <section className="leaderboard-panel" aria-busy={isPending}>
-      <div className="leaderboard-panel-toolbar">
-        <div className="leaderboard-panel-heading">
-          <Icon aria-hidden="true" />
-          <div>
-            <h2>{title}</h2>
-            <p>{description}</p>
-          </div>
-        </div>
-        <LeaderboardSelector
-          activeLeaderboard={activeLeaderboard}
-          onLeaderboardChange={onLeaderboardChange}
-        />
-      </div>
+  const finalists = players.slice(0, 3)
+  const remainingPlayers = players.slice(finalists.length)
 
+  return (
+    <div className="leaderboard-panel" aria-busy={isPending}>
+      <LeaderboardSelector
+        activeLeaderboard={activeLeaderboard}
+        onLeaderboardChange={onLeaderboardChange}
+      />
       {isPending ? (
         <div className="leaderboard-loading" aria-hidden="true">
           {Array.from({ length: 5 }).map((_, index) => (
@@ -59,25 +42,27 @@ export function LeaderboardPanel({
             </div>
           ))}
         </div>
+      ) : players.length === 0 ? (
+        <p className="leaderboard-empty">{m.leaderboard_empty()}</p>
       ) : (
         <>
-          {players.length > 0 && (
-            <LeaderboardPodium
-              players={players}
+          <LeaderboardPodium
+            players={finalists}
+            scoreLabel={scoreLabel}
+            numberFormatter={numberFormatter}
+            currentUserId={currentUserId}
+          />
+          {remainingPlayers.length > 0 && (
+            <LeaderboardList
+              players={remainingPlayers}
+              startRank={finalists.length + 1}
               scoreLabel={scoreLabel}
               numberFormatter={numberFormatter}
               currentUserId={currentUserId}
             />
           )}
-          <LeaderboardList
-            players={players}
-            currentUserId={currentUserId}
-            scoreLabel={scoreLabel}
-            emptyMessage={emptyMessage}
-            numberFormatter={numberFormatter}
-          />
         </>
       )}
-    </section>
+    </div>
   )
 }

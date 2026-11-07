@@ -173,6 +173,13 @@ ghcr.io/westerbay/booster-break/web:sha-<commit>
 ghcr.io/westerbay/booster-break/api:sha-<commit>
 ```
 
+## Install the web app
+
+Open the deployed app over HTTPS and use your browser's install or add-to-home-screen
+action. The production build also supports local testing on loopback. If the network
+is unavailable, the installed app displays a retry page. Collection data, trades and
+radio streams require a connection.
+
 ## Auth
 
 The API uses Slack OAuth as the default sign-in method. Sessions are stored in HTTP-only cookies through Prisma.

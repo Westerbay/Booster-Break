@@ -75,46 +75,43 @@ export function CollectionView() {
     : (collection.data?.pagination.totalCards ?? 0)
 
   return (
-    <div className="flex w-full justify-center">
-      <CollectionPanel
-        cards={cards}
-        isPending={isSearching ? searchableCollection.isPending : collection.isPending}
-        fitContent
-        page={needsFullCollection ? filteredPage : (collection.data?.pagination.page ?? page)}
-        pageCount={
-          needsFullCollection ? filteredPageCount : (collection.data?.pagination.pageCount ?? 1)
-        }
-        total={total}
-        totalCards={totalCards}
-        sort={sort}
-        searchQuery={searchQuery}
-        sets={sets}
-        selectedSetId={selectedSetId}
-        minimumQuantity={minimumQuantity}
-        minimumRarity={minimumRarity}
-        rarityOptions={rarityOptions}
-        onSortChange={(nextSort) => {
-          setSort(nextSort)
-          setPage(1)
-        }}
-        onSearchChange={(nextSearchQuery) => {
-          setSearchQuery(nextSearchQuery)
-          setPage(1)
-        }}
-        onSetChange={(nextSetId) => {
-          setSelectedSetId(nextSetId)
-          setPage(1)
-        }}
-        onMinimumQuantityChange={(quantity) => {
-          setMinimumQuantity(quantity)
-          setPage(1)
-        }}
-        onMinimumRarityChange={(rarity) => {
-          setMinimumRarity(rarity)
-          setPage(1)
-        }}
-        onPageChange={setPage}
-      />
-    </div>
+    <CollectionPanel
+      cards={cards}
+      isPending={isSearching ? searchableCollection.isPending : collection.isPending}
+      page={needsFullCollection ? filteredPage : (collection.data?.pagination.page ?? page)}
+      pageCount={
+        needsFullCollection ? filteredPageCount : (collection.data?.pagination.pageCount ?? 1)
+      }
+      total={total}
+      totalCards={totalCards}
+      sort={sort}
+      searchQuery={searchQuery}
+      sets={sets}
+      selectedSetId={selectedSetId}
+      minimumQuantity={minimumQuantity}
+      minimumRarity={minimumRarity}
+      rarityOptions={rarityOptions}
+      onSortChange={(nextSort) => {
+        setSort(nextSort)
+        setPage(1)
+      }}
+      onSearchChange={(nextSearchQuery) => {
+        setSearchQuery(nextSearchQuery)
+        setPage(1)
+      }}
+      onSetChange={(nextSetId) => {
+        setSelectedSetId(nextSetId)
+        setPage(1)
+      }}
+      onMinimumQuantityChange={(quantity) => {
+        setMinimumQuantity(quantity)
+        setPage(1)
+      }}
+      onMinimumRarityChange={(rarity) => {
+        setMinimumRarity(rarity)
+        setPage(1)
+      }}
+      onPageChange={setPage}
+    />
   )
 }

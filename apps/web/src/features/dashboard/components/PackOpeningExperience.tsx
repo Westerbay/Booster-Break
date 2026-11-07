@@ -314,11 +314,7 @@ export function PackOpeningExperience({
           )}
         >
           <div
-            className="pointer-events-none fixed inset-0 bg-slate-950/80 backdrop-blur-md"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none fixed inset-0 bg-linear-to-b from-slate-950/20 to-slate-950/75"
+            className="pointer-events-none fixed inset-0 bg-[var(--game-card-scrim)] backdrop-blur-md"
             aria-hidden="true"
           />
           <motion.div

@@ -56,9 +56,9 @@ export function SandboxView() {
     useBoosterCarouselSelection(boosterSets)
 
   return (
-    <div className="w-full max-w-6xl">
-      <section className="min-w-0 rounded-lg border bg-card text-card-foreground">
-        <div className="grid min-h-full gap-5 p-4 md:grid-cols-[1fr_1.1fr] md:p-5">
+    <div className="game-packs-view w-full">
+      <section className="game-panel game-pack-stage min-w-0 text-card-foreground">
+        <div className="game-pack-layout grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <PackBoosterStage
             activeSet={activeSet}
             sets={boosterSets}

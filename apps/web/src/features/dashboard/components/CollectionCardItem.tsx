@@ -18,6 +18,7 @@ interface CollectionCardItemProps {
   disabled?: boolean
   selectionLabel?: string
   onSelect?: () => void
+  onPreview?: (trigger: HTMLButtonElement) => void
   onImageClick?: () => void
   badge?: ReactNode
   nameAdornment?: ReactNode
@@ -30,10 +31,11 @@ interface CollectionCardItemProps {
 export const CollectionCardItem = memo(function CollectionCardItem({
   card,
   setName,
-  selected = false,
+  selected,
   disabled = false,
   selectionLabel,
   onSelect,
+  onPreview,
   onImageClick,
   badge,
   nameAdornment,
@@ -62,7 +64,7 @@ export const CollectionCardItem = memo(function CollectionCardItem({
         containerClassName="transition-transform hover:-translate-y-0.5"
       />
     ) : (
-      <div className="aspect-63/88 w-full rounded-md bg-muted" aria-hidden="true" />
+      <span className="block aspect-63/88 w-full rounded-md bg-muted" aria-hidden="true" />
     ))
   const separateSelection = onSelect && (previewable || onImageClick)
   let image = cardArtwork
@@ -82,40 +84,47 @@ export const CollectionCardItem = memo(function CollectionCardItem({
     )
   }
 
+  const activatesCard = !separateSelection && (onSelect || onPreview)
   const content = (
-    <article className="relative">
-      <div className="relative">
+    <span className="relative block">
+      <span className="relative block" aria-hidden={activatesCard ? true : undefined}>
         {image}
         {badge ? (
           <span className="absolute right-1 top-1 rounded-full bg-sidebar px-1.5 py-0.5 text-[0.62rem] font-black text-sidebar-foreground">
             {badge}
           </span>
         ) : null}
-      </div>
-      <div className="mt-1.5 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-1">
+      </span>
+      <span className="collection-card-details mt-1.5 flex items-start justify-between gap-2">
+        <span className="collection-card-copy min-w-0">
+          <span className="flex min-w-0 items-center gap-1">
             {nameAdornment}
-            <p className="truncate text-[0.66rem] font-black">{card.name}</p>
-          </div>
-          <p className="truncate text-[0.62rem] font-semibold text-muted-foreground">
+            <span
+              className="collection-card-name truncate text-[0.66rem] font-black"
+              title={card.name}
+            >
+              {card.name}
+            </span>
+          </span>
+          <span className="collection-card-meta block truncate text-[0.62rem] font-semibold text-muted-foreground">
             {meta.length > 0 ? meta.join(' · ') : null}
-          </p>
+          </span>
           {setName ? (
-            <p className="truncate text-[0.58rem] font-semibold text-muted-foreground">{setName}</p>
+            <span className="collection-card-set block truncate text-[0.58rem] font-semibold text-muted-foreground">
+              {setName}
+            </span>
           ) : null}
-        </div>
+        </span>
         {card.quantity !== undefined && (
-          <span className="rounded-md bg-sidebar px-1.5 py-0.5 text-[0.62rem] font-black text-sidebar-foreground">
+          <span className="collection-card-quantity rounded-md bg-sidebar px-1.5 py-0.5 text-[0.62rem] font-black text-sidebar-foreground">
             {card.quantity}x
           </span>
         )}
-      </div>
-      {children}
-    </article>
+      </span>
+    </span>
   )
 
-  if (onSelect && !separateSelection) {
+  if (activatesCard) {
     return (
       <button
         type="button"
@@ -126,9 +135,10 @@ export const CollectionCardItem = memo(function CollectionCardItem({
           className,
         )}
         disabled={disabled}
-        aria-pressed={selectionLabel ? selected : undefined}
-        aria-label={selectionLabel}
-        onClick={onSelect}
+        aria-pressed={selected}
+        aria-haspopup={onPreview ? 'dialog' : undefined}
+        aria-label={onPreview ? m.card_preview_open({ name: card.name }) : selectionLabel}
+        onClick={onPreview ? (event) => onPreview(event.currentTarget) : onSelect}
       >
         {content}
       </button>
@@ -145,6 +155,7 @@ export const CollectionCardItem = memo(function CollectionCardItem({
       )}
     >
       {content}
+      {children}
       {separateSelection && (
         <Button
           variant={selected ? 'secondary' : 'outline'}

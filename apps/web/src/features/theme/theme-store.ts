@@ -1,12 +1,37 @@
+import { flushSync } from 'react-dom'
+
 export type Theme = 'light' | 'dark'
 
 const storageKey = 'booster-break-theme'
 const listeners = new Set<() => void>()
+let requestedTheme: Theme | undefined
 
-function applyTheme(theme: Theme) {
+function commitTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme
   document.documentElement.style.colorScheme = theme
   for (const listener of listeners) listener()
+}
+
+function applyTheme(theme: Theme) {
+  const currentTheme = document.documentElement.dataset.theme
+  if (theme === (requestedTheme ?? currentTheme)) return
+
+  requestedTheme = theme
+  if (
+    !document.startViewTransition ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    requestedTheme = undefined
+    commitTheme(theme)
+    return
+  }
+
+  // Capture the landscape, the page and any portal content in the same fade.
+  document.startViewTransition(() => {
+    if (requestedTheme !== theme) return
+    requestedTheme = undefined
+    flushSync(() => commitTheme(theme))
+  })
 }
 
 function onStorage(event: StorageEvent) {
