@@ -1,0 +1,204 @@
+/* Layout shared by Boosters and the sandbox. */
+.game-shell .game-content-packs {
+  --game-content-padding-block: 1.5rem;
+  align-items: safe center;
+}
+
+.game-shell .game-pack-stage {
+  border-radius: 3px;
+}
+
+.game-pack-stage .game-pack-layout {
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.game-pack-stage .game-booster-picker {
+  min-width: 0;
+  min-height: 0;
+  justify-content: flex-start;
+  padding: 0.5rem 0.25rem;
+  background: transparent;
+}
+
+.game-pack-stage .game-booster-picker > div:first-child {
+  flex-shrink: 0;
+}
+
+.game-pack-stage .game-booster-picker > div:first-child > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.game-pack-stage .game-booster-title {
+  color: var(--foreground);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.game-pack-stage .game-booster-picker > div:first-child > svg {
+  display: none;
+}
+
+.game-pack-stage .game-booster-count {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-block: 0.75rem;
+  border-block: 1px solid var(--border);
+}
+
+.game-pack-stage .game-booster-count > p:first-child {
+  margin: 0;
+  font: 600 1.75rem/1 var(--font-display);
+  letter-spacing: 0;
+}
+
+.game-pack-stage .game-booster-options {
+  min-height: 0;
+  padding-right: 0.25rem;
+}
+
+.game-pack-stage .game-booster-options legend {
+  font: 600 1.125rem/1.2 var(--font-display);
+  color: var(--foreground);
+}
+
+.game-pack-stage .game-booster-choice {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.375rem;
+  border-radius: 2px;
+  border-color: transparent;
+  background: var(--game-surface-raised);
+  box-shadow: none;
+}
+
+.game-pack-stage .game-booster-choice[data-active='true'] {
+  background: #fff1df;
+  color: #382437;
+}
+
+.game-pack-stage .game-booster-choice[data-active='true'] p {
+  color: inherit;
+}
+
+.game-pack-stage .game-booster-logo {
+  height: 4rem;
+  background: #241e35;
+  border-radius: 0;
+}
+
+.game-pack-stage .game-booster-preview {
+  border: 0;
+  border-radius: 2px;
+  color: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+
+.game-pack-stage .game-booster-check {
+  border-radius: 0;
+  background: #fff1df;
+  color: #382437;
+}
+
+.game-booster-display-summit {
+  min-height: 0;
+  padding: 2rem 1rem;
+  border-radius: 2px;
+  border-color: #473450;
+  background: #38274e url('../assets/summit-grotto.webp') center / cover no-repeat;
+  image-rendering: pixelated;
+}
+
+.game-booster-display-summit .game-booster-carousel {
+  aspect-ratio: auto;
+  height: clamp(15rem, 34vw, 20.5rem);
+}
+
+.game-booster-display-summit img {
+  image-rendering: auto;
+  filter: none;
+}
+
+.game-booster-display-summit .game-booster-arrow {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #382437;
+  background: #fff1df;
+  color: #382437;
+  box-shadow: 0 3px 0 #21172f;
+  transition-property: none;
+  translate: none;
+}
+
+.game-booster-display-summit .game-booster-arrow:hover:not(:disabled) {
+  background: #f5b99f;
+}
+
+.game-booster-display-summit .game-booster-arrow:focus-visible {
+  outline: 2px solid #fff1df;
+  outline-offset: 2px;
+}
+
+.game-booster-display-summit .game-booster-arrow:disabled {
+  background: #584967;
+  color: #dfcddd;
+  opacity: 1;
+}
+
+.game-booster-display-summit .game-booster-status {
+  background: #302641;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.game-booster-display-summit .game-booster-status span {
+  color: #fff1df;
+  font: 500 0.9375rem/1.25 var(--font-display);
+}
+
+.game-booster-display-summit .game-booster-open {
+  background: #fff1df;
+  color: #382437;
+  border-radius: 2px;
+  box-shadow: 0 3px 0 #382437;
+  font: 600 1.125rem/1.2 var(--font-display);
+  white-space: normal;
+  height: auto;
+  min-height: 3rem;
+}
+
+@media (min-width: 768px) {
+  .game-packs-view {
+    --pack-layout-height: clamp(32rem, calc(100dvh - 9rem), 43rem);
+    max-width: calc(var(--pack-layout-height) * 1.5);
+  }
+
+  .game-pack-stage .game-pack-layout {
+    height: var(--pack-layout-height);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .game-pack-stage .game-booster-options {
+    max-height: none;
+    scrollbar-gutter: stable;
+  }
+
+  .game-booster-display-summit .game-booster-carousel {
+    height: clamp(15rem, 40dvh, 22rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .game-pack-stage .game-pack-layout {
+    padding: 0.75rem;
+  }
+
+  .game-booster-display-summit {
+    padding: 1.25rem 0.625rem;
+  }
+}

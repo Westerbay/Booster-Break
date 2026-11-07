@@ -247,7 +247,7 @@ export function TradeView() {
 
   return (
     <div className="flex w-full max-w-7xl flex-col gap-4">
-      <header className="game-page-heading p-1 pb-4">
+      <header className="game-page-heading game-panel">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">

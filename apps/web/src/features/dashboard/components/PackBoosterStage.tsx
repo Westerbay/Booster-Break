@@ -3,7 +3,6 @@ import type { PackOpenStatusResponse, PokemonSetSummary } from '@tcg-collection/
 import { motion, useReducedMotion } from 'motion/react'
 
 import { Button } from '@/components/ui/button'
-import { ArenaBackdrop } from '@/components/game/ArenaBackdrop'
 import { m } from '@/paraglide/messages'
 import { formatRemaining } from '../time'
 import {
@@ -90,9 +89,8 @@ export function PackBoosterStage({
   }
 
   return (
-    <div className="game-booster-display relative isolate flex min-h-[34rem] flex-col items-center justify-center overflow-hidden rounded-lg border p-5">
-      <ArenaBackdrop />
-      <div className="relative aspect-[1.05] min-h-0 w-full max-w-[29.4rem]">
+    <div className="game-booster-display-summit relative isolate flex flex-col items-center justify-center overflow-hidden border">
+      <div className="game-booster-carousel relative aspect-[1.05] min-h-0 w-full max-w-[29.4rem]">
         <motion.div
           className="absolute inset-0 touch-pan-y rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
           drag={sets.length > 1 ? 'x' : false}
@@ -165,28 +163,28 @@ export function PackBoosterStage({
             type="button"
             variant="outline"
             size="icon"
-            className="absolute left-0 top-1/2 z-40 -translate-y-1/2 rounded-full bg-background/90 shadow-lg backdrop-blur-sm sm:left-2"
+            className="game-booster-arrow absolute inset-y-0 left-0 z-40 my-auto sm:left-2"
             disabled={!previousSet}
-            aria-label={previousSet ? m.packs_select_aria({ name: previousSet.name }) : undefined}
+            aria-label={m.packs_previous_booster()}
             onClick={() => selectRelativeSet(-1)}
           >
-            <ChevronLeftIcon aria-hidden="true" />
+            <ChevronLeftIcon className="size-5" aria-hidden="true" />
           </Button>
           <Button
             type="button"
             variant="outline"
             size="icon"
-            className="absolute right-0 top-1/2 z-40 -translate-y-1/2 rounded-full bg-background/90 shadow-lg backdrop-blur-sm sm:right-2"
+            className="game-booster-arrow absolute inset-y-0 right-0 z-40 my-auto sm:right-2"
             disabled={!nextSet}
-            aria-label={nextSet ? m.packs_select_aria({ name: nextSet.name }) : undefined}
+            aria-label={m.packs_next_booster()}
             onClick={() => selectRelativeSet(1)}
           >
-            <ChevronRightIcon aria-hidden="true" />
+            <ChevronRightIcon className="size-5" aria-hidden="true" />
           </Button>
         </motion.div>
       </div>
       <div className="mt-4 grid w-full shrink-0 justify-items-center gap-2 md:mt-2">
-        <div className="flex flex-col items-center gap-1 rounded-2xl border bg-card/88 px-3 py-1.5 text-center shadow-sm">
+        <div className="game-booster-status flex flex-col items-center gap-1 rounded-2xl border bg-card/88 px-3 py-1.5 text-center shadow-sm">
           <span className="text-xs font-black text-muted-foreground">
             {showMultipleReady
               ? m.packs_selected_ready_plural({
@@ -211,7 +209,7 @@ export function PackBoosterStage({
           ) : null}
         </div>
         <Button
-          className="h-12 min-w-44"
+          className="game-booster-open h-12 min-w-44"
           disabled={isDisabled}
           onClick={handleOpenPack}
           aria-label={resolvedLabels.openAriaLabel({

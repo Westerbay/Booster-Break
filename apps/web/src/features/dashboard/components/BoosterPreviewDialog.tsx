@@ -3,7 +3,13 @@ import { SparklesIcon } from 'lucide-react'
 import type { PokemonCardSummary, PokemonSetSummary } from '@tcg-collection/shared'
 
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { formatRarity } from '@/features/i18n/rarity-labels'
 import { getNewCardChance, getRarityChanceLabel, groupCardsByRarity } from '../lib/pack-rarity'
@@ -61,32 +67,26 @@ export function BoosterPreviewDialog({
   return (
     <Dialog open onOpenChange={openChanged}>
       <DialogContent
-        className="max-h-[min(92dvh,54rem)] sm:max-w-[58rem] md:p-5"
+        className="max-h-[min(92dvh,54rem)] sm:max-w-[58rem]"
         closeLabel={m.packs_close_preview()}
       >
-        <div className="mb-4 flex flex-col gap-3 pr-10 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <DialogTitle className="text-lg font-black">
-              {m.packs_preview_title({ set: set.name })}
-            </DialogTitle>
-            <DialogDescription className="text-sm font-semibold text-muted-foreground">
-              {getOwnedDescription()}
-            </DialogDescription>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {canHighlightOwned ? (
-              <Button
-                type="button"
-                variant={highlightOwned ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setHighlightOwned((value) => !value)}
-                aria-pressed={highlightOwned}
-              >
-                <SparklesIcon className="size-4" aria-hidden="true" />
-                {highlightOwned ? m.packs_owned_highlight_on() : m.packs_owned_highlight_off()}
-              </Button>
-            ) : null}
-          </div>
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b pb-4 pr-10">
+          <DialogHeader>
+            <DialogTitle>{m.packs_preview_title({ set: set.name })}</DialogTitle>
+            <DialogDescription>{getOwnedDescription()}</DialogDescription>
+          </DialogHeader>
+          {canHighlightOwned ? (
+            <Button
+              type="button"
+              variant={highlightOwned ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setHighlightOwned((value) => !value)}
+              aria-pressed={highlightOwned}
+            >
+              <SparklesIcon className="size-4" aria-hidden="true" />
+              {highlightOwned ? m.packs_owned_highlight_on() : m.packs_owned_highlight_off()}
+            </Button>
+          ) : null}
         </div>
 
         {isPending ? (
@@ -99,7 +99,7 @@ export function BoosterPreviewDialog({
           <div className="grid gap-5">
             {previewCardsByRarity.map(([rarity, rarityCards]) => (
               <section key={rarity} className="grid gap-2">
-                <h4 className="text-sm font-black">
+                <h3 className="text-sm font-bold">
                   {formatRarity(rarity)}
                   {showRarityChanceLabels ? (
                     <span className="ml-2 text-xs font-black text-muted-foreground">
@@ -119,7 +119,7 @@ export function BoosterPreviewDialog({
                           })}
                     </span>
                   ) : null}
-                </h4>
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {rarityCards.map((card) => {
                     const isOwned = ownedCardIds?.has(card.id) ?? false
@@ -138,7 +138,7 @@ export function BoosterPreviewDialog({
                             src={card.imageSmall}
                             alt={card.name}
                             className={cn(
-                              'aspect-63/88 w-full rounded-md object-cover shadow-sm transition-all group-hover:-translate-y-0.5',
+                              'aspect-63/88 w-full rounded-md bg-muted object-cover motion-safe:transition-[opacity,translate,filter] motion-safe:group-hover:-translate-y-0.5',
                               isDimmed && 'opacity-35 grayscale',
                             )}
                           />

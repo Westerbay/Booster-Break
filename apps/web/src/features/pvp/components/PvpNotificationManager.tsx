@@ -1,7 +1,6 @@
 import { useState, useSyncExternalStore } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { setStoredDashboardTab } from '@/features/dashboard/lib/dashboard-tab-storage'
 import { useLocale } from '@/features/i18n/useLocale'
 import { wallClock } from '@/lib/clock'
 import { useCurrentUserQueryOption } from '@/lib/queries/auth'
@@ -50,8 +49,7 @@ function IncomingChallenges({ userId }: { userId: string }) {
   function prepare() {
     if (!incoming) return
     dismiss()
-    setStoredDashboardTab('pvp')
-    void navigate({ to: '/', search: { invitation: incoming.id } })
+    void navigate({ to: '/duels', search: { invitation: incoming.id } })
   }
 
   return (

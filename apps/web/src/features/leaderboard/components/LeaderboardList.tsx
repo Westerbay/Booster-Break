@@ -3,27 +3,26 @@ import { TrainerRow } from '@/features/trainers/components/TrainerRow'
 
 interface LeaderboardListProps {
   players: LeaderboardEntry[]
+  startRank: number
   scoreLabel: string
-  emptyMessage: string
   numberFormatter: Intl.NumberFormat
   currentUserId?: string
 }
 
 export function LeaderboardList({
   players,
+  startRank,
   scoreLabel,
-  emptyMessage,
   numberFormatter,
   currentUserId,
 }: LeaderboardListProps) {
-  if (players.length === 0) return <p className="leaderboard-empty">{emptyMessage}</p>
   return (
-    <ol className="leaderboard-roster">
+    <ol className="leaderboard-roster" start={startRank} role="list">
       {players.map((player, index) => (
         <li key={player.userId}>
           <TrainerRow
             trainer={player}
-            rank={index + 1}
+            rank={startRank + index}
             score={numberFormatter.format(player.score)}
             scoreLabel={scoreLabel}
             isSelf={player.userId === currentUserId}

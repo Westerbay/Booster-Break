@@ -87,7 +87,7 @@ export function CombatCardPicker({
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="arena-outline" size="lg" />} disabled={busy}>
+      <DialogTrigger render={<Button variant="outline" size="lg" />} disabled={busy}>
         <SearchIcon data-icon="inline-start" />
         {m.pvp_search_cards()}
       </DialogTrigger>
@@ -111,7 +111,7 @@ export function CombatCardPicker({
             </span>
           </label>
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="arena-outline" className="min-h-11" />}>
+            <DropdownMenuTrigger render={<Button variant="outline" size="lg" />}>
               <FilterIcon data-icon="inline-start" />
               {m.card_filters_label()}
               {filterCount > 0 && ` (${filterCount})`}
@@ -259,8 +259,8 @@ export function CombatCardPicker({
                       <BattleCardImage card={card} />
                     </CardPreview>
                     <Button
-                      variant="arena-outline"
-                      size="sm"
+                      variant="outline"
+                      size="lg"
                       onClick={remove}
                       disabled={busy}
                       aria-label={m.pvp_remove_card({ name: card.name })}
@@ -282,7 +282,7 @@ export function CombatCardPicker({
                 ))}
               </span>
             </div>
-            <DialogClose render={<Button variant="arena" />}>{m.pvp_picker_done()}</DialogClose>
+            <DialogClose render={<Button size="lg" />}>{m.pvp_picker_done()}</DialogClose>
           </div>
         </div>
       </DialogContent>

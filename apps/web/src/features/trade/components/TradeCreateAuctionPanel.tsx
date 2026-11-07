@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { type CollectionSort } from '@tcg-collection/shared'
 import type { AuthMeResponse } from '@tcg-collection/shared'
+import { Button } from '@/components/ui/button'
 import { m } from '@/paraglide/messages'
 import { formatCardFinish } from '@/features/dashboard/lib/card-format'
 import { formatRarity } from '@/features/i18n/rarity-labels'
@@ -179,13 +180,14 @@ export function TradeCreateAuctionPanel({
             }}
           />
 
-          <button
+          <Button
             type="submit"
-            className="cursor-pointer h-10 w-full rounded-lg game-primary-button bg-primary px-3 text-sm font-black text-primary-foreground disabled:cursor-not-allowed disabled:opacity-55 max-sm:min-h-11 max-sm:min-w-11"
+            size="lg"
+            className="w-full"
             disabled={!canCreateAuction || isSubmitting}
           >
             {isSubmitting ? m.trade_publishing() : m.trade_publish()}
-          </button>
+          </Button>
         </form>
       ) : null}
     </section>

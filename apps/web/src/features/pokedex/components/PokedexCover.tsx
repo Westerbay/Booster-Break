@@ -60,19 +60,14 @@ export function PokedexCover({ sets, set, onSetChange, onOpen, onWarm }: Pokedex
 
       <div className="pokedex-cover-edition">
         {set && (
-          <Button
-            variant="arena"
-            className="pokedex-cover-choose"
-            onClick={onOpen}
-            onFocus={onWarm}
-          >
+          <Button size="lg" className="pokedex-cover-choose" onClick={onOpen} onFocus={onWarm}>
             <BookOpenIcon aria-hidden="true" />
             {m.pokedex_cover_open()}
           </Button>
         )}
         <PokedexSetPicker
           sets={sets}
-          variant={set ? 'arena-outline' : 'arena'}
+          variant={set ? 'outline' : 'default'}
           onSetChange={onSetChange}
         />
       </div>

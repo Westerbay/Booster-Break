@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from '@/features/toast/toast-store'
 import { useDevLoginMutationOption } from '@/lib/mutations/auth'
-import { cn } from '@/lib/utils'
 import { m } from '@/paraglide/messages'
 import { fetchAuthProviders, fetchHealth, getApiUrl } from '../lib/api'
 import { GithubIcon } from './GithubIcon'
@@ -25,16 +24,9 @@ interface AuthNavCardProps {
   isPending: boolean
   onLogout: () => void
   isLoggingOut: boolean
-  className?: string
 }
 
-export function AuthNavCard({
-  auth,
-  isPending,
-  onLogout,
-  isLoggingOut,
-  className,
-}: AuthNavCardProps) {
+export function AuthNavCard({ auth, isPending, onLogout, isLoggingOut }: AuthNavCardProps) {
   const [isStartingSignIn, setIsStartingSignIn] = useState(false)
   const authProviders = useQuery({
     queryKey: ['auth', 'providers'],
@@ -62,65 +54,61 @@ export function AuthNavCard({
 
   if (isPending) {
     return (
-      <div className={cn('rounded-lg border border-sidebar-border bg-sidebar p-2.5', className)}>
-        <div className="h-3 w-20 rounded-full bg-sidebar-foreground/18" />
-        <div className="mt-2 h-8 rounded-lg bg-sidebar-foreground/12" />
+      <div className="flex h-11 items-center gap-2 px-2" aria-hidden="true">
+        <div className="size-7 rounded-md bg-sidebar-foreground/12" />
+        <div className="h-2.5 w-16 rounded-sm bg-sidebar-foreground/18" />
       </div>
     )
   }
 
   if (!auth?.authenticated) {
     if (authProviders.data?.developmentAuthEnabled) {
-      return <DevelopmentAuthForm className={className} />
+      return <DevelopmentAuthForm />
     }
 
-    return (
-      <SignInDialog
-        className={className}
-        onSignIn={handleOAuthSignIn}
-        isStartingSignIn={isStartingSignIn}
-      />
-    )
+    return <SignInDialog onSignIn={handleOAuthSignIn} isStartingSignIn={isStartingSignIn} />
   }
 
+  const playerName = auth.user.displayName ?? auth.user.pseudo
+  const logoutLabel = isLoggingOut ? m.auth_signing_out() : m.auth_sign_out()
+
   return (
-    <div className={cn('rounded-lg border border-sidebar-border bg-sidebar p-2.5', className)}>
-      <div className="flex min-w-0 items-center gap-2.5">
+    <div className="flex min-w-0 items-center justify-between gap-1">
+      <div className="flex min-w-0 items-center gap-2 pl-2">
         {auth.user.avatarUrl ? (
           <img
             src={auth.user.avatarUrl}
             alt=""
-            className="size-9 shrink-0 rounded-lg object-cover"
+            className="size-7 shrink-0 rounded-[2px] object-cover"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/35 bg-secondary text-primary">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-[2px] border border-sidebar-border bg-secondary text-primary">
             <UserIcon className="size-4" aria-hidden="true" />
           </div>
         )}
 
-        <div className="min-w-0">
-          <p className="truncate text-sm font-black">{auth.user.displayName ?? auth.user.pseudo}</p>
-          <p className="truncate text-xs font-medium text-sidebar-foreground/70">
-            {m.auth_player()}
-          </p>
-        </div>
+        <p className="truncate text-sm font-semibold" title={playerName}>
+          {playerName}
+        </p>
       </div>
 
-      <button
+      <Button
         type="button"
-        className="mt-2 flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg text-xs font-bold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring disabled:cursor-not-allowed disabled:opacity-60"
+        variant="ghost"
+        size="icon-lg"
+        aria-label={logoutLabel}
+        title={logoutLabel}
         onClick={onLogout}
         disabled={isLoggingOut}
       >
-        <LogOutIcon className="size-3.5" aria-hidden="true" />
-        {isLoggingOut ? m.auth_signing_out() : m.auth_sign_out()}
-      </button>
+        <LogOutIcon aria-hidden="true" />
+      </Button>
     </div>
   )
 }
 
-function DevelopmentAuthForm({ className }: { className?: string }) {
+function DevelopmentAuthForm() {
   const [devPseudo, setDevPseudo] = useState('')
   const devPseudoInputId = useId()
   const queryClient = useQueryClient()
@@ -145,15 +133,11 @@ function DevelopmentAuthForm({ className }: { className?: string }) {
     })
   }
 
+  const loginLabel = devLoginMutation.isPending ? m.auth_dev_logging_in() : m.auth_dev_login()
+
   return (
-    <form
-      className={cn(
-        'grid gap-2 rounded-lg border border-sidebar-border bg-sidebar p-2.5',
-        className,
-      )}
-      onSubmit={handleDevLoginSubmit}
-    >
-      <label htmlFor={devPseudoInputId} className="text-xs font-black text-sidebar-foreground">
+    <form className="grid grid-cols-[minmax(0,1fr)_auto] gap-1" onSubmit={handleDevLoginSubmit}>
+      <label htmlFor={devPseudoInputId} className="sr-only">
         {m.auth_dev_pseudo_label()}
       </label>
       <input
@@ -163,29 +147,30 @@ function DevelopmentAuthForm({ className }: { className?: string }) {
         placeholder={m.auth_dev_pseudo_placeholder()}
         autoComplete="nickname"
         autoCapitalize="none"
-        className="h-9 min-w-0 rounded-lg border border-sidebar-accent/24 bg-sidebar px-2.5 text-sm font-semibold text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+        className="h-11 min-w-0 rounded-md border border-sidebar-border bg-sidebar px-2 text-base text-sidebar-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring md:text-sm"
         disabled={devLoginMutation.isPending}
         onChange={(event) => setDevPseudo(event.target.value)}
       />
-      <button
+      <Button
         type="submit"
-        className="flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-sidebar-accent px-3 text-sm font-black text-sidebar-accent-foreground transition-colors hover:bg-sidebar-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring disabled:cursor-not-allowed disabled:opacity-60"
+        variant="outline"
+        size="icon-lg"
+        aria-label={loginLabel}
+        title={loginLabel}
         disabled={!devPseudo.trim() || devLoginMutation.isPending}
       >
-        <LogInIcon className="size-4" aria-hidden="true" />
-        {devLoginMutation.isPending ? m.auth_dev_logging_in() : m.auth_dev_login()}
-      </button>
+        <LogInIcon aria-hidden="true" />
+      </Button>
     </form>
   )
 }
 
 interface SignInDialogProps {
-  className?: string
   isStartingSignIn: boolean
   onSignIn: (provider: 'slack' | 'github') => void | Promise<void>
 }
 
-function SignInDialog({ className, isStartingSignIn, onSignIn }: SignInDialogProps) {
+function SignInDialog({ isStartingSignIn, onSignIn }: SignInDialogProps) {
   const handleSlackSignInClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     void onSignIn('slack')
@@ -199,16 +184,9 @@ function SignInDialog({ className, isStartingSignIn, onSignIn }: SignInDialogPro
   return (
     <Dialog>
       <DialogTrigger
-        render={
-          <Button
-            size="lg"
-            className={cn(
-              'h-11 w-full bg-sidebar-accent text-sm font-black text-sidebar-accent-foreground hover:bg-sidebar-accent/90',
-              className,
-            )}
-          />
-        }
+        render={<Button variant="outline" size="lg" className="w-full justify-start px-2" />}
       >
+        <LogInIcon aria-hidden="true" />
         {m.auth_open_sign_in()}
       </DialogTrigger>
       <DialogContent closeLabel={m.auth_close_sign_in()} className="gap-5 p-5 sm:max-w-xl sm:p-6">

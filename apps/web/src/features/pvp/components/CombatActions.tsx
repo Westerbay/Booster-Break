@@ -92,12 +92,7 @@ export function CombatActions({
             <small>{m.pvp_before_type()}</small>
           </span>
         </div>
-        <Button
-          variant="arena"
-          size="lg"
-          disabled={!canSubmit || locked || pending}
-          onClick={onSubmit}
-        >
+        <Button size="lg" disabled={!canSubmit || locked || pending} onClick={onSubmit}>
           <span>{pending ? m.pvp_sending() : m.pvp_seal()}</span>
           <SwordsIcon data-icon="inline-end" />
         </Button>

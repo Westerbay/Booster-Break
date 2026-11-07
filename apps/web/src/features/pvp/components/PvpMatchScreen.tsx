@@ -251,11 +251,11 @@ function RoundSequence({
         <h2>{ready ? title : m.pvp_reveal_hint()}</h2>
         {match.status === 'active' && <ArenaDeadline expiresAt={match.expiresAt} />}
         <div>
-          <Button variant="arena-outline" onClick={replayRound} disabled={!ready}>
+          <Button variant="outline" size="lg" onClick={replayRound} disabled={!ready}>
             <RotateCcwIcon data-icon="inline-start" />
             {m.pvp_replay()}
           </Button>
-          <Button variant="arena" onClick={onNext} disabled={!ready}>
+          <Button size="lg" onClick={onNext} disabled={!ready}>
             {round.number < match.rounds.length || match.status === 'active'
               ? m.pvp_next_round()
               : m.pvp_result_open()}
@@ -289,7 +289,7 @@ function MatchResult({
       )}
       {match.reason === 'timeout' && <p>{m.pvp_timeout()}</p>}
       {match.reason === 'forfeit' && <p>{m.pvp_forfeit()}</p>}
-      <Button variant="arena" onClick={onBoard}>
+      <Button size="lg" onClick={onBoard}>
         {m.pvp_board_link()}
       </Button>
     </div>

@@ -52,17 +52,16 @@ export function LanguageSelector({
   return (
     <div
       className={cn(
-        'rounded-lg border p-2',
-        isCompact && 'p-1.5',
-        isSurface ? 'border-border bg-background' : 'border-sidebar-border bg-sidebar',
+        isSurface && 'rounded-lg border border-border bg-background p-2',
+        isSurface && isCompact && 'p-1.5',
         className,
       )}
     >
       <p
         className={cn(
           'mb-2 text-[0.68rem] font-black uppercase tracking-normal',
-          isCompact && 'sr-only',
-          isSurface ? 'text-muted-foreground' : 'text-sidebar-foreground/60',
+          (!isSurface || isCompact) && 'sr-only',
+          'text-muted-foreground',
         )}
       >
         {m.language_label()}
@@ -72,21 +71,25 @@ export function LanguageSelector({
           aria-label={m.language_label()}
           className={cn(
             'flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2',
-            isCompact && 'h-9 px-2.5',
             isSurface
               ? 'border-border bg-card text-card-foreground hover:bg-muted focus-visible:ring-ring'
-              : 'border-sidebar-border bg-secondary/50 text-sidebar-foreground hover:bg-secondary focus-visible:ring-sidebar-ring',
+              : 'h-11 gap-1.5 border-transparent px-2 text-xs font-semibold hover:bg-muted aria-expanded:bg-muted focus-visible:ring-sidebar-ring',
+            isSurface && isCompact && 'h-9 px-2.5',
           )}
         >
-          <span className="flex items-center gap-2">
+          <span className={cn('flex items-center', isSurface ? 'gap-2' : 'gap-1.5')}>
             <span aria-hidden="true">{activeLanguage.flag}</span>
             <span>{activeLanguage.shortLabel}</span>
           </span>
-          <ChevronDownIcon aria-hidden="true" />
+          <ChevronDownIcon
+            className={isSurface ? undefined : 'size-3.5 shrink-0'}
+            aria-hidden="true"
+          />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          align="start"
+          align={isSurface ? 'start' : 'end'}
+          side={isSurface ? 'bottom' : 'top'}
           sideOffset={6}
           className={cn('w-32', contentClassName)}
           positionerClassName={positionerClassName}

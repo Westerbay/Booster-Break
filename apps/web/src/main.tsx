@@ -17,3 +17,10 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 )
+
+// Keep the worker out of development so it cannot interfere with Vite reloads.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  void navigator.serviceWorker
+    .register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' })
+    .catch((error: unknown) => console.warn('Unable to start offline support.', error))
+}

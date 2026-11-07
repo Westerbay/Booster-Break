@@ -1,5 +1,4 @@
 import { CheckIcon, EyeIcon, LoaderCircleIcon, PackageOpenIcon, StarIcon } from 'lucide-react'
-import type { KeyboardEvent } from 'react'
 import type { PokemonSetSummary } from '@tcg-collection/shared'
 
 import { buttonVariants } from '@/components/ui/button'
@@ -41,19 +40,17 @@ export function BoosterPickerPanel({
     <div className="game-booster-picker flex flex-col justify-between gap-5 rounded-lg p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-black uppercase tracking-normal text-muted-foreground">
-            {title ?? m.packs_title()}
-          </p>
+          <h1 className="game-booster-title">{title ?? m.packs_title()}</h1>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
             {description ?? m.packs_description()}
           </p>
           {showCollectionCount ? (
-            <>
+            <div className="game-booster-count">
               <p className="mt-3 text-3xl font-black tabular-nums">{collectionCount}</p>
               <p className="text-sm font-semibold text-muted-foreground">
                 {m.packs_cards_in_collection()}
               </p>
-            </>
+            </div>
           ) : null}
         </div>
         <PackageOpenIcon className="shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -222,33 +219,31 @@ function BoosterChoiceCard({
   onSelectSet,
 }: BoosterChoiceCardProps) {
   const selectSet = () => onSelectSet(set.id)
-  function selectSetWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.target !== event.currentTarget) return
-    if (event.key !== 'Enter' && event.key !== ' ') return
-    event.preventDefault()
-    selectSet()
-  }
-
   const isComplete = set.total > 0 && ownedSetPullCount >= set.total
   const previewImageUrl = set.logoUrl ?? set.symbolUrl ?? set.boosterImageUrl
   const imageFrameClassName = hideSetTitle
-    ? 'pointer-events-none relative z-10 flex h-20 items-center justify-center overflow-hidden rounded-md bg-background'
-    : 'pointer-events-none relative z-10 flex h-16 items-center justify-center overflow-hidden rounded-md bg-background'
+    ? 'game-booster-logo pointer-events-none relative z-10 flex h-20 items-center justify-center overflow-hidden rounded-md bg-background'
+    : 'game-booster-logo pointer-events-none relative z-10 flex h-16 items-center justify-center overflow-hidden rounded-md bg-background'
   const imageClassName = hideSetTitle
     ? 'max-h-14 max-w-[90%] object-contain'
     : 'max-h-11 max-w-[86%] object-contain'
 
   return (
     <div
-      role="button"
-      tabIndex={0}
       data-active={isActive}
-      aria-pressed={isActive}
-      className="group relative min-h-32 cursor-pointer overflow-hidden rounded-lg border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[active=true]:border-primary data-[active=true]:ring-2 data-[active=true]:ring-primary/40"
-      onClick={selectSet}
-      onKeyDown={selectSetWithKeyboard}
+      className="game-booster-choice relative min-h-32 overflow-hidden rounded-lg border bg-card p-3 text-left transition-colors hover:border-ring data-[active=true]:border-primary data-[active=true]:ring-2 data-[active=true]:ring-primary/40"
     >
-      <span className="sr-only">{m.packs_select_aria({ name: set.name })}</span>
+      <button
+        type="button"
+        className="game-booster-select absolute inset-0 z-10 cursor-pointer rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        aria-pressed={isActive}
+        onClick={selectSet}
+      >
+        <span className="sr-only">{m.packs_select_aria({ name: set.name })}</span>
+        {isComplete && (
+          <span className="sr-only">{m.packs_set_complete_aria({ name: set.name })}</span>
+        )}
+      </button>
       <div className={imageFrameClassName}>
         {previewImageUrl ? (
           <img src={previewImageUrl} alt="" className={imageClassName} />
@@ -258,7 +253,7 @@ function BoosterChoiceCard({
           </span>
         )}
       </div>
-      <div className="relative z-10 mt-3 flex items-center justify-between gap-2">
+      <div className="pointer-events-none relative z-10 mt-3 flex items-center justify-between gap-2">
         {hideSetTitle ? (
           <p className="pointer-events-none line-clamp-2 min-w-0 text-sm font-black leading-5 text-muted-foreground tabular-nums">
             {m.packs_owned_pulls({ owned: ownedSetPullCount, total: set.total })}
@@ -268,19 +263,18 @@ function BoosterChoiceCard({
             {set.name}
           </p>
         )}
-        <div className="relative shrink-0">
+        <div className="pointer-events-auto relative shrink-0">
           <button
             className={buttonVariants({
               variant: 'outline',
               size: 'icon-sm',
-              className: 'peer relative z-20 rounded-full bg-background/95 shadow-sm',
+              className:
+                'game-booster-preview peer relative z-20 rounded-full bg-background/95 shadow-sm',
             })}
             type="button"
             aria-label={m.packs_view_cards_aria({ name: set.name })}
-            onClick={(event) => {
-              event.stopPropagation()
-              onPreviewSet(set.id)
-            }}
+            aria-haspopup="dialog"
+            onClick={() => onPreviewSet(set.id)}
           >
             <EyeIcon className="size-4" aria-hidden="true" />
           </button>
@@ -289,17 +283,14 @@ function BoosterChoiceCard({
           </span>
         </div>
       </div>
-      {isComplete ? (
-        <>
-          <span className="sr-only">{m.packs_set_complete_aria({ name: set.name })}</span>
-          <StarIcon
-            className="absolute left-2 top-2 z-20 size-5 fill-amber-400 text-amber-400 drop-shadow-sm"
-            aria-hidden="true"
-          />
-        </>
-      ) : null}
+      {isComplete && (
+        <StarIcon
+          className="pointer-events-none absolute left-2 top-2 z-20 size-5 fill-amber-400 text-amber-400 drop-shadow-sm"
+          aria-hidden="true"
+        />
+      )}
       {isActive ? (
-        <span className="absolute right-2 top-2 z-20 flex size-5 items-center justify-center rounded-full bg-sidebar text-sidebar-foreground">
+        <span className="game-booster-check pointer-events-none absolute right-2 top-2 z-20 flex size-5 items-center justify-center rounded-full bg-sidebar text-sidebar-foreground">
           <CheckIcon className="size-3" aria-hidden="true" />
         </span>
       ) : null}

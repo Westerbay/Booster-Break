@@ -1,5 +1,12 @@
-import { useMemo, useState } from 'react'
-import { ChevronDownIcon, SearchIcon } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import {
+  ArrowDownWideNarrowIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  LibraryBigIcon,
+  SearchIcon,
+} from 'lucide-react'
 import type {
   CollectionSetOption,
   CollectionSort,
@@ -14,6 +21,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useLocale } from '@/features/i18n/useLocale'
 import { m } from '@/paraglide/messages'
 import { CardImageDialog } from './CardImageDialog'
 import { CollectionCardItem } from './CollectionCardItem'
@@ -22,7 +30,6 @@ import { CardListFiltersMenu } from './CardListFiltersMenu'
 interface CollectionPanelProps {
   cards: UserCollectionCard[]
   isPending: boolean
-  fitContent?: boolean
   page: number
   pageCount: number
   total: number
@@ -64,7 +71,6 @@ const getSortActions = (): Array<{ label: string; value: CollectionSort }> => [
 export function CollectionPanel({
   cards,
   isPending,
-  fitContent = false,
   page,
   pageCount,
   total,
@@ -83,8 +89,20 @@ export function CollectionPanel({
   onMinimumRarityChange,
   onPageChange,
 }: CollectionPanelProps) {
+  const { locale } = useLocale()
   const [selectedCard, setSelectedCard] = useState<UserCollectionCard>()
+  const previewTrigger = useRef<HTMLButtonElement>(null)
   const sortActions = getSortActions()
+  const activeSortLabel =
+    sortActions.find((action) => action.value === sort)?.label ?? m.sort_recent()
+  const numberFormatter = new Intl.NumberFormat(locale)
+  const isSearching = searchQuery.trim().length > 0
+  const hasFilters = Boolean(selectedSetId || minimumRarity || minimumQuantity > 1)
+  const emptyMessage = isSearching
+    ? m.trade_search_no_match()
+    : hasFilters
+      ? m.collection_filters_empty()
+      : m.collection_empty()
   const setNameById = useMemo(() => new Map(sets.map((set) => [set.id, set.name])), [sets])
   const activeSet = sets.find((set) => set.id === selectedSetId)
   const setTriggerLabel = activeSet
@@ -94,155 +112,173 @@ export function CollectionPanel({
   return (
     <>
       <section
-        className={
-          fitContent
-            ? 'game-panel game-collection w-full max-w-6xl rounded-lg border bg-card p-4'
-            : 'game-panel game-collection min-w-0 rounded-lg border bg-card p-4'
-        }
+        aria-labelledby="collection-title"
+        className="game-panel game-index-panel game-collection w-full min-w-0 max-w-6xl"
       >
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-start gap-x-8 gap-y-4 sm:justify-between">
-            <div>
-              <h2 className="text-lg font-black">{m.collection_title()}</h2>
-              <p className="text-sm text-muted-foreground">
-                {m.collection_summary({ totalCards, total })}
-              </p>
-            </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-4">
-              <div className="flex w-full flex-col gap-2 sm:h-9 sm:w-auto sm:flex-row sm:items-center sm:overflow-hidden sm:rounded-md sm:border sm:bg-background sm:transition-colors sm:focus-within:border-foreground sm:focus-within:ring-2 sm:focus-within:ring-foreground/15">
-                <div className="flex h-11 w-full items-center gap-2 rounded-md border bg-background px-2.5 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/15 sm:h-full sm:w-auto sm:flex-none sm:rounded-none sm:border-0 sm:px-0 sm:pl-2.5 sm:focus-within:ring-0">
-                  <SearchIcon
-                    aria-hidden="true"
-                    className="size-4 shrink-0 text-muted-foreground"
-                  />
-                  <input
-                    value={searchQuery}
-                    onChange={(event) => onSearchChange(event.target.value)}
-                    className="min-w-0 flex-1 bg-transparent text-base placeholder:text-xs focus:outline-none sm:w-28 sm:text-sm"
-                    placeholder={m.trade_search_by_pokemon_placeholder()}
-                    aria-label={m.trade_search_by_pokemon_aria()}
-                  />
-                </div>
-                <div aria-hidden="true" className="hidden h-5 w-px shrink-0 bg-border sm:block" />
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger
-                    aria-label={m.collection_filter_set_label()}
-                    className="flex h-9 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-md border bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/15 sm:h-full sm:w-48 sm:flex-none sm:rounded-l-none sm:rounded-r-md sm:border-0 sm:focus-visible:ring-0"
-                  >
-                    <span className="truncate">{setTriggerLabel}</span>
-                    <ChevronDownIcon
-                      aria-hidden="true"
-                      className="size-4 shrink-0 text-muted-foreground"
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    sideOffset={6}
-                    className="max-h-72 w-auto min-w-(--anchor-width) max-w-64"
-                  >
-                    <DropdownMenuRadioGroup
-                      value={selectedSetId ?? ''}
-                      onValueChange={(value) => onSetChange(value || undefined)}
-                    >
-                      <DropdownMenuRadioItem
-                        value=""
-                        closeOnClick
-                        label={m.collection_filter_all_sets()}
-                        className="cursor-pointer focus:bg-muted focus:text-foreground"
-                      >
-                        {m.collection_filter_all_sets()}
-                      </DropdownMenuRadioItem>
-                      {sets.map((set) => (
-                        <DropdownMenuRadioItem
-                          key={set.id}
-                          value={set.id}
-                          closeOnClick
-                          label={`${set.name} (${set.count})`}
-                          className="cursor-pointer focus:bg-muted focus:text-foreground"
-                        >
-                          {set.name} ({set.count})
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+        <header className="game-index-heading game-collection-heading">
+          <div className="game-index-emblem" aria-hidden="true">
+            <LibraryBigIcon />
+          </div>
+          <div className="game-index-heading-copy">
+            <h1 id="collection-title">{m.collection_title()}</h1>
+          </div>
+          {!isPending && (
+            <dl className="game-collection-stats">
+              <div>
+                <dt>{m.collection_copies_label()}</dt>
+                <dd>{numberFormatter.format(totalCards)}</dd>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <CardListFiltersMenu
-                  minimumQuantity={minimumQuantity}
-                  minimumRarity={minimumRarity}
-                  rarityOptions={rarityOptions}
-                  onMinimumQuantityChange={onMinimumQuantityChange}
-                  onMinimumRarityChange={onMinimumRarityChange}
-                />
+              <div>
+                <dt>{m.collection_variants_label()}</dt>
+                <dd>{numberFormatter.format(total)}</dd>
+              </div>
+            </dl>
+          )}
+        </header>
+
+        <div className="game-collection-toolbar">
+          <label className="game-collection-search">
+            <SearchIcon aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder={m.collection_search_label()}
+              aria-label={m.trade_search_by_pokemon_aria()}
+            />
+          </label>
+
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger
+              aria-label={`${m.collection_filter_set_label()}. ${setTriggerLabel}`}
+              title={setTriggerLabel}
+              className="game-collection-set"
+            >
+              <span className="min-w-0 wrap-anywhere text-left">{setTriggerLabel}</span>
+              <ChevronDownIcon aria-hidden="true" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              sideOffset={6}
+              className="max-h-72 min-w-48 max-w-64"
+            >
+              <DropdownMenuRadioGroup
+                value={selectedSetId ?? ''}
+                onValueChange={(value) => onSetChange(value || undefined)}
+              >
+                <DropdownMenuRadioItem value="" closeOnClick className="min-h-11 cursor-pointer">
+                  {m.collection_filter_all_sets()}
+                </DropdownMenuRadioItem>
+                {sets.map((set) => (
+                  <DropdownMenuRadioItem
+                    key={set.id}
+                    value={set.id}
+                    closeOnClick
+                    className="min-h-11 cursor-pointer"
+                  >
+                    {set.name} ({set.count})
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <CardListFiltersMenu
+            minimumQuantity={minimumQuantity}
+            minimumRarity={minimumRarity}
+            rarityOptions={rarityOptions}
+            onMinimumQuantityChange={onMinimumQuantityChange}
+            onMinimumRarityChange={onMinimumRarityChange}
+          />
+
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger aria-label={`${m.collection_sort_label()}. ${activeSortLabel}`}>
+              <ArrowDownWideNarrowIcon aria-hidden="true" />
+              <span className="mr-auto truncate">{activeSortLabel}</span>
+              <ChevronDownIcon aria-hidden="true" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={6} className="min-w-36">
+              <DropdownMenuRadioGroup
+                value={sort}
+                onValueChange={(value) => {
+                  const action = sortActions.find((option) => option.value === value)
+                  if (action) onSortChange(action.value)
+                }}
+              >
                 {sortActions.map((action) => (
-                  <Button
+                  <DropdownMenuRadioItem
                     key={action.value}
-                    type="button"
-                    variant={sort === action.value ? 'default' : 'outline'}
-                    className="h-9"
-                    onClick={() => onSortChange(action.value)}
+                    value={action.value}
+                    closeOnClick
+                    className="min-h-11 cursor-pointer"
                   >
                     {action.label}
-                  </Button>
+                  </DropdownMenuRadioItem>
                 ))}
-              </div>
-            </div>
-          </div>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {isPending ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-44 rounded-lg bg-muted" />
-            ))}
-          </div>
-        ) : cards.length > 0 ? (
-          <div className="game-collection-grid mt-6 grid min-w-0 grid-cols-2 gap-3">
-            {cards.map((card) => (
-              <CollectionCardItem
-                key={`${card.id}-${card.finish ?? 'normal'}`}
-                card={card}
-                setName={setNameById.get(card.setId)}
-                onSelect={() => setSelectedCard(card)}
-                className="w-full transition-transform hover:-translate-y-1 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-            ))}
-          </div>
-        ) : searchQuery.trim() !== '' ? (
-          <div className="mt-4 rounded-lg border bg-background p-4 text-sm font-semibold text-muted-foreground">
-            {m.trade_search_no_match()}
-          </div>
-        ) : (
-          <div className="mt-4 rounded-lg border bg-background p-4 text-sm font-semibold text-muted-foreground">
-            {m.collection_empty()}
-          </div>
-        )}
-        <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-10 w-24 justify-self-start"
-            disabled={page <= 1 || isPending}
-            onClick={() => onPageChange(Math.max(page - 1, 1))}
-          >
-            {m.packs_previous()}
-          </Button>
-          <p className="text-sm font-black tabular-nums text-muted-foreground">
-            {page} / {pageCount}
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-10 w-24 justify-self-end"
-            disabled={page >= pageCount || isPending}
-            onClick={() => onPageChange(Math.min(page + 1, pageCount))}
-          >
-            {m.packs_next()}
-          </Button>
+
+        <div className="game-collection-results" aria-busy={isPending}>
+          {isPending ? (
+            <div className="game-collection-grid" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, index) => (
+                <div key={index} className="game-collection-placeholder" />
+              ))}
+            </div>
+          ) : cards.length > 0 ? (
+            <div className="game-collection-grid">
+              {cards.map((card) => (
+                <CollectionCardItem
+                  key={`${card.id}-${card.finish ?? 'normal'}`}
+                  card={card}
+                  setName={setNameById.get(card.setId)}
+                  onPreview={(trigger) => {
+                    previewTrigger.current = trigger
+                    setSelectedCard(card)
+                  }}
+                  className="game-collection-card w-full"
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="game-collection-empty">{emptyMessage}</p>
+          )}
+
+          {pageCount > 1 && (
+            <nav className="game-collection-pagination" aria-label={m.collection_pages_label()}>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={page <= 1 || isPending}
+                onClick={() => onPageChange(Math.max(page - 1, 1))}
+              >
+                <ChevronLeftIcon aria-hidden="true" />
+                {m.packs_previous()}
+              </Button>
+              <p>{m.collection_page_label({ page, total: pageCount })}</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={page >= pageCount || isPending}
+                onClick={() => onPageChange(Math.min(page + 1, pageCount))}
+              >
+                {m.packs_next()}
+                <ChevronRightIcon aria-hidden="true" />
+              </Button>
+            </nav>
+          )}
         </div>
       </section>
       {selectedCard ? (
-        <CardImageDialog card={selectedCard} onClose={() => setSelectedCard(undefined)} />
+        <CardImageDialog
+          card={selectedCard}
+          onClose={() => setSelectedCard(undefined)}
+          finalFocus={previewTrigger}
+        />
       ) : null}
     </>
   )
