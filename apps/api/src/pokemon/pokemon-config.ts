@@ -4,7 +4,6 @@ export const PINNED_MODERN_BOOSTER_SET_IDS = ['me05', 'me04'] as const
 export const FEATURED_HISTORICAL_BOOSTER_SET_IDS = ['swsh12.5'] as const
 export const SCHEDULED_BOOSTER_RELEASES: Readonly<Record<string, string>> = {
   me05: '2026-09-28T10:00:00+02:00',
-  me06: '2026-11-12T10:00:00+01:00',
 }
 export const BOOSTER_TEASE_MS = 7 * 24 * 60 * 60 * 1_000
 export const REQUIRED_AVAILABLE_BOOSTER_SETS = {
