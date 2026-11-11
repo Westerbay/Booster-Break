@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import {
   BOOSTER_TEASE_MS,
   SCHEDULED_BOOSTER_RELEASES,
+  WITHHELD_BOOSTER_SET_IDS,
   getTeasedBoosterSetIds,
   getUnreleasedBoosterSetIds,
   isBoosterOpeningEnabled,
@@ -50,6 +51,13 @@ describe('scheduled booster releases', () => {
   test('never locks unscheduled boosters', () => {
     expect(isBoosterOpeningEnabled('me04', 0)).toBe(true)
     expect(isBoosterOpeningEnabled('swsh12.5', 0)).toBe(true)
+  })
+
+  test('keeps withheld boosters locked and silent forever', () => {
+    for (const setId of WITHHELD_BOOSTER_SET_IDS) {
+      expect(isBoosterOpeningEnabled(setId, Number.MAX_SAFE_INTEGER)).toBe(false)
+      expect(getTeasedBoosterSetIds(Number.MAX_SAFE_INTEGER)).not.toContain(setId)
+    }
   })
 
   test('keeps a booster locked and silent when its instant cannot be parsed', () => {

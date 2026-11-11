@@ -4,8 +4,9 @@ export const PINNED_MODERN_BOOSTER_SET_IDS = ['me05', 'me04'] as const
 export const FEATURED_HISTORICAL_BOOSTER_SET_IDS = ['swsh12.5'] as const
 export const SCHEDULED_BOOSTER_RELEASES: Readonly<Record<string, string>> = {
   me05: '2026-09-28T10:00:00+02:00',
-  me06: '2026-11-12T10:00:00+01:00',
 }
+// Locked and silent until removed from this list, whatever its schedule says.
+export const WITHHELD_BOOSTER_SET_IDS: readonly string[] = ['me06']
 export const BOOSTER_TEASE_MS = 7 * 24 * 60 * 60 * 1_000
 export const REQUIRED_AVAILABLE_BOOSTER_SETS = {
   me05: 120,
@@ -14,8 +15,10 @@ export const REQUIRED_AVAILABLE_BOOSTER_SETS = {
 } as const
 const getBoosterReleaseAt = (setId: string): number => Date.parse(SCHEDULED_BOOSTER_RELEASES[setId])
 // NaN-safe: an unparsable instant keeps the booster locked.
-export const getUnreleasedBoosterSetIds = (now = Date.now()): string[] =>
-  Object.keys(SCHEDULED_BOOSTER_RELEASES).filter((setId) => !(now >= getBoosterReleaseAt(setId)))
+export const getUnreleasedBoosterSetIds = (now = Date.now()): string[] => [
+  ...WITHHELD_BOOSTER_SET_IDS,
+  ...Object.keys(SCHEDULED_BOOSTER_RELEASES).filter((setId) => !(now >= getBoosterReleaseAt(setId))),
+]
 export const getTeasedBoosterSetIds = (now = Date.now()): string[] =>
   getUnreleasedBoosterSetIds(now).filter(
     (setId) => now >= getBoosterReleaseAt(setId) - BOOSTER_TEASE_MS,
